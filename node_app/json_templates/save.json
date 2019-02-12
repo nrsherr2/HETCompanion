@@ -1,0 +1,108 @@
+{
+    "chest_ecg": {
+        "initial_timestamp": 1549481651000,
+        "delta": [5, 5, 5],
+        "data": [
+            16777215, 16777215, 16777215, 16777215
+        ]
+    },
+
+    "chest_ppg": {
+        "initial_timestamp": 1549481651000,
+        "delta": [5, 5, 5],
+        "data": [
+            65535, 65535, 65535, 65535
+        ]
+    },
+
+    "chest_inertia": {
+        "initial_timestamp": 1549481651000,
+        "delta": [10],
+        "data": [
+            {
+                "x": 10,
+                "y": 10,
+                "z": 10
+            },
+            {
+                "x": 10,
+                "y": 10,
+                "z": 10
+            }
+        ]
+    },
+
+    "wrist_inertia": {
+        "initial_timestamp": 1549481651000,
+        "delta": [10],
+        "data": [
+            {
+                "x": 10,
+                "y": 10,
+                "z": 10
+            },
+            {
+                "x": 10,
+                "y": 10,
+                "z": 10
+            }
+        ]
+    },
+
+    "wrist_ppg": {
+        "initial_timestamp": 1549481651000,
+        "delta": [10],
+        "data": [
+            65535, 65535
+        ]
+    },
+
+    "wrist_oz": {
+        "initial_timestamp": 1549481651000,
+        "delta": [10],
+        "data": [
+            65535, 65535
+        ]
+    },
+
+    "wrist_poz": {
+        "initial_timestamp": 1549481651000,
+        "delta": [10],
+        "data": [
+            65535, 65535
+        ]
+    },
+
+    "wrist_roz": {
+        "initial_timestamp": 1549481651000,
+        "delta": [10],
+        "data": [
+            65535, 65535
+        ]
+    },
+
+    "wrist_moz": {
+        "initial_timestamp": 1549481651000,
+        "delta": [10],
+        "data": [
+            65535, 65535
+        ]
+    },
+
+
+    "wrist_temperature": {
+        "initial_timestamp": 1549481651000,
+        "delta": [10],
+        "data": [
+            65535, 65535
+        ]
+    },
+
+    "wrist_humidity": {
+        "initial_timestamp": 1549481651000,
+        "delta": [10],
+        "data": [
+            65535, 65535
+        ]
+    }
+}
