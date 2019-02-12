@@ -6,8 +6,8 @@ const {OAuth2Client} = require('google-auth-library');// Google API for authenti
 
 // Local Imports
 var routes = require('./api/routes/routes.js');
-var {pool} = require('./mysql.js');
 const ClientException = require('./api/exceptions/ClientException.js')
+const ServerException = require('./api/exceptions/ServerException.js')
 
 // Config
 const PORT = 8080;
@@ -24,7 +24,7 @@ app.use(helmet());
 
 // Only allow application/json body requests
 app.use(bodyParser.json({
-    type: 'applica    // TODO: validate/save the datation/json',
+    type: 'application/json',
     limit: '100mb'
 }));
 
@@ -93,18 +93,32 @@ app.use(function (err, request, response, next) {
             message: err.message
         });
     } else {
-        next();
+        next(err);
     }
 });
 
-// Catch-All Error catching
+// Server Error Catching
 app.use(function (err, request, response, next) {
-    console.error(err.stack)
+    if (err instanceof ServerException) {
+        response.status(500).json({
+            status: 500,
+            url: request.originalUrl,
+            method: request.method,
+            message: err.message
+        });
+    } else {
+        next(err);
+    }
+});
+
+// Error Catch-All
+app.use(function (err, request, response, next) {
+    console.error(err.stack);
     response.status(500).json({
         status: 500,
         url: request.originalUrl,
         method: request.method,
-        message: err.message
+        message: 'An unhandled internal error has occurred.'
     });
 });
 
@@ -112,12 +126,7 @@ app.use(function (err, request, response, next) {
 var server = app.listen(PORT);
 console.log(`RESTful API server started on: ${PORT}`);
 
-pool.query('SELECT 1 + 1 AS solution', function (err, rows, fields) {
-    if (err) 
-        throw err
-    console.log('The solution is: ', rows[0].solution)
-})
-
+// Quit the app: Stop accepting requests and close all database connections
 function quit() {
     console.log('Shutting down...');
     server.close();

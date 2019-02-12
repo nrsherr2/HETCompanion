@@ -1,3 +1,4 @@
+// List all api versions and their route
 exports.versions = function(request, response) {
     response.json({
         versions: {
