@@ -1,5 +1,5 @@
 exports.index = function(request, response) {
     response.json({
-        data: "/api/v1/data"
+        save: "/api/v1/save"
     });
 };

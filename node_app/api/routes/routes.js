@@ -2,6 +2,11 @@ const API_PATH = '/api';
 const V1_PATH = API_PATH + '/v1'
 
 module.exports = function(app) {
+
+    // / Endpoint
+    var index = require('../controllers/index.js');
+    app.route('/')
+        .all(index.index);
     
     // /api Endpoint
     var api = require('../controllers/api.js');

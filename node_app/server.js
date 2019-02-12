@@ -7,6 +7,7 @@ const {OAuth2Client} = require('google-auth-library');// Google API for authenti
 // Local Imports
 var routes = require('./api/routes/routes.js');
 var {pool} = require('./mysql.js');
+const ClientException = require('./api/exceptions/ClientException.js')
 
 // Config
 const PORT = 8080;
@@ -23,7 +24,7 @@ app.use(helmet());
 
 // Only allow application/json body requests
 app.use(bodyParser.json({
-    type: 'application/json',
+    type: 'applica    // TODO: validate/save the datation/json',
     limit: '100mb'
 }));
 
@@ -73,13 +74,38 @@ app.use(function(request, response, next) {
 routes(app);
 
 // Respond with a 404 error if the route is not found.
-app.use(function(req, res) {
+app.use(function(request, respinse) {
     res.status(404).send({
         status: 404,
-        url: req.originalUrl,
-        method: req.method,
+        url: request.originalUrl,
+        method: request.method,
         message: 'No endpoint exists with the requested path.'
     })
+});
+
+// Client Error Catching
+app.use(function (err, request, response, next) {
+    if (err instanceof ClientException) {
+        response.status(400).json({
+            status: 400,
+            url: request.originalUrl,
+            method: request.method,
+            message: err.message
+        });
+    } else {
+        next();
+    }
+});
+
+// Catch-All Error catching
+app.use(function (err, request, response, next) {
+    console.error(err.stack)
+    response.status(500).json({
+        status: 500,
+        url: request.originalUrl,
+        method: request.method,
+        message: err.message
+    });
 });
 
 // Start listening for requests on the defined port
