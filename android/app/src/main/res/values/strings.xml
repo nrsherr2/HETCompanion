@@ -3,4 +3,6 @@
     <string name="action_settings">Settings</string>
     <string name="signin">Please Sign In</string>
     <string name="loginmsg">A Google Sign-In is required in order to use this application.</string>
+    <string name="plsbt">Connect HET Device</string>
+    <string name="btexplain">This app requires at least 1 ASSIST HET Device be paired with this device</string>
 </resources>
