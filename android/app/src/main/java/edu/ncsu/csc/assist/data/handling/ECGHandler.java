@@ -6,12 +6,16 @@ import java.util.List;
 
 import edu.ncsu.csc.assist.data.objects.ECGData;
 
-public class ECGHandler {
+public class ECGHandler extends Handler{
 
     private static final int BYTES_PER_VALUE = 3;
     private static final int NUMBER_OF_VALUES = 4;
 
-    private static List<ECGData> ecgHistory = new LinkedList<ECGData>();
+    private List<ECGData> ecgHistory = new LinkedList<ECGData>();
+
+    public ECGHandler() {
+        super(BYTES_PER_VALUE, NUMBER_OF_VALUES);
+    }
 
     /**
      * Expects 12 bytes of ecg data sent from the HET Chest device
@@ -21,13 +25,15 @@ public class ECGHandler {
      * @param buffer    12 bytes of ecg data
      * @param timestamp the time that the first data value in the buffer was read
      */
-    public static void handle(byte[] buffer, long timestamp) {
-        for (int i = 0; i < NUMBER_OF_VALUES * BYTES_PER_VALUE; i += BYTES_PER_VALUE) {
+    @Override
+    public void handle(byte[] buffer, long timestamp) {
+        for (int i = 0; i < getTotalByteSize(); i += BYTES_PER_VALUE) {
             byte[] dataBytes = {0, buffer[i], buffer[i + 1], buffer[i + 2]};
             ByteBuffer wrapped = ByteBuffer.wrap(dataBytes);
             int reading = wrapped.getInt();
-            ecgHistory.add(new ECGData(reading, timestamp + i * 5));
-            sendRawData(ecgHistory.get(ecgHistory.size() - 1));
+            ECGData dataPoint = new ECGData(reading, timestamp + i * 5);
+            ecgHistory.add(dataPoint);
+            sendRawData(dataPoint);
         }
         double heartRate = determineHeartRate();
         sendProcessedData(heartRate, timestamp);
@@ -38,7 +44,7 @@ public class ECGHandler {
      *
      * @return heart rate
      */
-    private static double determineHeartRate() {
+    private double determineHeartRate() {
         return 0;
     }
 
@@ -47,7 +53,7 @@ public class ECGHandler {
      *
      * @param dataPoint an ECGData object that holds the reading and the time it was recorded
      */
-    private static void sendRawData(ECGData dataPoint) {
+    private void sendRawData(ECGData dataPoint) {
 
     }
 
@@ -58,7 +64,7 @@ public class ECGHandler {
      * @param heartrate calculated heart rate from the ecg data
      * @param timestamp the time that the heart rate was recorded
      */
-    private static void sendProcessedData(double heartrate, long timestamp) {
+    private void sendProcessedData(double heartrate, long timestamp) {
 
     }
 

@@ -2,11 +2,11 @@ package edu.ncsu.csc.assist.data.objects;
 
 public class ECGData {
     private int reading;
-    private long timeRecorded;
+    private long timestamp;
 
-    public ECGData(int reading, long timeRecorded){
+    public ECGData(int reading, long timestamp){
         this.reading = reading;
-        this.timeRecorded = timeRecorded;
+        this.timestamp = timestamp;
     }
 
     public int getReading() {
@@ -18,10 +18,10 @@ public class ECGData {
     }
 
     public long getTimeRecorded() {
-        return timeRecorded;
+        return timestamp;
     }
 
-    public void setTimeRecorded(long timeRecorded) {
-        this.timeRecorded = timeRecorded;
+    public void setTimeRecorded(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

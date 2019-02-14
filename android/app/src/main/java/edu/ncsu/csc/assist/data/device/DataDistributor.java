@@ -1,11 +1,9 @@
 package edu.ncsu.csc.assist.data.device;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
 import edu.ncsu.csc.assist.data.handling.ECGHandler;
+import edu.ncsu.csc.assist.data.handling.Handler;
 
 /**
  * Data Package Structure
@@ -22,100 +20,97 @@ import edu.ncsu.csc.assist.data.handling.ECGHandler;
  */
 public class DataDistributor {
 
-    private static int CHEST_ECG_BYTES = 12;
-    private static int CHEST_PPG_BYTES = 8;
-    private static int CHEST_INERTIAL_BYTES = 12;
-    private static int CHEST_DATA_BYTES = CHEST_ECG_BYTES + CHEST_PPG_BYTES + CHEST_INERTIAL_BYTES;
+    private static Handler ecgHandler;
+    //many other handlers will go here
 
-    private static int WRIST_INERTIAL_BYTES = 12;
-    private static int WRIST_PPG_BYTES = 4;
-    private static int WRIST_OZ_BYTES = 2;
-    private static int WRIST_POZ_BYTES = 2;
-    private static int WRIST_ROZ_BYTES = 2;
-    private static int WRIST_MOZ_BYTES = 2;
-    private static int WRIST_TMP_BYTES = 2;
-    private static int WRIST_HUMID_BYTES = 2;
-    private static int WRIST_DATA_BYTES = WRIST_INERTIAL_BYTES + WRIST_PPG_BYTES + WRIST_OZ_BYTES + WRIST_POZ_BYTES + WRIST_ROZ_BYTES + WRIST_MOZ_BYTES + WRIST_TMP_BYTES + WRIST_HUMID_BYTES;
+    //once other handlers are created, the below values will only be initialized through the constructor
+    private int CHEST_ECG_BYTES = 12;
+    private int CHEST_PPG_BYTES = 8;
+    private int CHEST_INERTIAL_BYTES = 12;
+    private int CHEST_DATA_BYTES = CHEST_ECG_BYTES + CHEST_PPG_BYTES + CHEST_INERTIAL_BYTES;
 
-    public static void distributeChestData(byte[] data, long timestamp) {
+    private int WRIST_INERTIAL_BYTES = 12;
+    private int WRIST_PPG_BYTES = 4;
+    private int WRIST_OZ_BYTES = 2;
+    private int WRIST_POZ_BYTES = 2;
+    private int WRIST_ROZ_BYTES = 2;
+    private int WRIST_MOZ_BYTES = 2;
+    private int WRIST_TMP_BYTES = 2;
+    private int WRIST_HUMID_BYTES = 2;
+    private int WRIST_DATA_BYTES = WRIST_INERTIAL_BYTES + WRIST_PPG_BYTES + WRIST_OZ_BYTES + WRIST_POZ_BYTES + WRIST_ROZ_BYTES + WRIST_MOZ_BYTES + WRIST_TMP_BYTES + WRIST_HUMID_BYTES;
+
+    public DataDistributor() {
+        ecgHandler = new ECGHandler();
+        //many other handlers will be initialized here
+
+        CHEST_ECG_BYTES = ecgHandler.getTotalByteSize();
+        //many other values will be initialized here.
+    }
+
+    public void distributeChestData(byte[] data, long timestamp) {
 
         if (data.length != CHEST_DATA_BYTES) {
             throw new IllegalArgumentException("HET Chest data received did not match expected length");
         }
-        List<Byte> listedData = new ArrayList(Arrays.asList(data));
-        Iterator<Byte> iterator = listedData.iterator();
+        int offset = 0;
 
         //--CHEST DATA PARSING--
         //ECG data
-        byte[] ecgData = new byte[CHEST_ECG_BYTES];
-        for (int i = 0; i < CHEST_ECG_BYTES; i++) {
-            ecgData[i] = iterator.next();
-        }
-        //PPG data
-        byte[] ppgData = new byte[CHEST_PPG_BYTES];
-        for (int i = 0; i < CHEST_PPG_BYTES; i++) {
-            ppgData[i] = iterator.next();
-        }
-        //Inertial data
-        byte[] inertialData = new byte[CHEST_INERTIAL_BYTES];
-        for (int i = 0; i < CHEST_INERTIAL_BYTES; i++) {
-            inertialData[i] = iterator.next();
-        }
+        byte[] ecgData = Arrays.copyOfRange(data, offset, offset + CHEST_ECG_BYTES);
+        offset += CHEST_ECG_BYTES;
 
-        ECGHandler.handle(ecgData, timestamp);
+        //PPG data
+        byte[] ppgData = Arrays.copyOfRange(data, offset, offset + CHEST_PPG_BYTES);
+        offset += CHEST_PPG_BYTES;
+
+        //Inertial data
+        byte[] inertialData = Arrays.copyOfRange(data, offset, offset + CHEST_INERTIAL_BYTES);
+        offset += CHEST_INERTIAL_BYTES;
+
+        ecgHandler.handle(ecgData, timestamp);
         //ChestPPGHandler.handle(ppgData, timestamp);
         //ChestInertialHandler.handle(inertialHandler, timestamp);
     }
 
-    public static void distributeWristData(byte[] data, long timestamp) {
+    public void distributeWristData(byte[] data, long timestamp) {
 
         if (data.length != WRIST_DATA_BYTES) {
             throw new IllegalArgumentException("HET Wrist data received did not match expected length");
         }
-        List<Byte> listedData = new ArrayList(Arrays.asList(data));
-        Iterator<Byte> iterator = listedData.iterator();
+        int offset = 0;
 
         //--WRIST DATA PARSING--
         //Inertial data
-        byte[] inertialData = new byte[WRIST_INERTIAL_BYTES];
-        for (int i = 0; i < WRIST_INERTIAL_BYTES; i++) {
-            inertialData[i] = iterator.next();
-        }
+        byte[] inertialData = Arrays.copyOfRange(data, offset, offset + WRIST_INERTIAL_BYTES);
+        offset += WRIST_INERTIAL_BYTES;
+
         //PPG data
-        byte[] ppgData = new byte[WRIST_PPG_BYTES];
-        for (int i = 0; i < WRIST_PPG_BYTES; i++) {
-            ppgData[i] = iterator.next();
-        }
+        byte[] ppgData = Arrays.copyOfRange(data, offset, offset + WRIST_PPG_BYTES);
+        offset += WRIST_PPG_BYTES;
+
         //oz data
-        byte[] ozData = new byte[WRIST_OZ_BYTES];
-        for (int i = 0; i < WRIST_OZ_BYTES; i++) {
-            ozData[i] = iterator.next();
-        }
+        byte[] ozData = Arrays.copyOfRange(data, offset, offset + WRIST_OZ_BYTES);
+        offset += WRIST_OZ_BYTES;
+
         //poz data
-        byte[] pozData = new byte[WRIST_POZ_BYTES];
-        for (int i = 0; i < WRIST_POZ_BYTES; i++) {
-            pozData[i] = iterator.next();
-        }
+        byte[] pozData = Arrays.copyOfRange(data, offset, offset + WRIST_POZ_BYTES);
+        offset += WRIST_POZ_BYTES;
+
         //roz data
-        byte[] rozData = new byte[WRIST_ROZ_BYTES];
-        for (int i = 0; i < WRIST_ROZ_BYTES; i++) {
-            rozData[i] = iterator.next();
-        }
+        byte[] rozData = Arrays.copyOfRange(data, offset, offset + WRIST_ROZ_BYTES);
+        offset += WRIST_ROZ_BYTES;
+
         //moz data
-        byte[] mozData = new byte[WRIST_MOZ_BYTES];
-        for (int i = 0; i < WRIST_MOZ_BYTES; i++) {
-            mozData[i] = iterator.next();
-        }
+        byte[] mozData = Arrays.copyOfRange(data, offset, offset + WRIST_MOZ_BYTES);
+        offset += WRIST_MOZ_BYTES;
+
         //tmp data
-        byte[] tmpData = new byte[WRIST_TMP_BYTES];
-        for (int i = 0; i < WRIST_TMP_BYTES; i++) {
-            tmpData[i] = iterator.next();
-        }
+        byte[] tmpData = Arrays.copyOfRange(data, offset, offset + WRIST_TMP_BYTES);
+        offset += WRIST_TMP_BYTES;
+
         //humid data
-        byte[] humidData = new byte[WRIST_HUMID_BYTES];
-        for (int i = 0; i < WRIST_HUMID_BYTES; i++) {
-            humidData[i] = iterator.next();
-        }
+        byte[] humidData = Arrays.copyOfRange(data, offset, offset + WRIST_HUMID_BYTES);
+        offset += WRIST_HUMID_BYTES;
 
 
         //send all the data off to respective handlers...
