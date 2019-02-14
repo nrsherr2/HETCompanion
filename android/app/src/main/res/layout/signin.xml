@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="80dp"
         android:text="@string/signin"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline3"
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,4 +46,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/sign_in_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="109dp"
+        android:layout_marginStart="109dp"
+        android:layout_marginTop="20dp"
+        app:buttonSize="wide"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
 </android.support.constraint.ConstraintLayout>

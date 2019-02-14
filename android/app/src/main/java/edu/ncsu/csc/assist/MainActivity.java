@@ -1,17 +1,31 @@
 package edu.ncsu.csc.assist;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
-public class MainActivity extends AppCompatActivity {
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.signin.SignIn;
+import com.google.android.gms.tasks.Task;
+
+import static com.google.android.gms.auth.api.credentials.CredentialPickerConfig.Prompt.SIGN_IN;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     // int id of current tab id
     private int currentTab;
+
+    GoogleSignInClient googleSignInClient;
 
     // reference to current fragment if we need it
     private Fragment fragment;
@@ -52,6 +66,43 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Set the options sign in to be the default ones
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions
+                .DEFAULT_SIGN_IN).build();
+        //create a client for signing in
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        setContentView(R.layout.signin);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account != null) {
+            initiateDashboard();
+        } else {
+            SignInButton signInButton = findViewById(R.id.sign_in_button);
+            signInButton.setOnClickListener(this);
+        }
+    }
+
+    @Override
+    public void onClick(View v){
+        switch (v.getId()){
+            case R.id.sign_in_button:
+                signIn();
+                break;
+        }
+    }
+
+    private void signIn() {
+        Intent signInIntent = googleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent,SIGN_IN);
+    }
+
+    private void initiateDashboard() {
         setContentView(R.layout.dashboard);
         BottomNavigationView navigation = findViewById(R.id.main_nav);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -95,5 +146,35 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        if (requestCode == SIGN_IN) {
+            // The Task returned from this call is always completed, no need to attach
+            // a listener.
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            // Signed in successfully, show authenticated UI.
+           initiateDashboard();
+        } catch (ApiException e) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            System.out.println( "signInResult:failed code=" + e.getStatusCode());
+        }
     }
 }
