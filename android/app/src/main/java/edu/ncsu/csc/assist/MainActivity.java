@@ -69,7 +69,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Set the options sign in to be the default ones
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions
-                .DEFAULT_SIGN_IN).build();
+                .DEFAULT_SIGN_IN).requestIdToken(getString(R.string.server_client_id))
+                .requestEmail().build();
         //create a client for signing in
         googleSignInClient = GoogleSignIn.getClient(this, gso);
 
@@ -169,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            System.out.println("Generated account token to send on requests to the cloud: '" + account.getIdToken() + "'");
             // Signed in successfully, show authenticated UI.
            initiateDashboard();
         } catch (ApiException e) {
