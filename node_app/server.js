@@ -51,17 +51,19 @@ app.use(function(request, response, next) {
             //const domain = payload['hd'];
 
             // Save the Google userid for other methods to use
-            response.locals.googleUserId = userid;
+            request.locals = {}; //Clear out and define locals variable space
+            request.locals.googleUserId = userid;
+            console.log(`Received UserID ${userid}`);
             next();
         }
-        verify().catch(console.error);
-    }
-
-    console.log(`Authentication failed for ${request.ip}`);
-    response.status(401).json({
-        status: 401,
-        message: 'Authentication failed.'
-    })
+        verify().catch(error => {
+            console.log(`Authentication failed for ${request.ip}`);
+            response.status(401).json({
+                status: 401,
+                message: 'Authentication failed.'
+            })
+        });
+    }   
 });
 
 // Register the routes
