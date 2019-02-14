@@ -11,7 +11,7 @@ const ServerException = require('./api/exceptions/ServerException.js')
 
 // Config
 const PORT = 8080;
-const GOOGLE_CLIENT_ID = '732133341279-0ku0f3vfe4b1dca3tobo3s4pvnc0g6gu.apps.googleusercontent.com'; //Tony's dev client id
+const GOOGLE_CLIENT_ID = '594190355836-gtka26ga090eq4sjuo6d3fjudb08e09a.apps.googleusercontent.com';
 
 // Create an instance of the express app
 var app = express();
@@ -36,7 +36,6 @@ app.use(function(request, response, next) {
 
 // Check if the user is authenticated
 app.use(function(request, response, next) {
-    var isAuthenticated = false;
     var authToken = request.get('Authorization');
 
     if (authToken) {
@@ -52,21 +51,17 @@ app.use(function(request, response, next) {
             //const domain = payload['hd'];
 
             // Save the Google userid for other methods to use
-            res.locals.googleUserId = userid;
-            isAuthenticated = true;
+            response.locals.googleUserId = userid;
+            next();
         }
         verify().catch(console.error);
     }
 
-    if (isAuthenticated) {
-        next();
-    } else {
-        console.log(`Authentication failed for ${request.ip}`);
-        response.status(401).json({
-            status: 401,
-            message: 'Authentication failed.'
-        })
-    }
+    console.log(`Authentication failed for ${request.ip}`);
+    response.status(401).json({
+        status: 401,
+        message: 'Authentication failed.'
+    })
 });
 
 // Register the routes
