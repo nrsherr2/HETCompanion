@@ -1,0 +1,21 @@
+{
+  "name": "node_app",
+  "version": "1.0.0",
+  "description": "REST API for receiving health data and managing access to stored data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "Tony Pappas",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "google-auth-library": "^3.1.0",
+    "helmet": "^3.15.0",
+    "mysql": "^2.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.9"
+  }
+}
