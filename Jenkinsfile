@@ -76,6 +76,12 @@ pipeline {
                 }
             }
         }
+        stage('Build APK') {
+            steps {
+                sh 'cd android && ./gradlew :app:assembleDebug'
+                archiveArtifacts artifacts: '**/*.apk', fingerprint: true
+            }
+        }
     }
     post {
         always {
