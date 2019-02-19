@@ -1,3 +1,4 @@
+0. Setup Docker
 1. Go to `host/jenkins`
 2. Type `docker exec docker_jenkins-master_1 cat /var/jenkins_home/secrets/initialAdminPassword`
 3. Use password from Step 2 to gain admin access in Jenkins
