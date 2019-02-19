@@ -47,12 +47,8 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
-                sh 'cd /opt/android-sdk-linux/tools/bin && yes | ./sdkmanager --licenses'
-            }
-        }
-        stage('Build') {
-            steps {
                 sh 'chmod +x android/gradlew'
+                sh 'cd /opt/android-sdk-linux/tools/bin && yes | ./sdkmanager --licenses'
                 withCredentials([
                     file(credentialsId: 'local.properties', variable: 'local'),
                     file(credentialsId: 'debug.keystore', variable: 'debug'),
@@ -60,11 +56,14 @@ pipeline {
                 ]) {
                     sh "cp \$local android/local.properties"
                     sh 'mkdir android/app/keystore'
-                    sh "cp \$debug android/app/keystore/local.properties"
-                    sh "cp \$production android/app/keystore/local.properties"
-                    sh 'cd android && ./gradlew :app:build --stacktrace'
+                    sh "cp \$debug android/app/keystore/debug.keystore.jks"
+                    sh "cp \$production android/app/keystore/production.keystore.jks"
                 }
-               
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'cd android && ./gradlew :app:build --stacktrace'               
             }
         }
         stage('Test') {
