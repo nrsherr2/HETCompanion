@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int currentTab;
 
     GoogleSignInClient googleSignInClient;
+    GoogleSignInAccount googleSignInAccount;
 
     // reference to current fragment if we need it
     private Fragment fragment;
@@ -169,8 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            System.out.println("Generated account token to send on requests to the cloud: '" + account.getIdToken() + "'");
+            googleSignInAccount = completedTask.getResult(ApiException.class);
             // Signed in successfully, show authenticated UI.
            initiateDashboard();
         } catch (ApiException e) {
