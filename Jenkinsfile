@@ -38,12 +38,7 @@ def isPRMergeBuild() {
 }
 
 pipeline {
-    agent {
-        docker {
-            image 'gradle:4.9-jdk10'
-        }
-    }
-
+    agent any
     stages {
         stage('Build') {
             steps {
