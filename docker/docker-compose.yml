@@ -1,0 +1,28 @@
+version: '3.6'
+services:
+  nginx: 
+    depends_on:
+      - jenkins-master
+    build: ./nginx
+    restart: always
+    ports:
+      - 80:80
+    networks:
+      - nginx-net
+
+  jenkins-master:
+    build: ./jenkins-master
+    environment:
+      - JENKINS_OPTS="--prefix=/jenkins"
+    restart: always
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      # This is only needed if you want to run builds within docker containers
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - nginx-net
+
+volumes:
+  jenkins-data:
+networks:
+  nginx-net:
