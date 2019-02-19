@@ -48,7 +48,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'chmod +x android/gradlew'
-                sh './android/gradlew compileDebugSources --stacktrace'
+                sh './android/gradlew build --stacktrace'
             }
         }
         stage('Test') {
