@@ -45,6 +45,11 @@ pipeline {
     }
 
     stages {
+        stage('Setup') {
+            steps {
+                sh 'cd /opt/android-sdk-linux/tools/bin && yes | ./sdkmanager --licenses'
+            }
+        }
         stage('Build') {
             steps {
                 sh 'chmod +x android/gradlew'
