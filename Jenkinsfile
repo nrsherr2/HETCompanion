@@ -59,9 +59,9 @@ pipeline {
                     file(credentialsId: 'production.keystore', variable: 'production'),
                 ]) {
                     sh "cp \$local android/local.properties"
-                    sh 'mkdir android/keystore'
-                    sh "cp \$debug android/keystore/local.properties"
-                    sh "cp \$production android/keystore/local.properties"
+                    sh 'mkdir android/app/keystore'
+                    sh "cp \$debug android/app/keystore/local.properties"
+                    sh "cp \$production android/app/keystore/local.properties"
                     sh 'cd android && ./gradlew :app:build --stacktrace'
                 }
                
