@@ -68,7 +68,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh './android/gradlew :app:test --stacktrace'
+                sh 'cd android && ./gradlew :app:test --stacktrace'
             }
             post {
                 always {
