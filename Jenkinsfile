@@ -38,7 +38,12 @@ def isPRMergeBuild() {
 }
 
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'xmartlabs/jenkins-android'
+        }
+    }
+
     stages {
         stage('Build') {
             steps {
