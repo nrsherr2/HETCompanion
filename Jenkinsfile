@@ -72,7 +72,8 @@ pipeline {
             }
             post {
                 always {
-                    junit 'build/test-results/**/*.xml'
+                    sh 'pwd'
+                    junit 'app/build/test-results/**/*.xml'
                 }
             }
         }
