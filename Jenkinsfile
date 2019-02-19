@@ -53,8 +53,15 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'chmod +x android/gradlew'
-                withCredentials([file(credentialsId: 'local.properties', variable: 'local')]) {
+                withCredentials([
+                    file(credentialsId: 'local.properties', variable: 'local'),
+                    file(credentialsId: 'debug.keystore', variable: 'debug'),
+                    file(credentialsId: 'production.keystore', variable: 'production'),
+                ]) {
                     sh "cp \$local android/local.properties"
+                    sh 'mkdir android/keystore'
+                    sh "cp \$debug android/keystore/local.properties"
+                    sh "cp \$production android/keystore/local.properties"
                     sh 'cd android && ./gradlew :app:build --stacktrace'
                 }
                
