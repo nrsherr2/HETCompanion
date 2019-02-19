@@ -26,7 +26,7 @@ String buildSlackMessage() {
                       }
                   ],
                   "footer": "${buildTime}",
-                  "ts": ${System.currentTimeMillis()}
+                  "ts": ${System.currentTimeMillis()/1000}
               }
           ]
       }
