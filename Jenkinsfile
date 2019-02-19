@@ -72,7 +72,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'android/build/test-results/**/*.xml'
+                    junit 'build/test-results/**/*.xml'
                 }
             }
         }
