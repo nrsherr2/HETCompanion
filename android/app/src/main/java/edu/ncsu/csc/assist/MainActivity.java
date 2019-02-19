@@ -1,5 +1,8 @@
 package edu.ncsu.csc.assist;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
@@ -27,6 +30,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     GoogleSignInClient googleSignInClient;
     GoogleSignInAccount googleSignInAccount;
+
+
+    //device system for connecting to bluetooth devices, including BLE
+    private BluetoothAdapter bluetoothAdapter;
+    private static int REQUEST_ENABLE_BT = 6274;
 
     // reference to current fragment if we need it
     private Fragment fragment;
@@ -91,8 +99,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onClick(View v){
-        switch (v.getId()){
+    public void onClick(View v) {
+        switch (v.getId()) {
             case R.id.sign_in_button:
                 signIn();
                 break;
@@ -101,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void signIn() {
         Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent,SIGN_IN);
+        startActivityForResult(signInIntent, SIGN_IN);
     }
 
     private void initiateDashboard() {
@@ -114,6 +122,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        Toolbar toolbar = findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
 
+    }
+
+    private void initiateBluetooth() {
+        //initialize the adapter
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        bluetoothAdapter = bluetoothManager.getAdapter();
+        //now make sure bluetooth is running and that it is enabled.
+        //will display a dialog box asking to run bluetooth
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
     }
 
     private boolean loadFragment(Fragment fragment) {
@@ -172,11 +192,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             googleSignInAccount = completedTask.getResult(ApiException.class);
             // Signed in successfully, show authenticated UI.
-           initiateDashboard();
+            initiateDashboard();
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            System.out.println( "signInResult:failed code=" + e.getStatusCode());
+            System.out.println("signInResult:failed code=" + e.getStatusCode());
         }
     }
 }
