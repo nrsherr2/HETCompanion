@@ -48,7 +48,11 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'chmod +x android/gradlew'
-                sh 'cd android && ./gradlew :app:build --stacktrace'
+                withCredentials([file(credentialsId: 'local.properties', variable: 'local')]) {
+                    sh "cp \$local android/local.properties"
+                    sh 'cd android && ./gradlew :app:build --stacktrace'
+                }
+               
             }
         }
         stage('Test') {
