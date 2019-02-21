@@ -90,17 +90,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //create a client for signing in
         googleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        setContentView(R.layout.signin);
     }
 
     @Override
     protected void onStart() {
+        setContentView(R.layout.signin);
         super.onStart();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        System.out.println("100");
         if (account != null) {
-            //initiateDashboard();
-            initiateBluetooth();
+            initiateDashboard();
+            //initiateBluetooth();
         } else {
+            setContentView(R.layout.signin);
             SignInButton signInButton = findViewById(R.id.sign_in_button);
             signInButton.setOnClickListener(this);
         }
@@ -108,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        System.out.println("click");
         switch (v.getId()) {
             case R.id.sign_in_button:
                 signIn();
@@ -118,6 +121,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void signIn() {
         Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, SIGN_IN);
+        System.out.println("sign in started");
+        initiateBluetooth();
     }
 
     private void initiateDashboard() {
@@ -133,8 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initiateGPS() {
-        //go to the bluetooth screen
-        setContentView(R.layout.bluetooth_connect);
+        System.out.println("gps time");
         //make sure location comes up first
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
                 PackageManager.PERMISSION_GRANTED) {
@@ -144,7 +148,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initiateBluetooth() {
+        //go to the bluetooth screen
+        setContentView(R.layout.bluetooth_connect);
         initiateGPS();
+        System.out.println("bluetooth time");
         //initialize the adapter
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context
                 .BLUETOOTH_SERVICE);
@@ -155,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
+
     }
 
     private boolean loadFragment(Fragment fragment) {
@@ -207,6 +215,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
+        if(requestCode == REQUEST_ENABLE_BT){
+            initiateDashboard();
+        }
 
     }
 
@@ -214,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             googleSignInAccount = completedTask.getResult(ApiException.class);
             // Signed in successfully, show authenticated UI.
-            initiateDashboard();
+            initiateBluetooth();
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
