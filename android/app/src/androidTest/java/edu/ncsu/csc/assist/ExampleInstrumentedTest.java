@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("edu.ncsu.csc.assist", appContext.getPackageName());
+        assertEquals("edu.ncsu.csc.assist.debug", appContext.getPackageName());
     }
 }

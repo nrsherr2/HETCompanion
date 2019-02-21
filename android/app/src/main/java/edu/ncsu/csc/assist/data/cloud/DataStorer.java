@@ -1,10 +1,10 @@
 package edu.ncsu.csc.assist.data.cloud;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -12,9 +12,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import androidx.room.Room;
 import edu.ncsu.csc.assist.data.objects.GenericData;
-import edu.ncsu.csc.assist.data.sqlite.DatabaseContract;
-import edu.ncsu.csc.assist.data.sqlite.SQLiteManager;
+import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
+import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
 
 public class DataStorer {
 
@@ -22,7 +23,7 @@ public class DataStorer {
     private Queue<GenericData> saveQueue;
 
     // Database
-    private SQLiteDatabase database;
+    private AppDatabase database;
 
     // Scheduler Service
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -30,7 +31,7 @@ public class DataStorer {
 
     public DataStorer(Context context) {
         saveQueue = new LinkedBlockingQueue<>(250);
-        database = new SQLiteManager(context).getWritableDatabase();
+        database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").build();
         startSaveTask();
     }
 
@@ -74,13 +75,12 @@ public class DataStorer {
             }
             database.beginTransaction();
 
-            for (GenericData data : saveQueue) {
-                ContentValues values = new ContentValues();
-                values.put(DatabaseContract.RawData.COLUMN_NAME_TYPE, data.getType().getId());
-                values.put(DatabaseContract.RawData.COLUMN_NAME_TIMESTAMP, data.getTimestamp());
-                values.put(DatabaseContract.RawData.COLUMN_NAME_VALUE, data.getValue());
-                database.insert(DatabaseContract.RawData.TABLE_NAME, null, values);
+            List<RawDataPoint> toInsert = new ArrayList<>(saveQueue.size());
+            for (GenericData genericData : saveQueue) {
+                toInsert.add(new RawDataPoint(genericData.getType().getId(), genericData.getTimestamp(), genericData.getValue()));
             }
+
+            database.rawDataPointDao().insertAll(toInsert);
 
             database.setTransactionSuccessful();
             database.endTransaction();
