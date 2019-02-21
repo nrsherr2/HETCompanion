@@ -1,12 +1,16 @@
 package edu.ncsu.csc.assist;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +39,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //device system for connecting to bluetooth devices, including BLE
     private BluetoothAdapter bluetoothAdapter;
     private static int REQUEST_ENABLE_BT = 6274;
+
+    // used for enabling location services
+    private static int REQUEST_ENABLE_GPS = 677073;
 
     // reference to current fragment if we need it
     private Fragment fragment;
@@ -91,7 +98,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStart();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if (account != null) {
-            initiateDashboard();
+            //initiateDashboard();
+            initiateBluetooth();
         } else {
             SignInButton signInButton = findViewById(R.id.sign_in_button);
             signInButton.setOnClickListener(this);
@@ -124,9 +132,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    private void initiateGPS() {
+        //go to the bluetooth screen
+        setContentView(R.layout.bluetooth_connect);
+        //make sure location comes up first
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission
+                    .ACCESS_FINE_LOCATION}, REQUEST_ENABLE_GPS);
+        }
+    }
+
     private void initiateBluetooth() {
+        initiateGPS();
         //initialize the adapter
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context
+                .BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         //now make sure bluetooth is running and that it is enabled.
         //will display a dialog box asking to run bluetooth
@@ -186,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
+
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
