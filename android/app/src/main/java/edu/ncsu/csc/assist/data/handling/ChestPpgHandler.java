@@ -1,7 +1,5 @@
 package edu.ncsu.csc.assist.data.handling;
 
-import android.provider.ContactsContract;
-
 import edu.ncsu.csc.assist.data.cloud.DataStorer;
 import edu.ncsu.csc.assist.data.objects.DataType;
 import edu.ncsu.csc.assist.data.objects.PpgData;
