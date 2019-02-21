@@ -1,20 +1,20 @@
 package edu.ncsu.csc.assist.data.handling;
 
-import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
 import edu.ncsu.csc.assist.data.cloud.DataStorer;
-import edu.ncsu.csc.assist.data.objects.ECGData;
+import edu.ncsu.csc.assist.data.objects.EcgData;
 
-public class ECGHandler extends Handler {
+public class ChestEcgHandler extends Handler {
 
     private static final int BYTES_PER_VALUE = 3;
     private static final int NUMBER_OF_VALUES = 4;
+    private static final int MILLIS_BETWEEN_VALUES = 5;
 
-    private List<ECGData> ecgHistory = new LinkedList<ECGData>();
+    private List<EcgData> ecgHistory = new LinkedList<EcgData>();
 
-    public ECGHandler(DataStorer rawDataBuffer) {
+    public ChestEcgHandler(DataStorer rawDataBuffer) {
         super(BYTES_PER_VALUE, NUMBER_OF_VALUES, rawDataBuffer);
     }
 
@@ -30,7 +30,7 @@ public class ECGHandler extends Handler {
     public void handle(byte[] buffer, long timestamp) {
         for (int i = 0; i < getTotalByteSize(); i += getBytesPerValue()) {
             int reading = getIntFromBytes(buffer[i], buffer[i + 1], buffer[i + 2]);
-            ECGData dataPoint = new ECGData(reading, timestamp + i * 5);
+            EcgData dataPoint = new EcgData(reading, timestamp + i * MILLIS_BETWEEN_VALUES);
             ecgHistory.add(dataPoint);
             sendRawData(dataPoint);
         }
