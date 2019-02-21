@@ -6,4 +6,5 @@
     <string name="plsbt">Connect HET Device</string>
     <string name="btexplain">This app requires at least 1 ASSIST HET Device be paired with this device. Additionally, in order to use BLE, location services must be enabled.</string>
     <string name="server_client_id">594190355836-gtka26ga090eq4sjuo6d3fjudb08e09a.apps.googleusercontent.com</string>
+    <string name="ble_not_supported">Bluetooth Low Energy is not supported on this device. We apologize, but this app cannot function without BLE.</string>
 </resources>

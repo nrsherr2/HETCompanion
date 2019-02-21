@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static int REQUEST_ENABLE_BT = 6274;
 
     // used for enabling location services
-    private static int REQUEST_ENABLE_GPS = 677073;
+    private static int REQUEST_ENABLE_GPS = 6275;
 
     // reference to current fragment if we need it
     private Fragment fragment;
@@ -90,6 +91,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //create a client for signing in
         googleSignInClient = GoogleSignIn.getClient(this, gso);
 
+
+        // Use this check to determine whether BLE is supported on the device.  Then you can
+        // selectively disable BLE-related features.
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+
     }
 
     @Override
@@ -122,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, SIGN_IN);
         System.out.println("sign in started");
-        initiateBluetooth();
+
     }
 
     private void initiateDashboard() {
@@ -161,7 +171,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            System.out.println("requestion bluetooth");
         }
+        initiateDashboard();
 
     }
 
@@ -216,7 +228,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             handleSignInResult(task);
         }
         if(requestCode == REQUEST_ENABLE_BT){
-            initiateDashboard();
+            //initiateDashboard();
+            System.out.println("bluetooth ok");
         }
 
     }
