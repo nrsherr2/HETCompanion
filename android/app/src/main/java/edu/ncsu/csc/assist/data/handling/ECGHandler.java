@@ -4,17 +4,18 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
+import edu.ncsu.csc.assist.data.cloud.DataStorer;
 import edu.ncsu.csc.assist.data.objects.ECGData;
 
-public class ECGHandler extends Handler{
+public class ECGHandler extends Handler {
 
     private static final int BYTES_PER_VALUE = 3;
     private static final int NUMBER_OF_VALUES = 4;
 
     private List<ECGData> ecgHistory = new LinkedList<ECGData>();
 
-    public ECGHandler() {
-        super(BYTES_PER_VALUE, NUMBER_OF_VALUES);
+    public ECGHandler(DataStorer rawDataBuffer) {
+        super(BYTES_PER_VALUE, NUMBER_OF_VALUES, rawDataBuffer);
     }
 
     /**
@@ -27,10 +28,8 @@ public class ECGHandler extends Handler{
      */
     @Override
     public void handle(byte[] buffer, long timestamp) {
-        for (int i = 0; i < getTotalByteSize(); i += BYTES_PER_VALUE) {
-            byte[] dataBytes = {0, buffer[i], buffer[i + 1], buffer[i + 2]};
-            ByteBuffer wrapped = ByteBuffer.wrap(dataBytes);
-            int reading = wrapped.getInt();
+        for (int i = 0; i < getTotalByteSize(); i += getBytesPerValue()) {
+            int reading = getIntFromBytes(buffer[i], buffer[i + 1], buffer[i + 2]);
             ECGData dataPoint = new ECGData(reading, timestamp + i * 5);
             ecgHistory.add(dataPoint);
             sendRawData(dataPoint);
@@ -46,15 +45,6 @@ public class ECGHandler extends Handler{
      */
     private double determineHeartRate() {
         return 0;
-    }
-
-    /**
-     * Sends raw data to the raw data database buffer
-     *
-     * @param dataPoint an ECGData object that holds the reading and the time it was recorded
-     */
-    private void sendRawData(ECGData dataPoint) {
-
     }
 
     /**

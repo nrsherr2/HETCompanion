@@ -44,6 +44,16 @@ public class DataStorer {
         saveQueue.addAll(data);
     }
 
+    /**
+     * Add data to a queue to be saved to the database.
+     * All data passed through this method will be guaranteed to be saved under normal operation.
+     *
+     * @param data
+     */
+    public void save(GenericData data) {
+        saveQueue.add(data);
+    }
+
     private void startSaveTask() {
         saveTask = scheduler.scheduleAtFixedRate(dumpQueueToDatabase, 1, 1, TimeUnit.SECONDS);
     }
@@ -59,6 +69,9 @@ public class DataStorer {
 
     private final Runnable dumpQueueToDatabase = new Runnable() {
         public void run() {
+            if(saveQueue.isEmpty()){
+                return;
+            }
             database.beginTransaction();
 
             for (GenericData data : saveQueue) {

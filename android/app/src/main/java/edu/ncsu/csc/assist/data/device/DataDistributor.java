@@ -2,6 +2,7 @@ package edu.ncsu.csc.assist.data.device;
 
 import java.util.Arrays;
 
+import edu.ncsu.csc.assist.data.cloud.DataStorer;
 import edu.ncsu.csc.assist.data.handling.ECGHandler;
 import edu.ncsu.csc.assist.data.handling.Handler;
 
@@ -9,13 +10,11 @@ import edu.ncsu.csc.assist.data.handling.Handler;
  * Data Package Structure
  * <p>
  * HET Chest: 32 Bytes
- * |ecg1|ecg1|ecg1|ecg2|ecg2|ecg2|ecg3|ecg3|ecg3|ecg4|ecg4|ecg4|
- * |ppg1|ppg1|ppg2|ppg2|ppg3|ppg3|ppg4|ppg4|
+ * |ecg1|ecg1|ecg1|ecg2|ecg2|ecg2|ecg3|ecg3|ecg3|ecg4|ecg4|ecg4|ppg1|ppg1|ppg2|ppg2|ppg3|ppg3|ppg4|ppg4|
  * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |
  * <p>
  * HET Wrist: 28 Bytes
- * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |
- * |ppg1|ppg1|ppg2|ppg2|
+ * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |ppg1|ppg1|ppg2|ppg2|
  * |oz1 |oz1 |poz1|poz1|roz1|roz1|moz1|moz1|tmp1|tmp1|humid1|humid1|
  */
 public class DataDistributor {
@@ -39,8 +38,8 @@ public class DataDistributor {
     private int WRIST_HUMID_BYTES = 2;
     private int WRIST_DATA_BYTES = WRIST_INERTIAL_BYTES + WRIST_PPG_BYTES + WRIST_OZ_BYTES + WRIST_POZ_BYTES + WRIST_ROZ_BYTES + WRIST_MOZ_BYTES + WRIST_TMP_BYTES + WRIST_HUMID_BYTES;
 
-    public DataDistributor() {
-        ecgHandler = new ECGHandler();
+    public DataDistributor(DataStorer rawDataBuffer) {
+        ecgHandler = new ECGHandler(rawDataBuffer);
         //many other handlers will be initialized here
 
         CHEST_ECG_BYTES = ecgHandler.getTotalByteSize();
