@@ -1,6 +1,6 @@
 package edu.ncsu.csc.assist;
 
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 
 // other detail fragments should inherit from this one
 public abstract class DetailFragment extends Fragment {
