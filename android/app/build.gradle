@@ -67,6 +67,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
     implementation "android.arch.persistence.room:runtime:$roomVersion"
     annotationProcessor "android.arch.persistence.room:compiler:$roomVersion"
+    implementation 'com.android.volley:volley:1.1.0'
 
     // TEST DEPENDENCIES
     testImplementation 'junit:junit:4.12'

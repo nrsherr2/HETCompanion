@@ -1,7 +1,6 @@
 package edu.ncsu.csc.assist.edu.ncsu.csc.assist.data.sqlite;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,7 +46,6 @@ public class DatabaseRawDataTest {
         final int RAW_DATA_COUNT = 100;
         for (int i = 0; i < RAW_DATA_COUNT; i++) {
             long[] id = rawDataPointDao.insert(new RawDataPoint(DataType.values()[i % DataType.values().length].getId(), System.currentTimeMillis(), ThreadLocalRandom.current().nextInt()));
-            Log.d("asdf", "ID: " + id[0]);
         }
 
         assertThat(rawDataPointDao.getAll().size(), equalTo(RAW_DATA_COUNT));
