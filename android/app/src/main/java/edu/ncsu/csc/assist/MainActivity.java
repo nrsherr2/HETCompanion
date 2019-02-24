@@ -2,8 +2,6 @@ package edu.ncsu.csc.assist;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -120,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        System.out.println("click");
         switch (v.getId()) {
             case R.id.sign_in_button:
                 signIn();
@@ -162,10 +159,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.bluetooth_connect);
         initiateGPS();
         System.out.println("bluetooth time");
-        //initialize the adapter
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context
-                .BLUETOOTH_SERVICE);
-        bluetoothAdapter = bluetoothManager.getAdapter();
         //now make sure bluetooth is running and that it is enabled.
         //will display a dialog box asking to run bluetooth
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
