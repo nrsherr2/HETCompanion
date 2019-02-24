@@ -77,7 +77,7 @@ public class DataStorer {
 
             List<RawDataPoint> toInsert = new ArrayList<>(saveQueue.size());
             for (GenericData genericData : saveQueue) {
-                toInsert.add(new RawDataPoint(genericData.getType().getId(), genericData.getTimestamp(), genericData.getValue()));
+                toInsert.add(new RawDataPoint(genericData.getType(), genericData.getTimestamp(), genericData.getValue()));
             }
 
             database.rawDataPointDao().insertAll(toInsert);

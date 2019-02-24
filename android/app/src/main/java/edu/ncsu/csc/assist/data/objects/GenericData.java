@@ -2,17 +2,17 @@ package edu.ncsu.csc.assist.data.objects;
 
 public abstract class GenericData {
 
-    private DataType type;
+    private String type;
     private int value;
     private long timestamp;
 
-    public GenericData(DataType type, int value, long timestamp) {
+    public GenericData(String type, int value, long timestamp) {
         this.type = type;
         this.value = value;
         this.timestamp = timestamp;
     }
 
-    public DataType getType() {
+    public String getType() {
         return this.type;
     }
 
