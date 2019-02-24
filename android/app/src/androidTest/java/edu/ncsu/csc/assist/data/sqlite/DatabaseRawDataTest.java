@@ -1,4 +1,4 @@
-package edu.ncsu.csc.assist.edu.ncsu.csc.assist.data.sqlite;
+package edu.ncsu.csc.assist.data.sqlite;
 
 import android.content.Context;
 
@@ -14,7 +14,6 @@ import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.runner.AndroidJUnit4;
 import edu.ncsu.csc.assist.data.objects.DataType;
-import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.access.RawDataPointDao;
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
 
