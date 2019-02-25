@@ -12,6 +12,7 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -104,8 +105,8 @@ public class RestQueue {
             delta[i - 1] = rawDataPoints.get(i).getTimestamp() - lastTimeStamp;
             lastTimeStamp = rawDataPoints.get(i).getTimestamp();
         }
-        json.put("delta", delta);
-        json.put("data", data);
+        json.put("delta", new JSONArray(delta));
+        json.put("data", new JSONArray(data));
         return json;
     }
 
