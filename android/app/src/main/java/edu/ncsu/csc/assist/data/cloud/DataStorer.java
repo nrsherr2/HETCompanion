@@ -17,6 +17,10 @@ import edu.ncsu.csc.assist.data.objects.GenericData;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
 
+/**
+ * This class is tasked with saving data to the local SQLite database to upload to the cloud later
+ * Requests to the database are cached in a queue and sent in batches
+ */
 public class DataStorer {
 
     // Queue of data waiting to be saved to the database

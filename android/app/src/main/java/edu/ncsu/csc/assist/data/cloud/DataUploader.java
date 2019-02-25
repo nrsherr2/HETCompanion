@@ -19,6 +19,10 @@ import androidx.room.Room;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
 
+/**
+ * This class is tasked with pulling data from the SQLite database and sending a REST request
+ * to the cloud. On a successful response, the data is deleted from the local database.
+ */
 public class DataUploader {
 
     // Database
@@ -51,6 +55,8 @@ public class DataUploader {
 
     private final Runnable uploadData = new Runnable() {
         public void run() {
+            //TODO Check WiFi connectivity first
+
             final List<RawDataPoint> toUpload = database.rawDataPointDao().getAll();
             if (toUpload.size() <= 0) {
                 return;
@@ -58,9 +64,10 @@ public class DataUploader {
 
             Log.d(getClass().getCanonicalName(), "Uploading " + toUpload.size() + " data points to the cloud.");
             try {
-                restQueue.makeRequest(toUpload, new Response.Listener<JSONObject>() {
+                restQueue.sendSaveRequest(toUpload, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
+                                //TODO Might need to check for success
                                 database.beginTransaction();
 
                                 for (RawDataPoint dataPoint : toUpload)
@@ -73,6 +80,7 @@ public class DataUploader {
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
+                                // Fail, do not delete data from the database
                                 Log.e(getClass().getCanonicalName(), error.getMessage(), error);
                             }
                         });

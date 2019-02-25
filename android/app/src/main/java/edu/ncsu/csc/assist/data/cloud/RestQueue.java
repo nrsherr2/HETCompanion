@@ -3,33 +3,32 @@ package edu.ncsu.csc.assist.data.cloud;
 import android.content.Context;
 
 import com.android.volley.Cache;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
 
+/**
+ * Maintains a queue of HTTP REST requests. The listeners are provided by the calling methods
+ * to handle the async response.
+ */
 public class RestQueue {
 
-    private static final String ENDPOINT_URL = "http://localhost/api/v1/save";
-
     private RequestQueue queue;
+    private RetryPolicy retryPolicy;
 
     public RestQueue(Context context) {
         // Instantiate the cache
@@ -41,87 +40,35 @@ public class RestQueue {
         // Instantiate the RequestQueue with the cache and network.
         queue = new RequestQueue(cache, network);
 
+        retryPolicy = new DefaultRetryPolicy(30000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+
         queue.start();
     }
 
-    public void makeRequest(List<RawDataPoint> data, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) throws JSONException {
-        queue.add(new JsonObjectRequest(Request.Method.POST, getEndpointUrl(), formatJson(data), listener, errorListener));
+    /**
+     * Set the retry policy for all future requests (excluding custom requests)
+     *
+     * @param retryPolicy
+     */
+    public void setRetryPolicy(RetryPolicy retryPolicy) {
+        this.retryPolicy = retryPolicy;
+    }
+
+    public Request makeRequest(Request request) {
+        return queue.add(request);
+    }
+
+    public Request makeRequest(int method, String url, JSONObject jsonBody, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) {
+        JsonObjectRequest request = new JsonObjectRequest(method, url, jsonBody, listener, errorListener);
+        request.setRetryPolicy(retryPolicy);
+        return makeRequest(request);
+    }
+
+    public Request sendSaveRequest(List<RawDataPoint> data, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) throws JSONException {
+        return makeRequest(Request.Method.POST, Endpoints.V1_SAVE, JsonUtil.formatJson(data), listener, errorListener);
     }
 
     public void stop() {
         queue.stop();
     }
-
-
-    protected static JSONObject formatJson(List<RawDataPoint> data) throws JSONException {
-        JSONObject json = new JSONObject();
-
-        // Get a list of the unique data types to save
-        Set<String> dataTypes = new HashSet<>();
-        for (RawDataPoint raw : data) {
-            dataTypes.add(raw.getType());
-        }
-
-        // Generate sub objects for each type
-        for (String dataType : dataTypes) {
-            List<RawDataPoint> filteredData = new ArrayList<>();
-            for (RawDataPoint raw : data) {
-                if (dataType.equals(raw.getType()))
-                    filteredData.add(raw);
-            }
-            json.put(dataType, genereateSubJson(filteredData));
-        }
-        return json;
-    }
-
-    /**
-     * Generate the subsection of JSON that contains the initial timestamp, delta timestamps, and data arrays
-     *
-     * @param rawDataPoints Data all of a single type that you want to be compressed into the above format.
-     * @return
-     * @throws JSONException
-     */
-    protected static JSONObject genereateSubJson(List<RawDataPoint> rawDataPoints) throws JSONException {
-        if (rawDataPoints.size() <= 0) {
-            return null;
-        }
-
-        JSONObject json = new JSONObject();
-
-        // Sort the received data by timestamp
-        Collections.sort(rawDataPoints, new SortByTimestamp());
-
-        // Find the lowest timestamp in the given data
-        long initialTimestamp = rawDataPoints.get(0).getTimestamp();
-        json.put("initial_timestamp", initialTimestamp);
-
-        long[] delta = new long[rawDataPoints.size() - 1];
-        int[] data = new int[rawDataPoints.size()];
-
-        long lastTimeStamp = initialTimestamp;
-        data[0] = rawDataPoints.get(0).getValue();
-        for (int i = 1; i < rawDataPoints.size(); i++) {
-            data[i] = rawDataPoints.get(i).getValue();
-            delta[i - 1] = rawDataPoints.get(i).getTimestamp() - lastTimeStamp;
-            lastTimeStamp = rawDataPoints.get(i).getTimestamp();
-        }
-        json.put("delta", new JSONArray(delta));
-        json.put("data", new JSONArray(data));
-        return json;
-    }
-
-
-    private static class SortByTimestamp implements Comparator<RawDataPoint> {
-        public int compare(RawDataPoint o1, RawDataPoint o2) {
-            return Long.compare(o1.getTimestamp(), o2.getTimestamp());
-        }
-    }
-
-
-
-
-    String getEndpointUrl() {
-        return ENDPOINT_URL;
-    }
-
 }
