@@ -36,7 +36,25 @@ public class DataStorer {
     public DataStorer(Context context) {
         saveQueue = new LinkedBlockingQueue<>(250);
         database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").build();
-        startSaveTask();
+    }
+
+    public DataStorer withDatabase(AppDatabase database) {
+        this.database = database;
+        return this;
+    }
+
+    public DataStorer startSaveTask() {
+        saveTask = scheduler.scheduleAtFixedRate(dumpQueueToDatabase, 1, 1, TimeUnit.SECONDS);
+        return this;
+    }
+
+    public void stopSaveTask() {
+        if (saveTask == null)
+            return;
+        saveTask.cancel(false);
+        while (!saveQueue.isEmpty()) {
+            dumpQueueToDatabase.run();
+        }
     }
 
     /**
@@ -57,19 +75,6 @@ public class DataStorer {
      */
     public void save(GenericData data) {
         saveQueue.add(data);
-    }
-
-    private void startSaveTask() {
-        saveTask = scheduler.scheduleAtFixedRate(dumpQueueToDatabase, 1, 1, TimeUnit.SECONDS);
-    }
-
-    private void stopSaveTask() {
-        if (saveTask == null)
-            return;
-        saveTask.cancel(false);
-        while (!saveQueue.isEmpty()) {
-            dumpQueueToDatabase.run();
-        }
     }
 
     private final Runnable dumpQueueToDatabase = new Runnable() {
