@@ -1,21 +1,27 @@
 package edu.ncsu.csc.assist.bluetooth;
 
+import android.Manifest;
 import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import edu.ncsu.csc.assist.R;
 
 public class DeviceScanActivity extends ListActivity {
@@ -38,6 +44,50 @@ public class DeviceScanActivity extends ListActivity {
             return;
         }
         setContentView(R.layout.bluetooth_connect);
+    }
+
+    // used for enabling bt
+    private static int REQUEST_ENABLE_GPS = 6275;
+    private static int REQUEST_ENABLE_BT = 6274;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //make sure location is still allowed
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ENABLE_GPS);
+        }
+        //make sure bluetooth is still allowed
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+
+        leDeviceListAdapter = new LeDeviceListAdapter();
+        setListAdapter(leDeviceListAdapter);
+        scanLeDevice(true);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        scanLeDevice(false);
+        leDeviceListAdapter.clear();
+    }
+
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        final BluetoothDevice device = leDeviceListAdapter.getDevice(position);
+        if (device == null) return;
+        final Intent intent = new Intent(this, DeviceControlActivity.class);
+        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
+        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+        if (scanning) {
+            bluetoothAdapter.stopLeScan(leScanCallback);
+            scanning = false;
+        }
+        startActivity(intent);
     }
 
     // Stops scanning after 10 seconds.
@@ -131,8 +181,15 @@ public class DeviceScanActivity extends ListActivity {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btScanButton:
+                v.findViewById(R.id.btStopScanButton).setVisibility(View.VISIBLE);
+                v.findViewById(R.id.btScanButton).setVisibility(View.INVISIBLE);
                 leDeviceListAdapter.clear();
                 scanLeDevice(true);
+                break;
+            case R.id.btStopScanButton:
+                v.findViewById(R.id.btScanButton).setVisibility(View.VISIBLE);
+                v.findViewById(R.id.btStopScanButton).setVisibility(View.INVISIBLE);
+                scanLeDevice(false);
         }
     }
 

@@ -14,4 +14,7 @@
     <string name="btSymbolDesc">The Bluetooth logo</string>
     <string name="unknowndevice">Unknown Device</string>
     <string name="scanButtonText">Scan Now</string>
+    <string name="btStopScanButtonText">Stop Scan</string>
+    <string name="btConnected">BLE Device Connected</string>
+    <string name="btDisconnected">BLE Device Disconnected</string>
 </resources>

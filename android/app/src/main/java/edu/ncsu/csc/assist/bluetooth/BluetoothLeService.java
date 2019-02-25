@@ -28,6 +28,7 @@ import androidx.annotation.Nullable;
  */
 public class BluetoothLeService extends Service {
 
+    public static final String EXTRA_DATA = "edu.ncsu.csc.assist.EXTRA_DATA";
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
 
@@ -53,6 +54,11 @@ public class BluetoothLeService extends Service {
     }
 
     public static final String DATA_AVAILABLE = "edu.ncsu.csc.assist.ACTION_DATA_AVAILABLE";
+    public static final String ACTION_GATT_CONNECTED = "edu.ncsu.csc.assist.ACTION_GATT_CONNECTED";
+    public static final String ACTION_GATT_DISCONNECTED = "edu.ncsu.csc.assist" +
+            ".ACTION_GATT_DISCONNECTED";
+    public static final String ACTION_GATT_SERVICES_DISCOVERED = "edu.ncsu.csc.assist" +
+            ".ACTION_GATT_SERVICES_DISCOVERED";
     private BluetoothGatt mBluetoothGatt;
     private String deviceAddress;
 
@@ -138,14 +144,14 @@ public class BluetoothLeService extends Service {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intent;
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                intent = "edu.ncsu.csc.assist.ACTION_GATT_CONNECTED";
+                intent = ACTION_GATT_CONNECTED;
                 mConnectionState = STATE_CONNECTED;
                 broadcastUpdate(intent);
                 System.out.println("Connected to GATT server");
                 //starts service discovery
                 System.out.println("Starting service discovery: " + mBluetoothGatt.discoverServices());
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                intent = "edu.ncsu.csc.assist.ACTION_GATT_DISCONNECTED";
+                intent = ACTION_GATT_DISCONNECTED;
                 System.out.println("Disconnected from GATT server");
                 broadcastUpdate(intent);
             }
@@ -154,7 +160,7 @@ public class BluetoothLeService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate("edu.ncsu.csc.assist.ACTION_GATT_SERVICES_DISCOVERED");
+                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
             } else {
                 System.out.println("onServicesDiscovered received " + status);
             }
@@ -180,13 +186,13 @@ public class BluetoothLeService extends Service {
 
     private void broadcastUpdate(final String action, final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
-        //theres some stuff in the sample project for a heart rate management special case, but it doesn't apply to this project
+        //there's some stuff in the sample project for a heart rate management special case, but it doesn't apply to this project
         final byte[] data = characteristic.getValue();
         if (data != null && data.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(data.length);
             for (byte byteChar : data)
                 stringBuilder.append(String.format("%02x ", byteChar));
-            intent.putExtra("edu.ncsu.csc.assist.EXTRA_DATA", new String(data) + "\n" + stringBuilder.toString());
+            intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
         }
         sendBroadcast(intent);
     }
