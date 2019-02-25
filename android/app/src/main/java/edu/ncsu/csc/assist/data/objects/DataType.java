@@ -17,4 +17,10 @@ public interface DataType {
     String WRIST_MOZ = "wrist_moz";
     String WRIST_TEMPERATURE = "wrist_temperature";
     String WRIST_HUMIDITY = "wrist_humidity";
+
+    String[] VALUES = new String[]{"chest_ecg", "chest_ppg", "chest_inertia_x",
+            "chest_inertia_y", "chest_inertia_z", "wrist_inertia_x", "wrist_inertia_y",
+            "wrist_inertia_z", "wrist_ppg", "wrist_oz", "wrist_poz", "wrist_roz", "wrist_moz",
+            "wrist_temperature", "wrist_humidity"
+    };
 }
