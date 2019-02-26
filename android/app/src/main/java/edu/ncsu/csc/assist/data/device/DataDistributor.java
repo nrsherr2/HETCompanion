@@ -44,7 +44,7 @@ public class DataDistributor {
 
     private int WRIST_INERTIAL_BYTES = 12;
     private int WRIST_PPG_BYTES = 4;
-    private int WRIST_OZONE_BYTES = 2;
+    private int WRIST_OZONE_BYTES = 8;
     private int WRIST_ENVIRONMENTAL_BYTES = 4;
     private int WRIST_DATA_BYTES = WRIST_INERTIAL_BYTES + WRIST_PPG_BYTES + WRIST_OZONE_BYTES + WRIST_ENVIRONMENTAL_BYTES;
 

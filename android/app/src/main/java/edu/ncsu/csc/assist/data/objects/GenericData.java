@@ -1,6 +1,6 @@
 package edu.ncsu.csc.assist.data.objects;
 
-public abstract class GenericData {
+public class GenericData {
 
     private String type;
     private int value;

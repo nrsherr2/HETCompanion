@@ -1,10 +1,14 @@
 package edu.ncsu.csc.assist.data.handling;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import edu.ncsu.csc.assist.data.cloud.DataStorer;
-import edu.ncsu.csc.assist.data.objects.EcgData;
+import edu.ncsu.csc.assist.data.objects.DataType;
+import edu.ncsu.csc.assist.data.objects.GenericData;
 
 public class ChestEcgHandler extends Handler {
 
@@ -12,10 +16,10 @@ public class ChestEcgHandler extends Handler {
     private static final int NUMBER_OF_VALUES = 4;
     private static final int MILLIS_BETWEEN_VALUES = 5;
 
-    private List<EcgData> ecgHistory = new LinkedList<EcgData>();
+    private List<GenericData> ecgHistory = new LinkedList<GenericData>();
 
     public ChestEcgHandler(DataStorer rawDataBuffer) {
-        super(BYTES_PER_VALUE, NUMBER_OF_VALUES, rawDataBuffer);
+        super(BYTES_PER_VALUE, NUMBER_OF_VALUES, MILLIS_BETWEEN_VALUES, rawDataBuffer);
     }
 
     /**
@@ -28,14 +32,19 @@ public class ChestEcgHandler extends Handler {
      */
     @Override
     public void handle(byte[] buffer, long timestamp) {
-        for (int i = 0; i < getTotalByteSize(); i += getBytesPerValue()) {
-            int reading = getIntFromBytes(buffer[i], buffer[i + 1], buffer[i + 2]);
-            EcgData dataPoint = new EcgData(reading, timestamp + i * MILLIS_BETWEEN_VALUES);
-            ecgHistory.add(dataPoint);
-            sendRawData(dataPoint);
-        }
+        List<GenericData> dataValues = parseInput(buffer, timestamp);
+        ecgHistory.addAll(dataValues);
+        sendRawData(dataValues);
+
         double heartRate = determineHeartRate();
         sendProcessedData(heartRate, timestamp);
+    }
+
+    @Override
+    protected List<GenericData> parseReading(byte[] data, long timestamp) {
+        int reading = getIntFromBytes(data);
+        GenericData dataPoint = new GenericData(DataType.CHEST_ECG, reading, timestamp);
+        return Collections.singletonList(dataPoint);
     }
 
     /**
