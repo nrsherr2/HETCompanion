@@ -1,6 +1,7 @@
 package edu.ncsu.csc.assist.data.cloud;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,6 +54,7 @@ public class DataStorer {
             return;
         saveTask.cancel(false);
         while (!saveQueue.isEmpty()) {
+            Log.d(getClass().getCanonicalName(), "Save queue is not empty after stop request, dumping to database...");
             dumpQueueToDatabase.run();
         }
     }
@@ -93,6 +95,8 @@ public class DataStorer {
 
             database.setTransactionSuccessful();
             database.endTransaction();
+
+            saveQueue.clear();
         }
     };
 }
