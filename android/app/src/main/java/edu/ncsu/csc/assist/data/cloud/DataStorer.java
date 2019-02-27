@@ -1,10 +1,11 @@
 package edu.ncsu.csc.assist.data.cloud;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -12,17 +13,22 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import androidx.room.Room;
 import edu.ncsu.csc.assist.data.objects.GenericData;
-import edu.ncsu.csc.assist.data.sqlite.DatabaseContract;
-import edu.ncsu.csc.assist.data.sqlite.SQLiteManager;
+import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
+import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
 
+/**
+ * This class is tasked with saving data to the local SQLite database to upload to the cloud later
+ * Requests to the database are cached in a queue and sent in batches
+ */
 public class DataStorer {
 
     // Queue of data waiting to be saved to the database
     private Queue<GenericData> saveQueue;
 
     // Database
-    private SQLiteDatabase database;
+    private AppDatabase database;
 
     // Scheduler Service
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -30,8 +36,27 @@ public class DataStorer {
 
     public DataStorer(Context context) {
         saveQueue = new LinkedBlockingQueue<>(250);
-        database = new SQLiteManager(context).getWritableDatabase();
-        startSaveTask();
+        database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").build();
+    }
+
+    public DataStorer withDatabase(AppDatabase database) {
+        this.database = database;
+        return this;
+    }
+
+    public DataStorer startSaveTask() {
+        saveTask = scheduler.scheduleAtFixedRate(dumpQueueToDatabase, 1, 1, TimeUnit.SECONDS);
+        return this;
+    }
+
+    public void stopSaveTask() {
+        if (saveTask == null)
+            return;
+        saveTask.cancel(false);
+        while (!saveQueue.isEmpty()) {
+            Log.d(getClass().getCanonicalName(), "Save queue is not empty after stop request, dumping to database...");
+            dumpQueueToDatabase.run();
+        }
     }
 
     /**
@@ -54,19 +79,6 @@ public class DataStorer {
         saveQueue.add(data);
     }
 
-    private void startSaveTask() {
-        saveTask = scheduler.scheduleAtFixedRate(dumpQueueToDatabase, 1, 1, TimeUnit.SECONDS);
-    }
-
-    private void stopSaveTask() {
-        if (saveTask == null)
-            return;
-        saveTask.cancel(false);
-        while (!saveQueue.isEmpty()) {
-            dumpQueueToDatabase.run();
-        }
-    }
-
     private final Runnable dumpQueueToDatabase = new Runnable() {
         public void run() {
             if(saveQueue.isEmpty()){
@@ -74,16 +86,17 @@ public class DataStorer {
             }
             database.beginTransaction();
 
-            for (GenericData data : saveQueue) {
-                ContentValues values = new ContentValues();
-                values.put(DatabaseContract.RawData.COLUMN_NAME_TYPE, data.getType().getId());
-                values.put(DatabaseContract.RawData.COLUMN_NAME_TIMESTAMP, data.getTimestamp());
-                values.put(DatabaseContract.RawData.COLUMN_NAME_VALUE, data.getValue());
-                database.insert(DatabaseContract.RawData.TABLE_NAME, null, values);
+            List<RawDataPoint> toInsert = new ArrayList<>(saveQueue.size());
+            for (GenericData genericData : saveQueue) {
+                toInsert.add(new RawDataPoint(genericData.getType(), genericData.getTimestamp(), genericData.getValue()));
             }
+
+            database.rawDataPointDao().insertAll(toInsert);
 
             database.setTransactionSuccessful();
             database.endTransaction();
+
+            saveQueue.clear();
         }
     };
 }
