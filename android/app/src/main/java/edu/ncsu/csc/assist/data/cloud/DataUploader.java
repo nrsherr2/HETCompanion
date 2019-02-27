@@ -1,6 +1,8 @@
 package edu.ncsu.csc.assist.data.cloud;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.android.volley.Response;
@@ -31,11 +33,14 @@ public class DataUploader {
     // RestQueue
     private RestQueue restQueue;
 
+    private Context mContext;
+
     // Scheduler Service
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> uploadTask;
 
     public DataUploader(Context context) {
+        this.mContext = context;
         database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").build();
         restQueue = new RestQueue(context);
         startUploadTask();
@@ -55,7 +60,13 @@ public class DataUploader {
 
     private final Runnable uploadData = new Runnable() {
         public void run() {
-            //TODO Check WiFi connectivity first
+            // Check the wifi connection
+            ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            boolean connectedToWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+
+            // If not connected to wifi then return; only upload via wifi
+            if (!connectedToWiFi) return;
 
             final List<RawDataPoint> toUpload = database.rawDataPointDao().getAll();
             if (toUpload.size() <= 0) {
