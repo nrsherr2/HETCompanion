@@ -13,8 +13,14 @@ import edu.ncsu.csc.assist.data.objects.GenericData;
 
 import static org.junit.Assert.*;
 
+/**
+ * Tests the functionality of the Handler super-class
+ */
 public class HandlerTest {
 
+    /**
+     * Tests static method getIntFromByte  functionality
+     */
     @Test
     public void getIntFromBytes(){
         byte[] bytesEmpty = {};
@@ -30,6 +36,13 @@ public class HandlerTest {
         Assert.assertEquals(0x01234567, Handler.getIntFromBytes(bytesJustRight));
     }
 
+    /**
+     * Tests the parseInput functionality
+     *
+     * parseInput of Handler calls the abstract method parseReading. Therefore, to test the method,
+     * a Handler object must be constructed as a certain child handler. To test the validity of Handler.parseInput,
+     * a ChestEcgHandler and ChestInertialHandler are used.
+     */
     @Test
     public void parseInput(){
         byte[] testEcgData = {

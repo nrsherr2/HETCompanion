@@ -24,8 +24,8 @@ public class DataDistributorTest {
     @Before
     public void setUp() throws Exception {
         // Do nothing when the datastore is called to save the data
-        Mockito.doNothing().when(dataStore).save(ArgumentMatchers.<GenericData>any());
-        Mockito.doNothing().when(dataStore).save(ArgumentMatchers.<Collection<GenericData>>any());
+/*        Mockito.doNothing().when(dataStore).save(ArgumentMatchers.<GenericData>any());
+        Mockito.doNothing().when(dataStore).save(ArgumentMatchers.<Collection<GenericData>>any());*/
 
     }
 

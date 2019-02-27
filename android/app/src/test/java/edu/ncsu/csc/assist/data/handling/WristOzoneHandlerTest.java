@@ -12,6 +12,11 @@ import static org.junit.Assert.*;
 
 public class WristOzoneHandlerTest {
 
+    /**
+     * Tests the parseReading function of the handler.
+     * This test is responsible for receive bytes of a single instrument reading and returning one
+     * or more GenericData objects created from that reading
+     */
     @Test
     public void parseReading() {
         WristOzoneHandler ozoneHandler = new WristOzoneHandler(null);

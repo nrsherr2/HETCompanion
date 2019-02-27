@@ -10,6 +10,11 @@ import edu.ncsu.csc.assist.data.objects.GenericData;
 
 public class ChestEcgHandlerTest {
 
+    /**
+     * Tests the parseReading function of the handler.
+     * This test is responsible for receive bytes of a single instrument reading and returning one
+     * or more GenericData objects created from that reading
+     */
     @Test
     public void parseReading() {
         ChestEcgHandler ecgHandler = new ChestEcgHandler(null);

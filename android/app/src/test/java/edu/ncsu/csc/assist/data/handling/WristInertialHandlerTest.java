@@ -12,6 +12,11 @@ import static org.junit.Assert.*;
 
 public class WristInertialHandlerTest {
 
+    /**
+     * Tests the parseReading function of the handler.
+     * This test is responsible for receive bytes of a single instrument reading and returning one
+     * or more GenericData objects created from that reading
+     */
     @Test
     public void parseReading() {
         WristInertialHandler inertialHandler = new WristInertialHandler(null);
@@ -22,6 +27,7 @@ public class WristInertialHandlerTest {
 
         List<GenericData> dataValues = inertialHandler.parseReading(testInertialData, testTimestamp);
         Assert.assertEquals(3, dataValues.size());
+
         Assert.assertEquals(0x00001122,dataValues.get(0).getValue());
         Assert.assertEquals(0x00003344,dataValues.get(1).getValue());
         Assert.assertEquals(0x00005566,dataValues.get(2).getValue());
