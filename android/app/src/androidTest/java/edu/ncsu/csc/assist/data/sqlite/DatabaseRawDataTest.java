@@ -44,7 +44,7 @@ public class DatabaseRawDataTest {
     public void generateData() throws Exception {
         final int RAW_DATA_COUNT = 100;
         for (int i = 0; i < RAW_DATA_COUNT; i++) {
-            long[] id = rawDataPointDao.insert(new RawDataPoint(DataType.values()[i % DataType.values().length].getId(), System.currentTimeMillis(), ThreadLocalRandom.current().nextInt()));
+            long[] id = rawDataPointDao.insert(new RawDataPoint(DataType.VALUES[i % DataType.VALUES.length], System.currentTimeMillis(), ThreadLocalRandom.current().nextInt()));
         }
 
         assertThat(rawDataPointDao.getAll().size(), equalTo(RAW_DATA_COUNT));
@@ -68,8 +68,8 @@ public class DatabaseRawDataTest {
         assertThat(id1.getId(), equalTo(1L));
         assertThat(id3.getId(), equalTo(3L));
         assertThat(id9.getId(), equalTo(9L));
-        assertThat(id1.getType(), equalTo(DataType.values()[0].getId()));
-        assertThat(id3.getType(), equalTo(DataType.values()[2].getId()));
-        assertThat(id9.getType(), equalTo(DataType.values()[8].getId()));
+        assertThat(id1.getType(), equalTo(DataType.VALUES[0]));
+        assertThat(id3.getType(), equalTo(DataType.VALUES[2]));
+        assertThat(id9.getType(), equalTo(DataType.VALUES[8]));
     }
 }

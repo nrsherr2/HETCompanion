@@ -1,6 +1,7 @@
 package edu.ncsu.csc.assist.data.cloud;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +18,10 @@ import edu.ncsu.csc.assist.data.objects.GenericData;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
 
+/**
+ * This class is tasked with saving data to the local SQLite database to upload to the cloud later
+ * Requests to the database are cached in a queue and sent in batches
+ */
 public class DataStorer {
 
     // Queue of data waiting to be saved to the database
@@ -32,7 +37,26 @@ public class DataStorer {
     public DataStorer(Context context) {
         saveQueue = new LinkedBlockingQueue<>(250);
         database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").build();
-        startSaveTask();
+    }
+
+    public DataStorer withDatabase(AppDatabase database) {
+        this.database = database;
+        return this;
+    }
+
+    public DataStorer startSaveTask() {
+        saveTask = scheduler.scheduleAtFixedRate(dumpQueueToDatabase, 1, 1, TimeUnit.SECONDS);
+        return this;
+    }
+
+    public void stopSaveTask() {
+        if (saveTask == null)
+            return;
+        saveTask.cancel(false);
+        while (!saveQueue.isEmpty()) {
+            Log.d(getClass().getCanonicalName(), "Save queue is not empty after stop request, dumping to database...");
+            dumpQueueToDatabase.run();
+        }
     }
 
     /**
@@ -55,19 +79,6 @@ public class DataStorer {
         saveQueue.add(data);
     }
 
-    private void startSaveTask() {
-        saveTask = scheduler.scheduleAtFixedRate(dumpQueueToDatabase, 1, 1, TimeUnit.SECONDS);
-    }
-
-    private void stopSaveTask() {
-        if (saveTask == null)
-            return;
-        saveTask.cancel(false);
-        while (!saveQueue.isEmpty()) {
-            dumpQueueToDatabase.run();
-        }
-    }
-
     private final Runnable dumpQueueToDatabase = new Runnable() {
         public void run() {
             if(saveQueue.isEmpty()){
@@ -84,6 +95,8 @@ public class DataStorer {
 
             database.setTransactionSuccessful();
             database.endTransaction();
+
+            saveQueue.clear();
         }
     };
 }

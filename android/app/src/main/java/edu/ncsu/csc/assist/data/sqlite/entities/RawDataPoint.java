@@ -1,5 +1,8 @@
 package edu.ncsu.csc.assist.data.sqlite.entities;
 
+import java.util.Locale;
+import java.util.Objects;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -48,6 +51,19 @@ public class RawDataPoint {
 
     @Override
     public String toString() {
-        return String.format("RawDataPoint[%d, %s, %d, %s]", id, type, timestamp, value);
+        return String.format(Locale.US, "RawDataPoint[%d, %s, %d, %s]", id, type, timestamp, value);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RawDataPoint dataPoint = (RawDataPoint) o;
+        return id == dataPoint.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
