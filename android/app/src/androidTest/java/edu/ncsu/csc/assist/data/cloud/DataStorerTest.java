@@ -13,10 +13,7 @@ import java.util.List;
 import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
 import edu.ncsu.csc.assist.data.objects.DataType;
-import edu.ncsu.csc.assist.data.objects.EcgData;
 import edu.ncsu.csc.assist.data.objects.GenericData;
-import edu.ncsu.csc.assist.data.objects.HumidityData;
-import edu.ncsu.csc.assist.data.objects.InertialData;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.access.RawDataPointDao;
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
@@ -50,7 +47,7 @@ public class DataStorerTest {
 
     @Test
     public void testSave() throws Exception {
-        GenericData data = new EcgData(1000, 5000);
+        GenericData data = new GenericData(DataType.CHEST_ECG, 1000, 5000);
         dataStorer.save(data);
 
         // Wait at least 1 second for the datastorer to dump the queue to the database
@@ -66,10 +63,10 @@ public class DataStorerTest {
 
     @Test
     public void testSaveAll() throws Exception {
-        GenericData data1 = new HumidityData(500, 250);
-        GenericData data2 = new InertialData(DataType.CHEST_INERTIA_X, 25, 1000);
-        GenericData data3 = new InertialData(DataType.CHEST_INERTIA_Y, 20, 1000);
-        GenericData data4 = new InertialData(DataType.CHEST_INERTIA_Z, 5, 1000);
+        GenericData data1 = new GenericData(DataType.WRIST_HUMIDITY, 500, 250);
+        GenericData data2 = new GenericData(DataType.CHEST_INERTIA_X, 25, 1000);
+        GenericData data3 = new GenericData(DataType.CHEST_INERTIA_Y, 20, 1000);
+        GenericData data4 = new GenericData(DataType.CHEST_INERTIA_Z, 5, 1000);
         List<GenericData> data = Arrays.asList(data1, data2, data3, data4);
         dataStorer.save(data);
 
