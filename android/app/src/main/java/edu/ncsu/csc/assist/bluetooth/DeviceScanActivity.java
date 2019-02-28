@@ -33,17 +33,19 @@ public class DeviceScanActivity extends ListActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        System.out.println("Device scan created");
         super.onCreate(savedInstanceState);
         handler = new Handler();
 
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        final BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         if (bluetoothAdapter == null) {
             Toast.makeText(this, R.string.bl_not_supported, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
-        setContentView(R.layout.bluetooth_connect);
+        //setContentView(R.layout.bluetooth_connect);
     }
 
     // used for enabling bt
@@ -121,7 +123,7 @@ public class DeviceScanActivity extends ListActivity {
 
         public LeDeviceListAdapter() {
             super();
-            leDevices = new ArrayList<BluetoothDevice>();
+            leDevices = new ArrayList<>();
             inflator = DeviceScanActivity.this.getLayoutInflater();
         }
 
@@ -158,10 +160,12 @@ public class DeviceScanActivity extends ListActivity {
         public View getView(int i, View view, ViewGroup viewGroup) {
             ViewHolder viewHolder;
             if (view == null) {
+                System.out.println("null");
                 view = inflator.inflate(R.layout.device_list_item, null);
                 viewHolder = new ViewHolder();
-                viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
-                viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
+                viewHolder.deviceAddress = view.findViewById(R.id.device_address);
+                viewHolder.deviceName = view.findViewById(R.id.device_name);
+                view.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) view.getTag();
             }
@@ -178,36 +182,35 @@ public class DeviceScanActivity extends ListActivity {
 
     }
 
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btScanButton:
-                v.findViewById(R.id.btStopScanButton).setVisibility(View.VISIBLE);
-                v.findViewById(R.id.btScanButton).setVisibility(View.INVISIBLE);
-                leDeviceListAdapter.clear();
-                scanLeDevice(true);
-                break;
-            case R.id.btStopScanButton:
-                v.findViewById(R.id.btScanButton).setVisibility(View.VISIBLE);
-                v.findViewById(R.id.btStopScanButton).setVisibility(View.INVISIBLE);
-                scanLeDevice(false);
-        }
-    }
+//    public void onClick(View v) {
+//        switch (v.getId()) {
+//            case R.id.btScanButton:
+//                v.findViewById(R.id.btStopScanButton).setVisibility(View.VISIBLE);
+//                v.findViewById(R.id.btScanButton).setVisibility(View.INVISIBLE);
+//                leDeviceListAdapter.clear();
+//                scanLeDevice(true);
+//                break;
+//            case R.id.btStopScanButton:
+//                v.findViewById(R.id.btScanButton).setVisibility(View.VISIBLE);
+//                v.findViewById(R.id.btStopScanButton).setVisibility(View.INVISIBLE);
+//                scanLeDevice(false);
+//        }
+//    }
 
     // Device scan callback.
-    private BluetoothAdapter.LeScanCallback leScanCallback =
-            new BluetoothAdapter.LeScanCallback() {
+    private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
 
+        @Override
+        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+            runOnUiThread(new Runnable() {
                 @Override
-                public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            leDeviceListAdapter.addDevice(device);
-                            leDeviceListAdapter.notifyDataSetChanged();
-                        }
-                    });
+                public void run() {
+                    leDeviceListAdapter.addDevice(device);
+                    leDeviceListAdapter.notifyDataSetChanged();
                 }
-            };
+            });
+        }
+    };
 
 
     static class ViewHolder {
