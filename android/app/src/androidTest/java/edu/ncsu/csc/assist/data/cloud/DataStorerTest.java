@@ -73,11 +73,11 @@ public class DataStorerTest {
         // Wait at least 1 second for the datastorer to dump the queue to the database
         Thread.sleep(2000);
 
-        List<GenericData> retreivedData = new ArrayList<>();
+        List<GenericData> retrievedData = new ArrayList<>();
         for (RawDataPoint rawDataPoint : rawDataPointDao.getAll()) {
-            retreivedData.add(new GenericData(rawDataPoint.getType(), rawDataPoint.getValue(), rawDataPoint.getTimestamp()));
+            retrievedData.add(new GenericData(rawDataPoint.getType(), rawDataPoint.getValue(), rawDataPoint.getTimestamp()));
         }
 
-        assertTrue(retreivedData.containsAll(data));
+        assertTrue(retrievedData.containsAll(data));
     }
 }
