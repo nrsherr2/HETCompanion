@@ -69,7 +69,7 @@ public class BluetoothLeService extends Service {
      * @return true if you intiated the connection. The connection result is reported in
      * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      */
-    public boolean conect(final String address) {
+    public boolean connect(final String address) {
         if (bluetoothAdapter == null || address == null) {
             System.out.println("necessary information not initialized");
             return false;
