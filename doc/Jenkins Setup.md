@@ -20,4 +20,6 @@
       - Keystore file for producting signing
     - slackWebhook
       - Secret Text: URL for incoming webhook in slack
-8. Open Blue Ocean and add first pipeline
+8. Install the following plugins
+  - `android-emulator`
+9. Open Blue Ocean and add first pipeline
