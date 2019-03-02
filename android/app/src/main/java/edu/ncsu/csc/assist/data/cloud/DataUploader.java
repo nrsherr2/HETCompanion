@@ -59,7 +59,8 @@ public class DataUploader {
     }
 
     private final Runnable uploadData = new Runnable() {
-        public void run() {
+        public synchronized void run() {
+            Log.d(getClass().getCanonicalName(), "Attempting to upload");
             // Check the wifi connection
             ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
@@ -100,4 +101,9 @@ public class DataUploader {
             }
         }
     };
+
+    public void flush(){
+        Log.d(getClass().getCanonicalName(), "Flushing uploader...");
+        uploadData.run();
+    }
 }

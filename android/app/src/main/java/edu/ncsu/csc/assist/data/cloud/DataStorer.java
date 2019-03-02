@@ -35,7 +35,7 @@ public class DataStorer {
     private ScheduledFuture<?> saveTask;
 
     public DataStorer(Context context) {
-        saveQueue = new LinkedBlockingQueue<>(250);
+        saveQueue = new LinkedBlockingQueue<>();
         database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").build();
     }
 
@@ -80,7 +80,7 @@ public class DataStorer {
     }
 
     private final Runnable dumpQueueToDatabase = new Runnable() {
-        public void run() {
+        public synchronized void run() {
             if(saveQueue.isEmpty()){
                 return;
             }
@@ -99,4 +99,8 @@ public class DataStorer {
             saveQueue.clear();
         }
     };
+
+    public void flush(){
+        dumpQueueToDatabase.run();
+    }
 }

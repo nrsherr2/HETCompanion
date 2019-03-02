@@ -5,6 +5,7 @@ localProperties.load(project.rootProject.file('local.properties').newDataInputSt
 
 android {
     compileSdkVersion 28
+    testBuildType "release"
     signingConfigs {
         debug {
             storeFile file('keystore/debug.keystore.jks')
