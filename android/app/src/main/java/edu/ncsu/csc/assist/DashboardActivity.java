@@ -28,96 +28,118 @@ public class DashboardActivity extends AppCompatActivity {
 
     private Fragment fragment;
 
-    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
-    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
-    private String mDeviceName, mDeviceAddress;
-    private BluetoothLeService bleService;
-    private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
-            new ArrayList<>();
-    private boolean connected = false;
-    private BluetoothGattCharacteristic notifyCharacteristic;
-    private final String LIST_NAME = "NAME";
-    private final String LIST_UUID = "UUID";
-    private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
-    private final UUID fff1 = new UUID(0x0000ffff100001000L, 0x800000805f9b34fbL);
+//    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+//    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+//    private String mDeviceName, mDeviceAddress;
+//    private BluetoothLeService bleService;
+//    private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
+//            new ArrayList<>();
+//    private boolean connected = false;
+//    private BluetoothGattCharacteristic notifyCharacteristic;
+//    private final String LIST_NAME = "NAME";
+//    private final String LIST_UUID = "UUID";
+//    private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
+//    private final UUID fff1 = new UUID(0x0000ffff100001000L, 0x800000805f9b34fbL);
 
-    private final ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            bleService = ((BluetoothLeService.LocalBinder) service).getService();
-            if (!bleService.initialize()) {
-                System.out.println("Unable to initialize BLE service");
-                finish();
-            }
-            bleService.connect(mDeviceAddress);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            bleService = null;
-        }
-    };
-
-    private final BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                connected = true;
-                System.out.println("connected");
-            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                connected = false;
-                System.out.println("disconnected");
-            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                System.out.println("Services Discovered. Finding Characteristics...");
-                listenForAttributes();
-            } else if (BluetoothLeService.DATA_AVAILABLE.equals(action)) {
-                System.out.println("Data Available:");
-                displayData();
-            }
-        }
-    };
-
-    private void displayData() {
-    }
-
-    private void listenForAttributes() {
-        List<BluetoothGattService> gattServices = bleService.getSupportedGattServices();
-        if (gattServices == null) return;
-        String uuid = null;
-        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<>();
-        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<>();
-        mGattCharacteristics = new ArrayList<>();
-        for (BluetoothGattService bluetoothGattService : gattServices) {
-            HashMap<String, String> currentServiceData = new HashMap<>();
-            uuid = bluetoothGattService.getUuid().toString();
-            currentServiceData.put(LIST_NAME, "unknown");
-            currentServiceData.put(LIST_UUID, "uuid");
-            gattServiceData.add(currentServiceData);
-
-            ArrayList<HashMap<String, String>> gattCharacteristicGroupData = new ArrayList<>();
-            List<BluetoothGattCharacteristic> gattCharacteristics =
-                    bluetoothGattService.getCharacteristics();
-            ArrayList<BluetoothGattCharacteristic> characteristics = new ArrayList<>();
-
-            for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-                characteristics.add(gattCharacteristic);
-                HashMap<String, String> currentCharacteristicData = new HashMap<>();
-                uuid = gattCharacteristic.getUuid().toString();
-                currentCharacteristicData.put(LIST_NAME, "unknown");
-                currentCharacteristicData.put(LIST_UUID, "unknown");
-                gattCharacteristicGroupData.add(currentCharacteristicData);
-            }
-            mGattCharacteristics.add(characteristics);
-            gattCharacteristicData.add(gattCharacteristicGroupData);
-        }
-
-        if (mGattCharacteristics != null) {
-            //TODO iterate through known characteristics and find fff1
-            //TODO write '1' to fff1
-            //TODO find fff3 from list of characteristics and set a feed on it.
-        }
-    }
+//    private final ServiceConnection serviceConnection = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            bleService = ((BluetoothLeService.LocalBinder) service).getService();
+//            if (!bleService.initialize()) {
+//                System.out.println("Unable to initialize BLE service");
+//                finish();
+//            }
+//            bleService.connect(mDeviceAddress);
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            bleService = null;
+//        }
+//    };
+//
+//    private final BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            final String action = intent.getAction();
+//            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+//                connected = true;
+//                System.out.println("connected");
+//            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+//                connected = false;
+//                System.out.println("disconnected");
+//            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+//                System.out.println("Services Discovered. Finding Characteristics...");
+//                listenForAttributes();
+//            } else if (BluetoothLeService.DATA_AVAILABLE.equals(action)) {
+//                System.out.println("Data Available:");
+//                displayData();
+//            }
+//        }
+//    };
+//
+//    private void displayData() {
+//    }
+//
+//    private void listenForAttributes() {
+//        List<BluetoothGattService> gattServices = bleService.getSupportedGattServices();
+//        if (gattServices == null) return;
+//        String uuid = null;
+//        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<>();
+//        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<>();
+//        mGattCharacteristics = new ArrayList<>();
+//        for (BluetoothGattService bluetoothGattService : gattServices) {
+//            HashMap<String, String> currentServiceData = new HashMap<>();
+//            uuid = bluetoothGattService.getUuid().toString();
+//            currentServiceData.put(LIST_NAME, "unknown");
+//            currentServiceData.put(LIST_UUID, "uuid");
+//            gattServiceData.add(currentServiceData);
+//
+//            ArrayList<HashMap<String, String>> gattCharacteristicGroupData = new ArrayList<>();
+//            List<BluetoothGattCharacteristic> gattCharacteristics =
+//                    bluetoothGattService.getCharacteristics();
+//            ArrayList<BluetoothGattCharacteristic> characteristics = new ArrayList<>();
+//
+//            for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+//                characteristics.add(gattCharacteristic);
+//                HashMap<String, String> currentCharacteristicData = new HashMap<>();
+//                uuid = gattCharacteristic.getUuid().toString();
+//                currentCharacteristicData.put(LIST_NAME, "unknown");
+//                currentCharacteristicData.put(LIST_UUID, "unknown");
+//                gattCharacteristicGroupData.add(currentCharacteristicData);
+//            }
+//            mGattCharacteristics.add(characteristics);
+//            gattCharacteristicData.add(gattCharacteristicGroupData);
+//        }
+//
+//        if (mGattCharacteristics != null) {
+//            //TODO iterate through known characteristics and find fff1
+//            BluetoothGattCharacteristic fMega = null;
+//            for (ArrayList<BluetoothGattCharacteristic> a : mGattCharacteristics) {
+//                for (BluetoothGattCharacteristic g : a) {
+//                    System.out.println(g.getUuid().toString());
+//                    if (g.getUuid().toString().equals(fff1.toString())) {
+//                        System.out.println("Properties of fff1: " + g.getProperties());
+//                        if ((g.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) == 0) {
+//                            System.out.println("fff1 does not have write property. Cannot use this device.");
+//                        } else {
+//                            fMega = g;
+//                        }
+//                    }
+//                }
+//            }
+//            if (fMega == null) {
+//                System.out.println("Could not find characteristic fff1. Can not read info.");
+//                return;
+//            }
+//            //TODO find fff3 from list of characteristics and set a feed on it.
+//
+//            //TODO write '1' to fff1
+//            if (fMega != null) {
+//
+//            }
+//        }
+//    }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
