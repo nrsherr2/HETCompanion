@@ -14,8 +14,8 @@ public interface ConfigOptionDao {
     @Query("SELECT * FROM config")
     List<ConfigOption> getAll();
 
-    @Query("SELECT * FROM config WHERE [key] = :key")
-    ConfigOption getByKey(String key);
+    @Query("SELECT value FROM config WHERE [key] = :key")
+    String getByKey(String key);
 
     @Insert
     void insert(ConfigOption configOption);

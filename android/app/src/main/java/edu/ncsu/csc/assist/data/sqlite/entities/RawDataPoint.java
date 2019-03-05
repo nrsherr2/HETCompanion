@@ -49,6 +49,10 @@ public class RawDataPoint {
         return value;
     }
 
+    public void setTimestamp(long newTimestamp) {
+        this.timestamp = newTimestamp;
+    }
+
     @Override
     public String toString() {
         return String.format(Locale.US, "RawDataPoint[%d, %s, %d, %s]", id, type, timestamp, value);

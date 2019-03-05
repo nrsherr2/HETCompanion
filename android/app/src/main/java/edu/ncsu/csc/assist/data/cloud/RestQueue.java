@@ -64,8 +64,8 @@ public class RestQueue {
         return makeRequest(request);
     }
 
-    public Request sendSaveRequest(List<RawDataPoint> data, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) throws JSONException {
-        return makeRequest(Request.Method.POST, Endpoints.V1_SAVE, JsonUtil.formatJson(data), listener, errorListener);
+    public Request sendSaveRequest(String userId, String hetVersion, List<RawDataPoint> data, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) throws JSONException {
+        return makeRequest(Request.Method.POST, Endpoints.V1_SAVE, JsonUtil.formatJson(userId, hetVersion, data), listener, errorListener);
     }
 
     public void stop() {

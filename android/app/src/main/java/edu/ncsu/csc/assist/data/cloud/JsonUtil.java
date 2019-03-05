@@ -29,8 +29,11 @@ public class JsonUtil {
      * @return
      * @throws JSONException
      */
-    public static JSONObject formatJson(@NonNull List<RawDataPoint> data) throws JSONException {
+    public static JSONObject formatJson(@NonNull String userId, @NonNull String hetVersion, @NonNull List<RawDataPoint> data) throws JSONException {
         JSONObject json = new JSONObject();
+
+        json.put("user_id", userId);
+        json.put("het_version", hetVersion);
 
         // Get a list of the unique data types to save
         Set<String> dataTypes = new HashSet<>();

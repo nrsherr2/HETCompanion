@@ -48,7 +48,7 @@ public class DataUploader {
 
     private void startUploadTask() {
         Log.d(getClass().getCanonicalName(), "Starting cloud upload task.");
-        uploadTask = scheduler.scheduleAtFixedRate(uploadData, 1, 1, TimeUnit.MINUTES);
+        uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.MINUTES);
     }
 
     private void stopUploadTask() {
@@ -74,19 +74,33 @@ public class DataUploader {
                 return;
             }
 
+            // Modify the timestamps by the defined delta
+            String userId = database.configOptionDao().getByKey("config_user_id");
+            long delta = Long.valueOf(database.configOptionDao().getByKey("user_" + userId + "_ts_delta"));
+            for (RawDataPoint data : toUpload) {
+                data.setTimestamp(data.getTimestamp() - delta);
+            }
+
             Log.d(getClass().getCanonicalName(), "Uploading " + toUpload.size() + " data points to the cloud.");
             try {
-                restQueue.sendSaveRequest(toUpload, new Response.Listener<JSONObject>() {
+                restQueue.sendSaveRequest(userId, database.configOptionDao().getByKey("config_het_version"), toUpload, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
-                                //TODO Might need to check for success
-                                database.beginTransaction();
+                                try {
+                                    if (response.getInt("status") == 201) {
+                                        database.beginTransaction();
 
-                                for (RawDataPoint dataPoint : toUpload)
-                                    database.rawDataPointDao().deleteById(dataPoint.getId());
+                                        for (RawDataPoint dataPoint : toUpload)
+                                            database.rawDataPointDao().deleteById(dataPoint.getId());
 
-                                database.setTransactionSuccessful();
-                                database.endTransaction();
+                                        database.setTransactionSuccessful();
+                                        database.endTransaction();
+                                    } else {
+                                        throw new IllegalStateException("REST API Returned " + response.getInt("status") + "! Error: " + response.getString("message"));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         },
                         new Response.ErrorListener() {
