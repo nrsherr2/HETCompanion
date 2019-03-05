@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,12 +36,15 @@ public class DataUploader {
 
     private Context mContext;
 
+    private GoogleSignInAccount googleSignInAccount;
+
     // Scheduler Service
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> uploadTask;
 
-    public DataUploader(Context context) {
+    public DataUploader(Context context, GoogleSignInAccount googleAccount) {
         this.mContext = context;
+        this.googleSignInAccount = googleAccount;
         database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").build();
         restQueue = new RestQueue(context);
         startUploadTask();
@@ -83,7 +87,7 @@ public class DataUploader {
 
             Log.d(getClass().getCanonicalName(), "Uploading " + toUpload.size() + " data points to the cloud.");
             try {
-                restQueue.sendSaveRequest(userId, database.configOptionDao().getByKey("config_het_version"), toUpload, new Response.Listener<JSONObject>() {
+                restQueue.sendSaveRequest(userId, database.configOptionDao().getByKey("config_het_version"), googleSignInAccount.getIdToken(), toUpload, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
                                 try {
