@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
@@ -234,6 +235,21 @@ public class BluetoothLeService extends Service {
     }
 
     private final IBinder mBinder = new LocalBinder();
+
+    public void startStreaming(BluetoothGattCharacteristic fMega) {
+        if (mBluetoothGatt.beginReliableWrite()) {
+            for (BluetoothGattDescriptor d : fMega.getDescriptors()) {
+                d.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                mBluetoothGatt.writeDescriptor(d);
+            }
+            byte[] newVal = {(byte) 1};
+            fMega.setValue(newVal);
+            mBluetoothGatt.writeCharacteristic(fMega);
+            mBluetoothGatt.executeReliableWrite();
+        } else {
+            System.out.println("could not write to device.");
+        }
+    }
 
     public class LocalBinder extends Binder {
         public BluetoothLeService getService() {
