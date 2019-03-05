@@ -67,7 +67,7 @@ app.use(function(request, response, next) {
       });
     } else {
       // else there's no authToken so return 401
-      console.log(`Authentication failed for ${request.ip}`);
+      console.log(`Authentication Missing for ${request.ip}`);
       response.status(401).json({
         status: 401,
         message: 'Authentication failed.'
