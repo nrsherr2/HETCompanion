@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             System.out.println("requestion bluetooth");
         }
         final Intent intent = new Intent(this, BtButtonActivity.class);
-        startActivityForResult(intent, BLUETOOTH_BUTTON_CODE);
+        startActivity(intent);
         //initiateDashboard();
 
     }

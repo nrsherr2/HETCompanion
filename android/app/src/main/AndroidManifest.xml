@@ -30,8 +30,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".bluetooth.DeviceScanActivity" />
-        <activity android:name=".bluetooth.DeviceControlActivity" />
         <activity android:name=".bluetooth.BtButtonActivity" />
+        <activity android:name=".DashboardActivity" />
+
         <service android:name=".bluetooth.BluetoothLeService" />
     </application>
 

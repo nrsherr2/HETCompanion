@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import edu.ncsu.csc.assist.DashboardActivity;
 import edu.ncsu.csc.assist.R;
 
 public class DeviceScanActivity extends ListActivity {
@@ -82,9 +83,9 @@ public class DeviceScanActivity extends ListActivity {
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final BluetoothDevice device = leDeviceListAdapter.getDevice(position);
         if (device == null) return;
-        final Intent intent = new Intent(this, DeviceControlActivity.class);
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+        final Intent intent = new Intent(this, DashboardActivity.class);
+        intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME, device.getName());
+        intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         if (scanning) {
             bluetoothAdapter.stopLeScan(leScanCallback);
             scanning = false;
@@ -160,7 +161,6 @@ public class DeviceScanActivity extends ListActivity {
         public View getView(int i, View view, ViewGroup viewGroup) {
             ViewHolder viewHolder;
             if (view == null) {
-                System.out.println("null");
                 view = inflator.inflate(R.layout.device_list_item, null);
                 viewHolder = new ViewHolder();
                 viewHolder.deviceAddress = view.findViewById(R.id.device_address);
@@ -181,21 +181,6 @@ public class DeviceScanActivity extends ListActivity {
         }
 
     }
-
-//    public void onClick(View v) {
-//        switch (v.getId()) {
-//            case R.id.btScanButton:
-//                v.findViewById(R.id.btStopScanButton).setVisibility(View.VISIBLE);
-//                v.findViewById(R.id.btScanButton).setVisibility(View.INVISIBLE);
-//                leDeviceListAdapter.clear();
-//                scanLeDevice(true);
-//                break;
-//            case R.id.btStopScanButton:
-//                v.findViewById(R.id.btScanButton).setVisibility(View.VISIBLE);
-//                v.findViewById(R.id.btStopScanButton).setVisibility(View.INVISIBLE);
-//                scanLeDevice(false);
-//        }
-//    }
 
     // Device scan callback.
     private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
