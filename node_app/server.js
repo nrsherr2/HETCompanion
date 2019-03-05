@@ -6,8 +6,8 @@ const {OAuth2Client} = require('google-auth-library');// Google API for authenti
 
 // Local Imports
 var routes = require('./api/routes/routes.js');
-const ClientException = require('./api/exceptions/ClientException.js')
-const ServerException = require('./api/exceptions/ServerException.js')
+const ClientException = require('./api/exceptions/ClientException.js');
+const ServerException = require('./api/exceptions/ServerException.js');
 
 // Config
 const PORT = 8080;
@@ -39,31 +39,40 @@ app.use(function(request, response, next) {
     var authToken = request.get('Authorization');
 
     if (authToken) {
-        const client = new OAuth2Client(GOOGLE_CLIENT_ID);
-        async function verify() {
-            const ticket = await client.verifyIdToken({
-                idToken: authToken,
-                audience: GOOGLE_CLIENT_ID,
-            });
-            const payload = ticket.getPayload();
-            const userid = payload['sub'];
-            // If request specified a G Suite domain:
-            //const domain = payload['hd'];
+      const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
-            // Save the Google userid for other methods to use
-            request.locals = {}; //Clear out and define locals variable space
-            request.locals.googleUserId = userid;
-            console.log(`Received UserID ${userid}`);
-            next();
-        }
-        verify().catch(error => {
-            console.log(`Authentication failed for ${request.ip}`);
-            response.status(401).json({
-                status: 401,
-                message: 'Authentication failed.'
-            })
+      async function verify() {
+        const ticket = await client.verifyIdToken({
+          idToken: authToken,
+          audience: GOOGLE_CLIENT_ID,
         });
-    }   
+        const payload = ticket.getPayload();
+        const userid = payload['sub'];
+        // If request specified a G Suite domain:
+        //const domain = payload['hd'];
+
+        // Save the Google userid for other methods to use
+        request.locals = {}; //Clear out and define locals variable space
+        request.locals.googleUserId = userid;
+        console.log(`Received UserID ${userid}`);
+        next();
+      }
+
+      verify().catch(error => {
+        console.log(`Authentication failed for ${request.ip}`);
+        response.status(401).json({
+          status: 401,
+          message: 'Authentication failed.'
+        });
+      });
+    } else {
+      // else there's no authToken so return 401
+      console.log(`Authentication failed for ${request.ip}`);
+      response.status(401).json({
+        status: 401,
+        message: 'Authentication failed.'
+      });
+    }
 });
 
 // Register the routes
@@ -71,8 +80,8 @@ app.use(function(request, response, next) {
 routes(app);
 
 // Respond with a 404 error if the route is not found.
-app.use(function(request, respinse) {
-    res.status(404).send({
+app.use(function(request, response) {
+    response.status(404).send({
         status: 404,
         url: request.originalUrl,
         method: request.method,
