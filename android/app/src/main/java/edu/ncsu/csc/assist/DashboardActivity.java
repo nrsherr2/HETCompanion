@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -121,7 +122,7 @@ public class DashboardActivity extends AppCompatActivity {
                     if (g.getUuid().toString().equals(fff1.toString())) {
                         System.out.println("Properties of fff1: " + g.getProperties());
                         if ((g.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) == 0) {
-                            System.out.println("fff1 does not have write property. Cannot use this device.");
+                            System.out.println("fff1 does not have write property. Cannot use " + "this device.");
                         } else {
                             fMega = g;
                         }
@@ -139,7 +140,7 @@ public class DashboardActivity extends AppCompatActivity {
                     if (g.getUuid().toString().equals(fff3.toString())) {
                         System.out.println("Properties of fff3: " + g.getProperties());
                         if ((g.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0) {
-                            System.out.println("Characteristic does not support notifications. Cannot use this device.");
+                            System.out.println("Characteristic does not support notifications. " + "Cannot use this device.");
                         } else {
                             notifyCharacteristic = g;
                             bleService.setCharacteristicNotification(notifyCharacteristic, true);
@@ -148,7 +149,6 @@ public class DashboardActivity extends AppCompatActivity {
 
                 }
             }
-            //TODO write '1' to fff1
             bleService.startStreaming(fMega);
         }
     }
@@ -196,6 +196,24 @@ public class DashboardActivity extends AppCompatActivity {
         initiateDashboard();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
+        if (bleService != null) {
+            System.out.println("Connect request result: " + bleService.connect(mDeviceAddress));
+        }
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(gattUpdateReceiver);
+        unbindService(serviceConnection);
+        bleService = null;
+    }
+
     private void initiateDashboard() {
         setContentView(R.layout.dashboard);
         BottomNavigationView navigation = findViewById(R.id.main_nav);
@@ -221,5 +239,14 @@ public class DashboardActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.DATA_AVAILABLE);
+        return intentFilter;
     }
 }
