@@ -1,5 +1,5 @@
 const mysql = require('mysql'); // MySQL connection driver
-const ibm = require('../../../ibm.js');
+const {createTextFile, getBucketContents} = require('../../../ibm.js');
 const ClientException = require('../../exceptions/ClientException.js')
 const ServerException = require('../../exceptions/ServerException.js')
 
@@ -7,14 +7,14 @@ const REQUIRED_KEYS = [ 'user_id', 'het_version' ];
 const EXPECTED_DATA_KEYS = [ 'chest_ecg', 'chest_ppg', 'chest_inertia_x', 'chest_inertia_y', 'chest_inertia_z', 'wrist_inertia_x', 'wrist_inertiay', 
     'wrist_inertia_z', 'wrist_ppg', 'wrist_oz', 'wrist_poz', 'wrist_roz', 'wrist_moz', 'wrist_temperature', 'wrist_humidity' ];
 const REQUIRED_DATA_SUB_KEYS = [ 'initial_timestamp', 'delta', 'data' ];
+const BUCKET_NAME = 'het-streaming';
 
-exports.save = function(request, response) {
+exports.save = async function(request, response) {
     // Data Validation
     receivedKeys = Object.keys(request.body);
     missingKeys = REQUIRED_KEYS.filter((key) => !receivedKeys.includes(key));
     receivedDataKeys = EXPECTED_DATA_KEYS.filter((key) => receivedKeys.includes(key));
-    chestInitialTimestamp = Number.MAX_SAFE_INTEGER;
-    wristInitialTimestamp = Number.MAX_SAFE_INTEGER;
+    initialTimestamp = Number.MAX_SAFE_INTEGER;
 
     if (missingKeys.length > 0)
         throw new ClientException(`Missing required keys! Missing: ${missingKeys}`);
@@ -27,24 +27,58 @@ exports.save = function(request, response) {
             throw new ClientException(`Missing expected subkeys in ${receivedDataKeys[i]}! Missing: ${missingSubKeys}`)
 
         // Calculate the smallest timestamp received
-        if (receivedDataKeys[i].startsWith('chest_')) {
-            if (request.body[receivedDataKeys[i]].initial_timestamp < initialTimestamp) 
-                chestInitialTimestamp = request.body[receivedDataKeys[i]].initial_timestamp;
-        } else if (receivedDataKeys[i].startsWith('wrist_')) {
-            if (request.body[receivedDataKeys[i]].initial_timestamp < initialTimestamp) 
-                wristInitialTimestamp = request.body[receivedDataKeys[i]].initial_timestamp;
+        if (request.body[receivedDataKeys[i]].initial_timestamp < initialTimestamp) 
+            initialTimestamp = request.body[receivedDataKeys[i]].initial_timestamp;
+    }
+
+    // Figure out which path to save the data to
+    var currentFiles = await getBucketContents(BUCKET_NAME, `Subject${request.body.user_id}/HET_v${request.body.het_version}_chest-`);
+    var maxCsvFuzzed = 0;
+    var maxDataPath;
+    // Loop through received files for the user
+    currentFiles.forEach(function(file) {
+        // Split the file path/name into just the timestamp
+        fuzzed = parseInt(file.Key.split('/')[1].split('-')[1]);
+        if (fuzzed > maxCsvFuzzed) {
+            maxCsvFuzzed = fuzzed;
+            maxDataPath = file.Key;
+        }     
+    });
+
+    if (maxCsvFuzzed === 0) {
+        // No data received from the bucket
+        pathTimestamp = initialTimestamp;
+        dataFileName = 'Data1.csv';
+    } else {
+        // Data received, calculate whether we should use a new or old folder
+        now = new Date();
+        midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+        msSinceMidnight = now.getTime() - then.getTime();
+
+        if (maxCsvFuzzed < msSinceMidnight) {
+            // Write to same folder
+            pathTimestamp = maxCsvFuzzed;
+            dataFileName = maxDataPath.split('/')[2].split('.')[0].substring(4);
+            if (dataFileName != null) {
+                dataFileName = `Data${parseInt(dataFileName) + 1}.csv`;
+            } else {
+                dataFileName = 'Data1.csv';
+            }
         } else {
-            throw new ServerException(`Unknown key ${receivedDataKeys[i]}`);
+            // Write to new folder with received data timestamp
+            pathTimestamp = initialTimestamp;
+            dataFileName = 'Data1.csv';
         }
     }
-   
+    
     // Save data to bucket
-    var chestDataPath = `Subject${request.body.user_id}/HET_v${request.body.het_version}_chest-${initialTimestamp}`;
-    var wristDataPath = `Subject${request.body.user_id}/HET_v${request.body.het_version}_wrist-${initialTimestamp}`;
+    var chestDataPath = `Subject${request.body.user_id}/HET_v${request.body.het_version}_chest-${pathTimestamp}`;
+    var wristDataPath = `Subject${request.body.user_id}/HET_v${request.body.het_version}_wrist-${pathTimestamp}`;
 
     var chestData = 'type,timestamp,data\n';
     var wristData = 'type,timestamp,data\n';
 
+    // Generate the csv data strings
     for (i = 0; i < receivedDataKeys.length; i++) {
         dataKey = receivedDataKeys[i];
         if (dataKey.startsWith('chest_')) {
@@ -76,8 +110,8 @@ exports.save = function(request, response) {
         }
     }
 
-    var chestPromise = ibm('het-streaming', chestDataPath + '/Data.csv', chestData);
-    var wristPromise = ibm('het-streaming', wristDataPath + '/Data.csv', wristData);
+    var chestPromise = createTextFile(BUCKET_NAME, chestDataPath + `/${dataFileName}`, chestData);
+    var wristPromise = createTextFile(BUCKET_NAME, wristDataPath + `/${dataFileName}`, wristData);
 
     Promise.all([chestPromise, wristPromise]).then(() => {
         response.status(201).json({
