@@ -87,6 +87,9 @@ public class DashboardActivity extends AppCompatActivity {
     private void listenForAttributes() {
         notifyCharacteristic = bleService.findAndSetNotify(fff0, fff3);
         System.out.println(notifyCharacteristic.getUuid().toString() + " has been set to notify.");
+        if (bleService.startStream(fff0, fff1)) {
+            System.out.println("starting scan...");
+        }
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -124,6 +127,13 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        System.out.println("initiating dashboard");
+        final Intent intent = getIntent();
+        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
+        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+
+        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+        bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
     }
 
     @Override

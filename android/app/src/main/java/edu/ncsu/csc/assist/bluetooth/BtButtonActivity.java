@@ -14,13 +14,12 @@ public class BtButtonActivity extends Activity {
         setContentView(R.layout.bluetooth_connect);
     }
 
-    private static int ACTIVITY_CODE = 441;
 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btScanButton:
                 Intent intent = new Intent(this, DeviceScanActivity.class);
-                startActivityForResult(intent, ACTIVITY_CODE);
+                startActivity(intent);
         }
     }
 }

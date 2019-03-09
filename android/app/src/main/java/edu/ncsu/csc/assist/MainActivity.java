@@ -237,9 +237,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //initiateDashboard();
             System.out.println("bluetooth ok");
         }
-        if (requestCode == BLUETOOTH_BUTTON_CODE) {
-            initiateDashboard();
-        }
 
     }
 

@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -177,6 +178,7 @@ public class BluetoothLeService extends Service {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+            System.out.println("received update with changed info " + Arrays.toString(bluetoothGattCharacteristic.getValue()));
             broadcastUpdate(DATA_AVAILABLE, bluetoothGattCharacteristic);
         }
     };
@@ -238,18 +240,19 @@ public class BluetoothLeService extends Service {
     private final IBinder mBinder = new LocalBinder();
 
 
-    public void startStreaming(BluetoothGattCharacteristic fMega) {
-        if (mBluetoothGatt.beginReliableWrite()) {
-            for (BluetoothGattDescriptor d : fMega.getDescriptors()) {
-                d.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                mBluetoothGatt.writeDescriptor(d);
-            }
-            byte[] newVal = {(byte) 1};
-            fMega.setValue(newVal);
-            mBluetoothGatt.writeCharacteristic(fMega);
-            mBluetoothGatt.executeReliableWrite();
+    public boolean startStream(UUID serviceID, UUID characteristicID) {
+        BluetoothGattService service = mBluetoothGatt.getService(serviceID);
+        if (service == null) {
+            System.out.print("cannot find required service.");
+            return false;
+        }
+        BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicID);
+        if (characteristic == null || (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) == 0) {
+            System.out.println("characteristic we want to write to not found.");
+            return false;
         } else {
-            System.out.println("could not write to device.");
+            characteristic.setValue(new byte[]{0x02});
+            return mBluetoothGatt.writeCharacteristic(characteristic);
         }
     }
 
