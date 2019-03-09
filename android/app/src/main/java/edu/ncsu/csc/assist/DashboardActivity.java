@@ -39,8 +39,9 @@ public class DashboardActivity extends AppCompatActivity {
     private BluetoothGattCharacteristic notifyCharacteristic;
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
+    private final UUID fff0 = new UUID(0xfff000001000L, 0x800000805f9b34fbL);
     private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
-    private final UUID fff1 = new UUID(0x0000ffff100001000L, 0x800000805f9b34fbL);
+    private final UUID fff1 = new UUID(0x0000fff100001000L, 0x800000805f9b34fbL);
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -74,83 +75,18 @@ public class DashboardActivity extends AppCompatActivity {
                 listenForAttributes();
             } else if (BluetoothLeService.DATA_AVAILABLE.equals(action)) {
                 System.out.println("Data Available:");
-                displayData();
+                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             }
         }
     };
 
-    private void displayData() {
+    private void displayData(String data) {
+        System.out.println(data);
     }
 
     private void listenForAttributes() {
-        List<BluetoothGattService> gattServices = bleService.getSupportedGattServices();
-        if (gattServices == null) return;
-        String uuid = null;
-        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<>();
-        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<>();
-        mGattCharacteristics = new ArrayList<>();
-        for (BluetoothGattService bluetoothGattService : gattServices) {
-            HashMap<String, String> currentServiceData = new HashMap<>();
-            uuid = bluetoothGattService.getUuid().toString();
-            currentServiceData.put(LIST_NAME, "unknown");
-            currentServiceData.put(LIST_UUID, uuid);
-            gattServiceData.add(currentServiceData);
-
-            ArrayList<HashMap<String, String>> gattCharacteristicGroupData = new ArrayList<>();
-            List<BluetoothGattCharacteristic> gattCharacteristics =
-                    bluetoothGattService.getCharacteristics();
-            ArrayList<BluetoothGattCharacteristic> characteristics = new ArrayList<>();
-
-            for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-                characteristics.add(gattCharacteristic);
-                HashMap<String, String> currentCharacteristicData = new HashMap<>();
-                uuid = gattCharacteristic.getUuid().toString();
-                currentCharacteristicData.put(LIST_NAME, "unknown");
-                currentCharacteristicData.put(LIST_UUID, uuid);
-                gattCharacteristicGroupData.add(currentCharacteristicData);
-            }
-            mGattCharacteristics.add(characteristics);
-            gattCharacteristicData.add(gattCharacteristicGroupData);
-        }
-
-        if (mGattCharacteristics != null) {
-            //iterate through known characteristics and find fff1
-            BluetoothGattCharacteristic fMega = null;
-            for (ArrayList<BluetoothGattCharacteristic> a : mGattCharacteristics) {
-                for (BluetoothGattCharacteristic g : a) {
-                    System.out.println(g.getUuid().toString());
-                    if (g.getUuid().toString().equals(fff1.toString())) {
-                        System.out.println("Properties of fff1: " + g.getProperties());
-                        if ((g.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) == 0) {
-                            System.out.println("fff1 does not have write property. Cannot use " + "this device.");
-                        } else {
-                            fMega = g;
-                        }
-                    }
-                }
-            }
-            if (fMega == null) {
-                System.out.println("Could not find characteristic fff1. Can not read info.");
-                return;
-            }
-            //find fff3 from list of characteristics and set a feed on it.
-            for (ArrayList<BluetoothGattCharacteristic> a : mGattCharacteristics) {
-                for (BluetoothGattCharacteristic g : a) {
-                    System.out.println(g.getUuid().toString());
-                    if (g.getUuid().toString().equals(fff3.toString())) {
-                        System.out.println("Properties of fff3: " + g.getProperties());
-                        if ((g.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0) {
-                            System.out.println("Characteristic does not support notifications. " + "Cannot use this device.");
-                        } else {
-                            notifyCharacteristic = g;
-                            bleService.setCharacteristicNotification(notifyCharacteristic, true);
-                        }
-                    }
-
-                }
-            }
-            bleService.startStreaming(fMega);
-        }
+        notifyCharacteristic = bleService.findAndSetNotify(fff0, fff3);
+        System.out.println(notifyCharacteristic.getUuid().toString() + " has been set to notify.");
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -210,6 +146,7 @@ public class DashboardActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(gattUpdateReceiver);
+        bleService.disconnect();
         unbindService(serviceConnection);
         bleService = null;
     }

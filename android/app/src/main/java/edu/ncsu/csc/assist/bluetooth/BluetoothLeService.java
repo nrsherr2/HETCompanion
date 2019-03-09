@@ -16,6 +16,7 @@ import android.os.Binder;
 import android.os.IBinder;
 
 import java.util.List;
+import java.util.UUID;
 
 import androidx.annotation.Nullable;
 
@@ -236,6 +237,7 @@ public class BluetoothLeService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
 
+
     public void startStreaming(BluetoothGattCharacteristic fMega) {
         if (mBluetoothGatt.beginReliableWrite()) {
             for (BluetoothGattDescriptor d : fMega.getDescriptors()) {
@@ -248,6 +250,22 @@ public class BluetoothLeService extends Service {
             mBluetoothGatt.executeReliableWrite();
         } else {
             System.out.println("could not write to device.");
+        }
+    }
+
+    public BluetoothGattCharacteristic findAndSetNotify(UUID serviceID, UUID characteristicID) {
+        BluetoothGattService service = mBluetoothGatt.getService(serviceID);
+        if (service == null) {
+            System.out.println("cannot find required service.");
+            return null;
+        }
+        BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicID);
+        if (characteristic == null || (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0) {
+            System.out.println("characteristic we're looking for with that notify property doesn't exist.");
+            return null;
+        } else {
+            setCharacteristicNotification(characteristic, true);
+            return characteristic;
         }
     }
 
