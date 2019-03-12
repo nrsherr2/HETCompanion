@@ -85,15 +85,17 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void listenForAttributes() {
-        if (bleService.startStream(fff0, fff1)) {
-            System.out.println("Stream initialized");
-        }
         notifyCharacteristic = bleService.findAndSetNotify(fff0, fff3);
         if (notifyCharacteristic != null) {
             System.out.println(notifyCharacteristic.getUuid().toString() + " has been set to notify.");
         } else {
             System.out.println("could not set up notifications.");
         }
+//        if (bleService.startStream(fff0, fff1)) {
+//            System.out.println("Stream initialized");
+//        }else{
+//            System.out.println("did not start stream.");
+//        }
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {

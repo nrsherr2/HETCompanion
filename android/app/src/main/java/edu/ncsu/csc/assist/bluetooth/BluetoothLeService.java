@@ -31,6 +31,9 @@ import androidx.annotation.Nullable;
  */
 public class BluetoothLeService extends Service {
 
+    private final UUID fff0 = new UUID(0xfff000001000L, 0x800000805f9b34fbL);
+    private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
+    private final UUID fff1 = new UUID(0x0000fff100001000L, 0x800000805f9b34fbL);
     public static final String EXTRA_DATA = "edu.ncsu.csc.assist.EXTRA_DATA";
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
@@ -188,7 +191,11 @@ public class BluetoothLeService extends Service {
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             System.out.println("descriptor was written, status " + status);
-
+            if (startStream(fff0, fff1)) {
+                System.out.println("started stream");
+            } else {
+                System.out.println("could not start stream");
+            }
         }
     };
 
@@ -224,11 +231,12 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.readCharacteristic(characteristic);
     }
 
-    public boolean setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enabled) {
+    public boolean setCharacteristicNotification(BluetoothGattCharacteristic c, boolean enabled) {
         if (bluetoothAdapter == null || mBluetoothGatt == null) {
             System.out.println("adapter not initialized");
             return false;
         }
+        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(c.getService().getUuid()).getCharacteristic(c.getUuid());
         boolean changed = mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIGURATION);
         if (descriptor == null) {
@@ -239,6 +247,9 @@ public class BluetoothLeService extends Service {
                     System.out.println("Changed descriptor to enable notification value");
                 } else {
                     System.out.println("could not set up write command");
+                    System.out.println(descriptor.getPermissions());
+                    System.out.println(descriptor.getCharacteristic().getUuid().toString());
+                    System.out.println(descriptor.getCharacteristic().getWriteType());
                 }
             } else {
                 System.out.println("did not change descriptor locally");
