@@ -34,6 +34,15 @@ public class BluetoothLeService extends Service {
     public static final String EXTRA_DATA = "edu.ncsu.csc.assist.EXTRA_DATA";
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
+    public static final String DATA_AVAILABLE = "edu.ncsu.csc.assist.ACTION_DATA_AVAILABLE";
+    public static final String ACTION_GATT_CONNECTED = "edu.ncsu.csc.assist.ACTION_GATT_CONNECTED";
+    public static final String ACTION_GATT_DISCONNECTED = "edu.ncsu.csc.assist" +
+            ".ACTION_GATT_DISCONNECTED";
+    public static final String ACTION_GATT_SERVICES_DISCOVERED = "edu.ncsu.csc.assist" +
+            ".ACTION_GATT_SERVICES_DISCOVERED";
+    private BluetoothGatt mBluetoothGatt;
+    private String deviceAddress;
+    private static final UUID CLIENT_CHARACTERISTIC_CONFIGURATION = new UUID(0x290200001000L, 0x800000805f9b34fbL);
 
     /**
      * Initializes a reference to the Bluetooth Adapter
@@ -56,14 +65,6 @@ public class BluetoothLeService extends Service {
         return true;
     }
 
-    public static final String DATA_AVAILABLE = "edu.ncsu.csc.assist.ACTION_DATA_AVAILABLE";
-    public static final String ACTION_GATT_CONNECTED = "edu.ncsu.csc.assist.ACTION_GATT_CONNECTED";
-    public static final String ACTION_GATT_DISCONNECTED = "edu.ncsu.csc.assist" +
-            ".ACTION_GATT_DISCONNECTED";
-    public static final String ACTION_GATT_SERVICES_DISCOVERED = "edu.ncsu.csc.assist" +
-            ".ACTION_GATT_SERVICES_DISCOVERED";
-    private BluetoothGatt mBluetoothGatt;
-    private String deviceAddress;
 
     /**
      * Connects to the GATT server on the BLE device
@@ -171,6 +172,7 @@ public class BluetoothLeService extends Service {
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gett, BluetoothGattCharacteristic characteristic, int status) {
+            System.out.println("read status: " + status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(DATA_AVAILABLE, characteristic);
             }
@@ -179,7 +181,14 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic) {
             System.out.println("received update with changed info " + Arrays.toString(bluetoothGattCharacteristic.getValue()));
+            readCharacteristic(bluetoothGattCharacteristic);
             broadcastUpdate(DATA_AVAILABLE, bluetoothGattCharacteristic);
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            System.out.println("descriptor was written, status " + status);
+
         }
     };
 
@@ -215,29 +224,29 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.readCharacteristic(characteristic);
     }
 
-    public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enabled) {
+    public boolean setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enabled) {
         if (bluetoothAdapter == null || mBluetoothGatt == null) {
             System.out.println("adapter not initialized");
-            return;
+            return false;
         }
-        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+        boolean changed = mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIGURATION);
+        if (descriptor == null) {
+            System.out.println("could not find descriptor " + CLIENT_CHARACTERISTIC_CONFIGURATION.toString());
+        } else {
+            if (descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)) {
+                if (mBluetoothGatt.writeDescriptor(descriptor)) {
+                    System.out.println("Changed descriptor to enable notification value");
+                } else {
+                    System.out.println("could not set up write command");
+                }
+            } else {
+                System.out.println("did not change descriptor locally");
+            }
+        }
+        return changed;
         //theres some other specific stuff in the example, we don't need it
     }
-
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent) {
-        close(); // clear up the connections
-        return super.onUnbind(intent);
-    }
-
-    private final IBinder mBinder = new LocalBinder();
 
 
     public boolean startStream(UUID serviceID, UUID characteristicID) {
@@ -267,10 +276,27 @@ public class BluetoothLeService extends Service {
             System.out.println("characteristic we're looking for with that notify property doesn't exist.");
             return null;
         } else {
-            setCharacteristicNotification(characteristic, true);
-            return characteristic;
+            if (setCharacteristicNotification(characteristic, true)) {
+                return characteristic;
+            } else {
+                return null;
+            }
         }
     }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        close(); // clear up the connections
+        return super.onUnbind(intent);
+    }
+
+    private final IBinder mBinder = new LocalBinder();
 
     public class LocalBinder extends Binder {
         public BluetoothLeService getService() {

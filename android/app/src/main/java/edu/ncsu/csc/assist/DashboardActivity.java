@@ -66,15 +66,15 @@ public class DashboardActivity extends AppCompatActivity {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 connected = true;
-                System.out.println("connected");
+                System.out.println("Dashboard received \"connected\"");
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 connected = false;
-                System.out.println("disconnected");
+                System.out.println("Dashboard received \"disconnected\"");
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 System.out.println("Services Discovered. Finding Characteristics...");
                 listenForAttributes();
             } else if (BluetoothLeService.DATA_AVAILABLE.equals(action)) {
-                System.out.println("Data Available:");
+                System.out.print("Data Available: ");
                 displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             }
         }
@@ -85,10 +85,14 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void listenForAttributes() {
-        notifyCharacteristic = bleService.findAndSetNotify(fff0, fff3);
-        System.out.println(notifyCharacteristic.getUuid().toString() + " has been set to notify.");
         if (bleService.startStream(fff0, fff1)) {
-            System.out.println("starting scan...");
+            System.out.println("Stream initialized");
+        }
+        notifyCharacteristic = bleService.findAndSetNotify(fff0, fff3);
+        if (notifyCharacteristic != null) {
+            System.out.println(notifyCharacteristic.getUuid().toString() + " has been set to notify.");
+        } else {
+            System.out.println("could not set up notifications.");
         }
     }
 
