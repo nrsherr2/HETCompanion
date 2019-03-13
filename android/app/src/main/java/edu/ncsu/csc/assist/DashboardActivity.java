@@ -2,7 +2,6 @@ package edu.ncsu.csc.assist;
 
 
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -15,34 +14,39 @@ import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import edu.ncsu.csc.assist.bluetooth.BluetoothLeService;
 
+/**
+ * Class that handles the main UI functionality and bluetooth connections
+ */
 public class DashboardActivity extends AppCompatActivity {
+    //the current tab you're on
     private int currentTab;
 
+    //the current fragment you're on
     private Fragment fragment;
 
+    /* the constant names for device name and address */
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
-    private String mDeviceName, mDeviceAddress;
+    /* the address of the device */
+    private String mDeviceAddress;
+    /* the service you're calling functions from */
     private BluetoothLeService bleService;
-    private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
-            new ArrayList<>();
-    private boolean connected = false;
+    /* the characteristic you're getting notifications of */
     private BluetoothGattCharacteristic notifyCharacteristic;
-    private final String LIST_NAME = "NAME";
-    private final String LIST_UUID = "UUID";
+    /* UUIDs that represent the characteristics of the BLE device we're interested in */
     private final UUID fff0 = new UUID(0xfff000001000L, 0x800000805f9b34fbL);
     private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
     private final UUID fff1 = new UUID(0x0000fff100001000L, 0x800000805f9b34fbL);
 
+    /**
+     * Connection to the BLE service that ensures we're keeping information up-to-date
+     */
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -60,15 +64,16 @@ public class DashboardActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * receiver that deals with updates sent by the BLE service
+     */
     private final BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                connected = true;
                 System.out.println("Dashboard received \"connected\"");
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                connected = false;
                 System.out.println("Dashboard received \"disconnected\"");
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 System.out.println("Services Discovered. Finding Characteristics...");
@@ -80,24 +85,29 @@ public class DashboardActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * For now, just prints the data out. We can rename the method and make it change behaviors
+     * when we integrate it into dev.
+     *
+     * @param data the information we want to display.
+     */
     private void displayData(String data) {
         System.out.println(data);
     }
 
+    /**
+     * calls the necessary methods for enabling information streaming
+     */
     private void listenForAttributes() {
         notifyCharacteristic = bleService.findAndSetNotify(fff0, fff3);
-        if (notifyCharacteristic != null) {
-            System.out.println(notifyCharacteristic.getUuid().toString() + " has been set to notify.");
-        } else {
+        if (notifyCharacteristic == null) {
             System.out.println("could not set up notifications.");
         }
-//        if (bleService.startStream(fff0, fff1)) {
-//            System.out.println("Stream initialized");
-//        }else{
-//            System.out.println("did not start stream.");
-//        }
     }
 
+    /**
+     * sets up stuff for navigation between screens
+     */
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
@@ -130,24 +140,35 @@ public class DashboardActivity extends AppCompatActivity {
 
     };
 
+    /**
+     * steps to be taken when this class is created
+     *
+     * @param savedInstanceState the current environment of Android info
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         System.out.println("initiating dashboard");
         final Intent intent = getIntent();
-        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
+        String mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
     }
 
+    /**
+     * method that runs when the activity is switched to
+     */
     @Override
     protected void onStart() {
         super.onStart();
         initiateDashboard();
     }
 
+    /**
+     * What happens when you go to a different activity and switch back to this one
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -158,6 +179,9 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * methods that are called to ensure no memory leaks happen
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -167,6 +191,9 @@ public class DashboardActivity extends AppCompatActivity {
         bleService = null;
     }
 
+    /**
+     * sets up the dashboard view
+     */
     private void initiateDashboard() {
         setContentView(R.layout.dashboard);
         BottomNavigationView navigation = findViewById(R.id.main_nav);
@@ -176,6 +203,12 @@ public class DashboardActivity extends AppCompatActivity {
         loadFragment(fragment);
     }
 
+    /**
+     * logic for switching between tabs
+     *
+     * @param item the tabs selected
+     * @return idk but it's the new view
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -185,6 +218,12 @@ public class DashboardActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * loads the fragment you want to display
+     *
+     * @param fragment the target fragment
+     * @return the fragment after it's loaded
+     */
     private boolean loadFragment(Fragment fragment) {
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -194,6 +233,11 @@ public class DashboardActivity extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * Makes sure this activity receives broadcasts that it only cares about
+     *
+     * @return the filter that states which messages are important
+     */
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
