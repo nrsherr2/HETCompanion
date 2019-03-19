@@ -215,7 +215,7 @@ public class BluetoothLeService extends Service {
                                             BluetoothGattCharacteristic bluetoothGattCharacteristic) {
             //delete this line when you find something to do with this info.
             System.out.println("received update with changed info " + Arrays.toString(bluetoothGattCharacteristic.getValue()));
-            readCharacteristic(bluetoothGattCharacteristic);
+            //readCharacteristic(bluetoothGattCharacteristic);
             broadcastUpdate(DATA_AVAILABLE, bluetoothGattCharacteristic);
         }
 
