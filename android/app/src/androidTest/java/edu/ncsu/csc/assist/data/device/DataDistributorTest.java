@@ -1,6 +1,9 @@
 package edu.ncsu.csc.assist.data.device;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Random;
 
@@ -29,7 +32,11 @@ public class DataDistributorTest {
         final long timestampStart = 5000;
         final long timestampDelta = 20;
         Random gen = new Random();
-        DataUploader uploader = new DataUploader(ApplicationProvider.getApplicationContext());
+        // Create mocked google sign in account for data uploader
+        GoogleSignInAccount googleAccount = Mockito.mock(GoogleSignInAccount.class);
+        Mockito.when(googleAccount.getIdToken()).thenReturn("mockedToken");
+
+        DataUploader uploader = new DataUploader(ApplicationProvider.getApplicationContext(), googleAccount);
         DataStorer storer = new DataStorer(ApplicationProvider.getApplicationContext());
         DataDistributor distributor = new DataDistributor(storer);
 

@@ -2,6 +2,7 @@ package edu.ncsu.csc.assist.data.cloud;
 
 import android.content.Context;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Network;
@@ -17,7 +18,9 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
 
@@ -58,14 +61,21 @@ public class RestQueue {
         return queue.add(request);
     }
 
-    public Request makeRequest(int method, String url, JSONObject jsonBody, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) {
-        JsonObjectRequest request = new JsonObjectRequest(method, url, jsonBody, listener, errorListener);
+    public Request makeRequest(int method, String url, final Map<String, String> headers, JSONObject jsonBody, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) {
+        JsonObjectRequest request = new JsonObjectRequest(method, url, jsonBody, listener, errorListener) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return headers;
+            }
+        };
         request.setRetryPolicy(retryPolicy);
         return makeRequest(request);
     }
 
-    public Request sendSaveRequest(String userId, String hetVersion, List<RawDataPoint> data, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) throws JSONException {
-        return makeRequest(Request.Method.POST, Endpoints.V1_SAVE, JsonUtil.formatJson(userId, hetVersion, data), listener, errorListener);
+    public Request sendSaveRequest(String userId, String hetVersion, String authToken, List<RawDataPoint> data, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) throws JSONException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", authToken);
+        return makeRequest(Request.Method.POST, Endpoints.V1_SAVE, headers, JsonUtil.formatJson(userId, hetVersion, data), listener, errorListener);
     }
 
     public void stop() {

@@ -19,22 +19,21 @@ function createTextFile(bucketName, itemName, fileText) {
     }).promise()
 }
 
-function getBucketContents(bucketName) {
+function getBucketContents(bucketName, prefix) {
     console.log(`Retrieving bucket contents from: ${bucketName}`);
-    return cos.listObjects(
-        {Bucket: bucketName},
-    ).promise()
+    return cos.listObjects({
+        Bucket: bucketName,
+        Prefix: prefix
+    },).promise()
     .then((data) => {
         if (data != null && data.Contents != null) {
-            for (var i = 0; i < data.Contents.length; i++) {
-                var itemKey = data.Contents[i].Key;
-                var itemSize = data.Contents[i].Size;
-                console.log(`Item: ${itemKey} (${itemSize} bytes).`)
-            }
+            // data.Contents[i].Key
+            return data.Contents;
         }    
     })
     .catch((e) => {
         console.error(`ERROR: ${e.code} - ${e.message}\n`);
+        return [];
     });
 }
 
@@ -69,5 +68,8 @@ function deleteItem(bucketName, itemName) {
 }
 
 
-module.exports = createTextFile;
+module.exports = {
+    createTextFile: createTextFile,
+    getBucketContents: getBucketContents
+};
 
