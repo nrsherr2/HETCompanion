@@ -82,5 +82,5 @@ dependencies {
     androidTestImplementation 'org.mockito:mockito-android:2.6.3' // Mocking
     //androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.2-alpha01' // UI Testing
     androidTestImplementation "android.arch.persistence.room:testing:$roomVersion"
-    androidTestImplementation 'org.testng:testng:6.9.6'// Database Testing
+    androidTestImplementation 'org.testng:testng:6.9.6'// Testing
 }
