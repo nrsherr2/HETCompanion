@@ -31,7 +31,7 @@
         android:ems="10"
         android:inputType="textPersonName"
         android:text="HET Version"
-        app:layout_constraintBottom_toTopOf="@+id/button"
+        app:layout_constraintBottom_toTopOf="@+id/settings_submit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
