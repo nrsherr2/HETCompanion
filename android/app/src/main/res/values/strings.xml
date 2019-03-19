@@ -4,9 +4,16 @@
     <string name="signin">Please Sign In</string>
     <string name="loginmsg">A Google Sign-In is required in order to use this application.</string>
     <string name="plsbt">Connect HET Device</string>
-    <string name="btexplain">This app requires at least 1 ASSIST HET Device be paired with this device. Additionally, in order to use BLE, location services must be enabled.</string>
+    <string name="btexplain">This app is designed to work with an ASSIST HET device. Press the button below to choose a device to work with.</string>
     <string name="server_client_id">594190355836-gtka26ga090eq4sjuo6d3fjudb08e09a.apps.googleusercontent.com</string>
+    <string name="bl_not_supported">Bluetooth is not supported on this device. We apologize, but this app cannot function without Bluetooth.
+    </string>
     <string name="ble_not_supported">Bluetooth Low Energy is not supported on this device. We apologize, but this app cannot function without BLE.</string>
     <string name="assistImageDescription">Logo for the ASSIST research group</string>
     <string name="btSymbolDesc">The Bluetooth logo</string>
+    <string name="unknowndevice">Unknown Device</string>
+    <string name="scanButtonText">Scan Now</string>
+    <string name="btStopScanButtonText">Stop Scan</string>
+    <string name="btConnected">BLE Device Connected</string>
+    <string name="btDisconnected">BLE Device Disconnected</string>
 </resources>
