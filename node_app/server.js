@@ -3,6 +3,7 @@ const express = require('express');                   // Expressjs handles rest 
 const helmet = require('helmet');                     // Remove/set security related HTTP headers
 const bodyParser = require('body-parser');            // For parsing JSON requests
 const {OAuth2Client} = require('google-auth-library');// Google API for authenticating tokens
+require('express-async-errors');
 
 // Local Imports
 var routes = require('./api/routes/routes.js');
