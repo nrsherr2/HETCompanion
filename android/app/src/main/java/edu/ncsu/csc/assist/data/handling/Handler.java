@@ -15,6 +15,8 @@ public abstract class Handler {
 
     protected int timeBetweenValues;
 
+    private static final int intBitMask = 0x000000FF;
+
     private DataStorer rawDataBuffer;
 
     public Handler(int bytesPerValue, int numberOfValues, int timeBetweenValues, DataStorer rawDataBuffer) {
@@ -40,10 +42,13 @@ public abstract class Handler {
     }
 
     static int getIntFromBytes(byte... bytes) {
-        int newInt = 0;
-        for (int i = 0; i < bytes.length; i++) {
+        if(bytes.length == 0){
+            return 0;
+        }
+        int newInt = bytes[0];
+        for (int i = 1; i < bytes.length; i++) {
             newInt = newInt << 8;
-            newInt = newInt | bytes[i];
+            newInt = newInt | (bytes[i] & intBitMask);
         }
         return newInt;
     }
