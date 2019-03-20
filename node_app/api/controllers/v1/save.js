@@ -53,7 +53,7 @@ exports.save = async function(request, response) {
         // Data received, calculate whether we should use a new or old folder
         now = new Date();
         midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-        msSinceMidnight = now.getTime() - then.getTime();
+        msSinceMidnight = now.getTime() - midnight.getTime();
 
         if (maxCsvFuzzed < msSinceMidnight) {
             // Write to same folder
