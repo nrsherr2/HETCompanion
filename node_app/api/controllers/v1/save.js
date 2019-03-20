@@ -4,7 +4,7 @@ const ClientException = require('../../exceptions/ClientException.js')
 const ServerException = require('../../exceptions/ServerException.js')
 
 const REQUIRED_KEYS = [ 'user_id', 'het_version' ];
-const EXPECTED_DATA_KEYS = [ 'chest_ecg', 'chest_ppg', 'chest_inertia_x', 'chest_inertia_y', 'chest_inertia_z', 'wrist_inertia_x', 'wrist_inertiay', 
+const EXPECTED_DATA_KEYS = [ 'chest_ecg', 'chest_ppg', 'chest_inertia_x', 'chest_inertia_y', 'chest_inertia_z', 'wrist_inertia_x', 'wrist_inertia_y', 
     'wrist_inertia_z', 'wrist_ppg', 'wrist_oz', 'wrist_poz', 'wrist_roz', 'wrist_moz', 'wrist_temperature', 'wrist_humidity' ];
 const REQUIRED_DATA_SUB_KEYS = [ 'initial_timestamp', 'delta', 'data' ];
 const BUCKET_NAME = 'het-streaming';
