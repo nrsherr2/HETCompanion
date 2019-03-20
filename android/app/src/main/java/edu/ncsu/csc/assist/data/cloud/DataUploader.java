@@ -101,7 +101,11 @@ public class DataUploader {
 
             Log.d(getClass().getCanonicalName(), "Uploading " + toUpload.size() + " data points to the cloud.");
             try {
-                restQueue.sendSaveRequest(userId, database.configOptionDao().getByKey("config_het_version"), googleSignInAccount.getIdToken(), toUpload, new Response.Listener<JSONObject>() {
+                String hetVersion = database.configOptionDao().getByKey("config_het_version");
+                if(hetVersion == null){
+                    hetVersion = "0.2";
+                }
+                restQueue.sendSaveRequest(userId, hetVersion, googleSignInAccount.getIdToken(), toUpload, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
                                 try {
