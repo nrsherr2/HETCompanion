@@ -47,12 +47,12 @@ public class DataUploader {
         this.googleSignInAccount = googleAccount;
         database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").build();
         restQueue = new RestQueue(context);
-        startUploadTask();
     }
 
-    private void startUploadTask() {
+    public void startUploadTask() {
         Log.d(getClass().getCanonicalName(), "Starting cloud upload task.");
-        uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.MINUTES);
+        //uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.MINUTES);
+        uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.SECONDS);
     }
 
     private void stopUploadTask() {
@@ -64,6 +64,7 @@ public class DataUploader {
 
     private final Runnable uploadData = new Runnable() {
         public synchronized void run() {
+            System.out.println("*** Uploading Info ***");
             Log.d(getClass().getCanonicalName(), "Attempting to upload");
             // Check the wifi connection
             ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -71,16 +72,29 @@ public class DataUploader {
             boolean connectedToWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
 
             // If not connected to wifi then return; only upload via wifi
-            if (!connectedToWiFi) return;
+            if (!connectedToWiFi){
+                Log.d(getClass().getCanonicalName(), "Not connected to WiFi.");
+                return;
+            }
 
             final List<RawDataPoint> toUpload = database.rawDataPointDao().getAll();
             if (toUpload.size() <= 0) {
+                Log.d(getClass().getCanonicalName(), "No data to upload.");
                 return;
             }
 
             // Modify the timestamps by the defined delta
             String userId = database.configOptionDao().getByKey("config_user_id");
-            long delta = Long.valueOf(database.configOptionDao().getByKey("user_" + userId + "_ts_delta"));
+            if (userId == null) {
+                userId = "0";
+                //TODO remove this (debug stuff)
+            }
+            String sDelta = database.configOptionDao().getByKey("user_" + userId + "_ts_delta");
+            if (sDelta == null) {
+                sDelta = "0";
+                //TODO remove this too
+            }
+            long delta = Long.valueOf(sDelta);
             for (RawDataPoint data : toUpload) {
                 data.setTimestamp(data.getTimestamp() - delta);
             }

@@ -100,7 +100,7 @@ public class DataDistributor {
 //    }
 
     public void distributeChestStreamOne(byte[] data, long timestamp) {
-        if (data.length != CHEST_STREAM_ONE) {
+        if (data.length < CHEST_STREAM_ONE) {
             throw new IllegalArgumentException("HET Chest data stream one received did not match expected length");
         }
         int offset = 0;
@@ -118,7 +118,7 @@ public class DataDistributor {
     }
 
     public void distributeChestStreamTwo(byte[] data, long timestamp) {
-        if (data.length != CHEST_STREAM_TWO) {
+        if (data.length < CHEST_STREAM_TWO) {
             throw new IllegalArgumentException("HET Chest data stream two received did not match expected length");
         }
         int offset = 0;
@@ -161,7 +161,7 @@ public class DataDistributor {
 //    }
 
     public void distributeWristStreamOne(byte[] data, long timestamp) {
-        if (data.length != WRIST_STREAM_ONE) {
+        if (data.length < WRIST_STREAM_ONE) {
             throw new IllegalArgumentException("HET Wrist data stream one received did not match expected length");
         }
         int offset = 0;
@@ -179,11 +179,10 @@ public class DataDistributor {
     }
 
     public void distributeWristStreamTwo(byte[] data, long timestamp) {
-        if (data.length != WRIST_STREAM_TWO) {
+        if (data.length < WRIST_STREAM_TWO) {
             throw new IllegalArgumentException("HET Wrist data stream two received did not match expected length");
         }
         int offset = 0;
-
         //--WRIST STREAM TWO DATA PARSING--
         //Ozone data
         byte[] ozoneData = Arrays.copyOfRange(data, offset, offset + WRIST_OZONE_BYTES);

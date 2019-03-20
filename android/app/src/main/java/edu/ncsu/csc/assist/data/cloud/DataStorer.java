@@ -81,6 +81,7 @@ public class DataStorer {
 
     private final Runnable dumpQueueToDatabase = new Runnable() {
         public synchronized void run() {
+            Log.d(getClass().getCanonicalName(), "Dumping the raw data queue to database");
             if(saveQueue.isEmpty()){
                 return;
             }
@@ -91,6 +92,7 @@ public class DataStorer {
                 toInsert.add(new RawDataPoint(genericData.getType(), genericData.getTimestamp(), genericData.getValue()));
             }
 
+            Log.d(getClass().getCanonicalName(), "Inserting " + toInsert.size() + " raw data points into sqlite database.");
             database.rawDataPointDao().insertAll(toInsert);
 
             database.setTransactionSuccessful();

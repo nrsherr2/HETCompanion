@@ -105,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onStart() {
         setContentView(R.layout.signin);
         super.onStart();
-        System.out.println("on start");
 //        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
 //        if (account != null) {
 //            //initiateDashboard();
@@ -120,7 +119,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        System.out.println("on resume");
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if (account != null) {
             //initiateDashboard();
