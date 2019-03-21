@@ -40,6 +40,7 @@ app.use(function(request, response, next) {
     var authToken = request.get('Authorization');
 
     if (authToken) {
+      console.log('Checking authentication with Google');
       const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
       async function verify() {
@@ -55,13 +56,15 @@ app.use(function(request, response, next) {
         // Save the Google userid for other methods to use
         request.locals = {}; //Clear out and define locals variable space
         request.locals.googleUserId = userid;
-        console.log(`Received UserID ${userid}`);
+        console.log('User successfully authenticated');
+	console.log(`Received UserID ${userid}`);
         next();
       }
 
       verify().catch(error => {
         console.log(`Authentication failed for ${request.ip}`);
-        response.status(401).json({
+	console.error(error); 
+	response.status(401).json({
           status: 401,
           message: 'Authentication failed.'
         });
