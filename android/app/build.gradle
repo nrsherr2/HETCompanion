@@ -19,12 +19,11 @@ android {
             keyAlias localProperties.getProperty('release.key.alias')
             keyPassword localProperties.getProperty('release.key.password')
             storePassword localProperties.getProperty('release.key.password')
-            debuggable false
         }
     }
     buildTypes {
         release {
-            debuggable true
+            debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
