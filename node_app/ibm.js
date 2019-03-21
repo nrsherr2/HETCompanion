@@ -73,3 +73,10 @@ module.exports = {
     getBucketContents: getBucketContents
 };
 
+
+// Delete all bucket contents
+//getBucketContents('het-streaming').then(function(response) {
+//	response.forEach(function(e) {
+//		deleteItem('het-streaming', e.Key);
+//	});
+//});
