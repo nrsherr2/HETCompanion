@@ -45,7 +45,7 @@ public class DataUploader {
     public DataUploader(Context context, GoogleSignInAccount googleAccount) {
         this.mContext = context;
         this.googleSignInAccount = googleAccount;
-        database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").build();
+        database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").allowMainThreadQueries().build();
         restQueue = new RestQueue(context);
     }
 
@@ -138,7 +138,7 @@ public class DataUploader {
         }
     };
 
-    public void flush(){
+    public void flush() {
         Log.d(getClass().getCanonicalName(), "Flushing uploader...");
         uploadData.run();
     }
