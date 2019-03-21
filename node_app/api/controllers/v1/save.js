@@ -35,6 +35,7 @@ exports.save = async function(request, response) {
     var currentFiles = await getBucketContents(BUCKET_NAME, `Subject${request.body.user_id}/HET_v${request.body.het_version}_chest-`);
     var maxCsvFuzzed = 0;
     var maxDataPath;
+    var maxDataNumber = 0;
     // Loop through received files for the user
     currentFiles.forEach(function(file) {
         // Split the file path/name into just the timestamp
@@ -42,7 +43,11 @@ exports.save = async function(request, response) {
         // This equal comparison is added to have the highest Data#.csv
 	if (fuzzed >= maxCsvFuzzed) {
             maxCsvFuzzed = fuzzed;
-            maxDataPath = file.Key;
+	    dataFileNumber = parseInt(file.Key.split('/')[2].split('.')[0].substring(4));
+	    if (dataFileNumber > maxDataNumber) {
+		maxDataNumber = dataFileNumber;
+            	maxDataPath = file.Key;
+	    }
         }
     });
 
