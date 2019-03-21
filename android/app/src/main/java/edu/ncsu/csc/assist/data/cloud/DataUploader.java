@@ -3,6 +3,7 @@ package edu.ncsu.csc.assist.data.cloud;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.android.volley.Response;
@@ -62,8 +63,10 @@ public class DataUploader {
         uploadTask.cancel(false);
     }
 
-    private final Runnable uploadData = new Runnable() {
-        public synchronized void run() {
+    private class DataUploadTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
             System.out.println("*** Uploading Info ***");
             Log.d(getClass().getCanonicalName(), "Attempting to upload");
             // Check the wifi connection
@@ -74,13 +77,13 @@ public class DataUploader {
             // If not connected to wifi then return; only upload via wifi
             if (!connectedToWiFi){
                 Log.d(getClass().getCanonicalName(), "Not connected to WiFi.");
-                return;
+                return null;
             }
 
             final List<RawDataPoint> toUpload = database.rawDataPointDao().getAll();
             if (toUpload.size() <= 0) {
                 Log.d(getClass().getCanonicalName(), "No data to upload.");
-                return;
+                return null;
             }
 
             // Modify the timestamps by the defined delta
@@ -135,6 +138,13 @@ public class DataUploader {
             } catch (JSONException e) {
                 Log.e(getClass().getCanonicalName(), "JSON Token error! Unable to upload this data!", e);
             }
+            return null;
+        }
+    }
+
+    private final Runnable uploadData = new Runnable() {
+        public synchronized void run() {
+            new DataUploadTask().execute();
         }
     };
 
