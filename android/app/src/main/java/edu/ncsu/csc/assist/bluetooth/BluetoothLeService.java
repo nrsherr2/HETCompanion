@@ -15,11 +15,11 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import androidx.annotation.Nullable;
+import edu.ncsu.csc.assist.SignInClientHolder;
+import edu.ncsu.csc.assist.data.device.DataReceiver;
 
 /**
  * Service used for communication with the BLE device. This allows the dashboard to abstract all
@@ -36,8 +36,11 @@ public class BluetoothLeService extends Service {
      * UUIDS that describe the characteristics and services we want to look for on the device.
      */
     private final UUID fff0 = new UUID(0xfff000001000L, 0x800000805f9b34fbL);
-    private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
     private final UUID fff1 = new UUID(0x0000fff100001000L, 0x800000805f9b34fbL);
+    private final UUID fff2 = new UUID(0xfff200001000L, 0x800000805f9b34fbL);
+    private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
+    private final UUID fff4 = new UUID(0xfff400001000L, 0x800000805f9b34fbL);
+    private final UUID fff5 = new UUID(0xfff500001000L, 0x800000805f9b34fbL);
     /* these two manage the connection between the hardware and software, but I don't know which
     does what. Being honest here. But they're super important, so don't delete them.*/
     private BluetoothManager bluetoothManager;
@@ -80,6 +83,10 @@ public class BluetoothLeService extends Service {
             System.out.println("unable to obtain bluetooth adapter");
             return false;
         }
+
+        //Initializes DataReceiver
+        DataReceiver.initialize(this, SignInClientHolder.getClient());
+
         return true;
     }
 
@@ -214,9 +221,14 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicChanged(BluetoothGatt bluetoothGatt,
                                             BluetoothGattCharacteristic bluetoothGattCharacteristic) {
             //delete this line when you find something to do with this info.
-            System.out.println("received update with changed info " + Arrays.toString(bluetoothGattCharacteristic.getValue()));
+            //System.out.println("received update with changed info " + Arrays.toString(bluetoothGattCharacteristic.getValue()));
             //readCharacteristic(bluetoothGattCharacteristic);
             broadcastUpdate(DATA_AVAILABLE, bluetoothGattCharacteristic);
+            if(bluetoothGattCharacteristic.getUuid().toString().equals(fff3.toString())){
+                DataReceiver.receiveWristStreamTwo(bluetoothGattCharacteristic.getValue());
+            } else if(bluetoothGattCharacteristic.getUuid().toString().equals(fff4.toString())){
+                DataReceiver.receiveWristStreamOne(bluetoothGattCharacteristic.getValue());
+            }
         }
 
         /**

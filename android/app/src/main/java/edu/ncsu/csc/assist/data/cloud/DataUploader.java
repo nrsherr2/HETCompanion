@@ -3,11 +3,15 @@ package edu.ncsu.csc.assist.data.cloud;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,23 +40,23 @@ public class DataUploader {
 
     private Context mContext;
 
-    private GoogleSignInAccount googleSignInAccount;
+    private GoogleApiClient googleApiClient;
 
     // Scheduler Service
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> uploadTask;
 
-    public DataUploader(Context context, GoogleSignInAccount googleAccount) {
+    public DataUploader(Context context, GoogleApiClient googleApiClient) {
         this.mContext = context;
-        this.googleSignInAccount = googleAccount;
-        database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").build();
+        this.googleApiClient = googleApiClient;
+        database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").allowMainThreadQueries().build();
         restQueue = new RestQueue(context);
-        startUploadTask();
     }
 
-    private void startUploadTask() {
+    public void startUploadTask() {
         Log.d(getClass().getCanonicalName(), "Starting cloud upload task.");
-        uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.MINUTES);
+        //uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.MINUTES);
+        uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.SECONDS);
     }
 
     private void stopUploadTask() {
@@ -62,8 +66,11 @@ public class DataUploader {
         uploadTask.cancel(false);
     }
 
-    private final Runnable uploadData = new Runnable() {
-        public synchronized void run() {
+    private class DataUploadTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            System.out.println("*** Uploading Info ***");
             Log.d(getClass().getCanonicalName(), "Attempting to upload");
             // Check the wifi connection
             ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -71,23 +78,44 @@ public class DataUploader {
             boolean connectedToWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
 
             // If not connected to wifi then return; only upload via wifi
-            if (!connectedToWiFi) return;
+            if (!connectedToWiFi){
+                Log.d(getClass().getCanonicalName(), "Not connected to WiFi.");
+                return null;
+            }
 
             final List<RawDataPoint> toUpload = database.rawDataPointDao().getAll();
             if (toUpload.size() <= 0) {
-                return;
+                Log.d(getClass().getCanonicalName(), "No data to upload.");
+                return null;
             }
 
             // Modify the timestamps by the defined delta
             String userId = database.configOptionDao().getByKey("config_user_id");
-            long delta = Long.valueOf(database.configOptionDao().getByKey("user_" + userId + "_ts_delta"));
+            if (userId == null) {
+                userId = "0";
+                //TODO remove this (debug stuff)
+            }
+            String sDelta = database.configOptionDao().getByKey("user_" + userId + "_ts_delta");
+            if (sDelta == null) {
+                sDelta = "0";
+                //TODO remove this too
+            }
+            long delta = Long.valueOf(sDelta);
             for (RawDataPoint data : toUpload) {
                 data.setTimestamp(data.getTimestamp() - delta);
             }
 
             Log.d(getClass().getCanonicalName(), "Uploading " + toUpload.size() + " data points to the cloud.");
             try {
-                restQueue.sendSaveRequest(userId, database.configOptionDao().getByKey("config_het_version"), googleSignInAccount.getIdToken(), toUpload, new Response.Listener<JSONObject>() {
+                String hetVersion = database.configOptionDao().getByKey("config_het_version");
+                if(hetVersion == null){
+                    hetVersion = "0.2";
+                }
+
+                OptionalPendingResult<GoogleSignInResult> pendingResult = Auth.GoogleSignInApi.silentSignIn(googleApiClient);
+                String googleIdToken = pendingResult.await().getSignInAccount().getIdToken();
+
+                restQueue.sendSaveRequest(userId, hetVersion, googleIdToken, toUpload, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
                                 try {
@@ -117,10 +145,17 @@ public class DataUploader {
             } catch (JSONException e) {
                 Log.e(getClass().getCanonicalName(), "JSON Token error! Unable to upload this data!", e);
             }
+            return null;
+        }
+    }
+
+    private final Runnable uploadData = new Runnable() {
+        public synchronized void run() {
+            new DataUploadTask().execute();
         }
     };
 
-    public void flush(){
+    public void flush() {
         Log.d(getClass().getCanonicalName(), "Flushing uploader...");
         uploadData.run();
     }

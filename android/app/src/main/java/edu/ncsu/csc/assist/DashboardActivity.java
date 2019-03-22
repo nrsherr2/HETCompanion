@@ -79,8 +79,8 @@ public class DashboardActivity extends AppCompatActivity {
                 System.out.println("Services Discovered. Finding Characteristics...");
                 listenForAttributes();
             } else if (BluetoothLeService.DATA_AVAILABLE.equals(action)) {
-                System.out.print("Data Available: ");
-                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                //System.out.print("Data Available: ");
+                //displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             }
         }
     };

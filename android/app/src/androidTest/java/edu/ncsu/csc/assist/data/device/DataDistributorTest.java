@@ -26,8 +26,8 @@ public class DataDistributorTest {
 
         final int CHEST_STREAM_ONE_BYTES = 20;
         final int CHEST_STREAM_TWO_BYTES = 12;
-        final int WRIST_STREAM_TWO_BYTES = 16;
-        final int WRIST_STREAM_ONE_BYTES = 12;
+        final int WRIST_STREAM_ONE_BYTES = 16;
+        final int WRIST_STREAM_TWO_BYTES = 12;
         final int NUM_PACKAGES = 1;
         final long timestampStart = 5000;
         final long timestampDelta = 20;
