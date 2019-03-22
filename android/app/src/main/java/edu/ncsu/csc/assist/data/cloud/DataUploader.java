@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import androidx.room.Room;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
+import edu.ncsu.csc.assist.data.sqlite.entities.ConfigOption;
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
 
 /**
@@ -91,27 +92,38 @@ public class DataUploader {
 
             // Modify the timestamps by the defined delta
             String userId = database.configOptionDao().getByKey("config_user_id");
-            if (userId == null) {
-                userId = "0";
-                //TODO remove this (debug stuff)
+            if (userId == null || userId.length() <= 0) {
+                Log.e(getClass().getCanonicalName(), "User ID Config does not exist in the database! Aborting upload...");
+                return null;
             }
             String sDelta = database.configOptionDao().getByKey("user_" + userId + "_ts_delta");
-            if (sDelta == null) {
-                sDelta = "0";
-                //TODO remove this too
+            if (sDelta == null || sDelta.length() <= 0) {
+                // User has never uploaded data before. Lets create an offset from the lowest timestamp in the data uploaded.
+                long smallestTimestamp = Long.MAX_VALUE;
+                for (RawDataPoint raw : toUpload) {
+                    if (raw.getTimestamp() < smallestTimestamp)
+                        smallestTimestamp = raw.getTimestamp();
+                }
+                // Remove 1 second off the timestamp so we don't have and 0 timestamps. The server doesn't seem to really like those.
+                smallestTimestamp -= 1000L;
+
+                // Save the timestamp for next time
+                database.configOptionDao().insert(new ConfigOption("user_" + userId + "_ts_delta", Long.toString(smallestTimestamp)));
+                sDelta = Long.toString(smallestTimestamp);
             }
             long delta = Long.valueOf(sDelta);
             for (RawDataPoint data : toUpload) {
                 data.setTimestamp(data.getTimestamp() - delta);
             }
 
+            String hetVersion = database.configOptionDao().getByKey("config_het_version");
+            if (hetVersion == null) {
+                Log.e(getClass().getCanonicalName(), "HET Version does not exist in the database! Aborting upload...");
+                return null;
+            }
+
             Log.d(getClass().getCanonicalName(), "Uploading " + toUpload.size() + " data points to the cloud.");
             try {
-                String hetVersion = database.configOptionDao().getByKey("config_het_version");
-                if(hetVersion == null){
-                    hetVersion = "0.2";
-                }
-
                 OptionalPendingResult<GoogleSignInResult> pendingResult = Auth.GoogleSignInApi.silentSignIn(googleApiClient);
                 String googleIdToken = pendingResult.await().getSignInAccount().getIdToken();
 
