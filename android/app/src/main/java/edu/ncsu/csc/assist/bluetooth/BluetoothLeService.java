@@ -15,13 +15,10 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-
-import java.util.Arrays;
 import java.util.UUID;
 
 import androidx.annotation.Nullable;
+import edu.ncsu.csc.assist.SignInClientHolder;
 import edu.ncsu.csc.assist.data.device.DataReceiver;
 
 /**
@@ -88,13 +85,7 @@ public class BluetoothLeService extends Service {
         }
 
         //Initializes DataReceiver
-        GoogleSignInAccount gAccount = GoogleSignIn.getLastSignedInAccount(this);
-
-        if(gAccount != null){
-            DataReceiver.initialize(this, gAccount);
-        } else {
-            System.out.println("User is not signed in when attempting to initialize DataReceiver");
-        }
+        DataReceiver.initialize(this, SignInClientHolder.getClient());
 
         return true;
     }

@@ -8,7 +8,10 @@ import android.util.Log;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,15 +40,15 @@ public class DataUploader {
 
     private Context mContext;
 
-    private GoogleSignInAccount googleSignInAccount;
+    private GoogleApiClient googleApiClient;
 
     // Scheduler Service
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> uploadTask;
 
-    public DataUploader(Context context, GoogleSignInAccount googleAccount) {
+    public DataUploader(Context context, GoogleApiClient googleApiClient) {
         this.mContext = context;
-        this.googleSignInAccount = googleAccount;
+        this.googleApiClient = googleApiClient;
         database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").allowMainThreadQueries().build();
         restQueue = new RestQueue(context);
     }
@@ -108,7 +111,11 @@ public class DataUploader {
                 if(hetVersion == null){
                     hetVersion = "0.2";
                 }
-                restQueue.sendSaveRequest(userId, hetVersion, googleSignInAccount.getIdToken(), toUpload, new Response.Listener<JSONObject>() {
+
+                OptionalPendingResult<GoogleSignInResult> pendingResult = Auth.GoogleSignInApi.silentSignIn(googleApiClient);
+                String googleIdToken = pendingResult.await().getSignInAccount().getIdToken();
+
+                restQueue.sendSaveRequest(userId, hetVersion, googleIdToken, toUpload, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
                                 try {

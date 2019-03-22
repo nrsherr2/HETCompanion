@@ -1,13 +1,9 @@
 package edu.ncsu.csc.assist.data.device;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.api.GoogleApiClient;
 
-import edu.ncsu.csc.assist.bluetooth.BluetoothLeService;
 import edu.ncsu.csc.assist.data.cloud.DataStorer;
 import edu.ncsu.csc.assist.data.cloud.DataUploader;
 
@@ -18,9 +14,9 @@ public class DataReceiver{
     private static DataDistributor distributor;
     private static boolean initialized = false;
 
-    public static void initialize(Context context, GoogleSignInAccount gAccount){
+    public static void initialize(Context context, GoogleApiClient apiClient) {
         storer = new DataStorer(context);
-        uploader = new DataUploader(context, gAccount);
+        uploader = new DataUploader(context, apiClient);
         distributor = new DataDistributor(storer);
         storer.startSaveTask();
         uploader.startUploadTask();
