@@ -38,7 +38,7 @@ public class SettingsActivity extends AppCompatActivity {
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-        db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "ASSIST").build();
+        db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "ASSIST").allowMainThreadQueries().build();
 
         // save objects on screen as properties
         userId = findViewById(R.id.user_id);
@@ -66,7 +66,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         if (validUserId && validHetVersion) {
             // save in DB
+            db.configOptionDao().deleteByKey("config_user_id");
             db.configOptionDao().insert(new ConfigOption("config_user_id", userIdStr));
+            db.configOptionDao().deleteByKey("config_het_version");
             db.configOptionDao().insert(new ConfigOption("config_het_version", hetVersionStr));
 
             // Go to dashboard
