@@ -72,7 +72,7 @@ public class SettingsActivity extends AppCompatActivity {
             db.configOptionDao().insert(new ConfigOption("config_het_version", hetVersionStr));
 
             // Go to dashboard
-            final Intent intent = new Intent(this, SettingsActivity.class);
+            final Intent intent = new Intent(this, DashboardActivity.class);
             intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME, mDeviceName);
             intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
             startActivity(intent);
