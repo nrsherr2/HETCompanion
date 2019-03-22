@@ -24,6 +24,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import edu.ncsu.csc.assist.DashboardActivity;
 import edu.ncsu.csc.assist.R;
+import edu.ncsu.csc.assist.SettingsActivity;
 
 public class DeviceScanActivity extends ListActivity {
 
@@ -87,7 +88,7 @@ public class DeviceScanActivity extends ListActivity {
             bluetoothAdapter.stopLeScan(leScanCallback);
             scanning = false;
         }
-        final Intent intent = new Intent(this, DashboardActivity.class);
+        final Intent intent = new Intent(this, SettingsActivity.class);
         intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME, device.getName());
         intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         startActivity(intent);

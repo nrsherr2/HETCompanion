@@ -34,6 +34,7 @@
         <activity android:name=".bluetooth.DeviceScanActivity" />
         <activity android:name=".bluetooth.BtButtonActivity" />
         <activity android:name=".DashboardActivity" />
+        <activity android:name=".SettingsActivity" />
 
         <service android:name=".bluetooth.BluetoothLeService" />
     </application>
