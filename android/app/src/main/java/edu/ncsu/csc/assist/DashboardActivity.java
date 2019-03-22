@@ -11,14 +11,20 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import edu.ncsu.csc.assist.bluetooth.BluetoothLeService;
+import edu.ncsu.csc.assist.data.device.DataReceiver;
+import edu.ncsu.csc.assist.data.device.DataStream;
 
 /**
  * Class that handles the main UI functionality and bluetooth connections
@@ -43,6 +49,13 @@ public class DashboardActivity extends AppCompatActivity {
     private final UUID fff0 = new UUID(0xfff000001000L, 0x800000805f9b34fbL);
     private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
     private final UUID fff1 = new UUID(0x0000fff100001000L, 0x800000805f9b34fbL);
+
+    //the following block deals with monitoring stream activity and reactively setting UI elements to represent their status
+    private final long ACTIVE_THRESHOLD = 1000; //time since latest update stream must be under to be considered "active" (in millis)
+    private boolean chestStreamOneActive = false;
+    private boolean chestStreamTwoActive = false;
+    private boolean wristStreamOneActive = false;
+    private boolean wristStreamTwoActive = false;
 
     /**
      * Connection to the BLE service that ensures we're keeping information up-to-date
@@ -199,6 +212,10 @@ public class DashboardActivity extends AppCompatActivity {
         BottomNavigationView navigation = findViewById(R.id.main_nav);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        //creates scheduled task to update stream statuses
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(updateStreamStatus, 1, 1, TimeUnit.SECONDS);
+
         fragment = new HomeFragment();
         loadFragment(fragment);
     }
@@ -246,4 +263,64 @@ public class DashboardActivity extends AppCompatActivity {
         intentFilter.addAction(BluetoothLeService.DATA_AVAILABLE);
         return intentFilter;
     }
+
+    /**
+     * periodic task that reactively checks the multiple stream connections
+     * "checking" streams is done by remembering the timestamp of the most recent update
+     * then checking to see if that time occurred recently*
+     * *recently is defined by a specified threshold
+     */
+    private final Runnable updateStreamStatus = new Runnable() {
+        @Override
+        public void run() {
+            long currentTime = System.currentTimeMillis();
+            long chestStreamOneDiff = currentTime - DataReceiver.getLatestTimestamp(DataStream.CHEST_ONE);
+            long chestStreamTwoDiff = currentTime - DataReceiver.getLatestTimestamp(DataStream.CHEST_TWO);
+            long wristStreamOneDiff = currentTime - DataReceiver.getLatestTimestamp(DataStream.WRIST_ONE);
+            long wristStreamTwoDiff = currentTime - DataReceiver.getLatestTimestamp(DataStream.WRIST_TWO);
+
+            //determines if streams need to change state
+            //Chest One (fff5)
+            if (chestStreamOneActive && chestStreamOneDiff > ACTIVE_THRESHOLD) {
+                ImageView status = findViewById(R.id.chestOneStatus);
+                status.setImageResource(R.drawable.red);
+                chestStreamOneActive = false;
+            } else if (!chestStreamOneActive && chestStreamOneDiff < ACTIVE_THRESHOLD) {
+                ImageView status = findViewById(R.id.chestOneStatus);
+                status.setImageResource(R.drawable.green);
+                chestStreamOneActive = true;
+            }
+            //Chest Two (fff2)
+            if (chestStreamTwoActive && chestStreamTwoDiff > ACTIVE_THRESHOLD) {
+                ImageView status = findViewById(R.id.chestTwoStatus);
+                status.setImageResource(R.drawable.red);
+                chestStreamTwoActive = false;
+            } else if (!chestStreamTwoActive && chestStreamTwoDiff < ACTIVE_THRESHOLD) {
+                ImageView status = findViewById(R.id.chestTwoStatus);
+                status.setImageResource(R.drawable.green);
+                chestStreamTwoActive = true;
+            }
+            //Wrist One (fff4)
+            if (wristStreamOneActive && wristStreamOneDiff > ACTIVE_THRESHOLD) {
+                ImageView status = findViewById(R.id.wristOneStatus);
+                status.setImageResource(R.drawable.red);
+                wristStreamOneActive = false;
+            } else if (!wristStreamOneActive && wristStreamOneDiff < ACTIVE_THRESHOLD) {
+                ImageView status = findViewById(R.id.wristOneStatus);
+                status.setImageResource(R.drawable.green);
+                wristStreamOneActive = true;
+            }
+            //Wrist Two (fff3)
+            if (wristStreamTwoActive && wristStreamTwoDiff > ACTIVE_THRESHOLD) {
+                ImageView status = findViewById(R.id.wristTwoStatus);
+                status.setImageResource(R.drawable.red);
+                wristStreamTwoActive = false;
+            } else if (!wristStreamTwoActive && wristStreamTwoDiff < ACTIVE_THRESHOLD) {
+                ImageView status = findViewById(R.id.wristTwoStatus);
+                status.setImageResource(R.drawable.green);
+                wristStreamTwoActive = true;
+            }
+        }
+    };
+
 }
