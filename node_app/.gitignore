@@ -1,2 +1,5 @@
 node_modules/
 api-key.json
+server.error
+server.log
+forever.log

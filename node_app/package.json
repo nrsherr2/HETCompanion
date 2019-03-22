@@ -4,8 +4,11 @@
   "description": "REST API for receiving health data and managing access to stored data",
   "main": "index.js",
   "scripts": {
+    "preinstall": "npm install forever -g",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "start": "forever start -a -l forever.log -o server.log -e server.error server.js",
+    "stop": "forever stop server.js"
   },
   "author": "Tony Pappas",
   "license": "ISC",

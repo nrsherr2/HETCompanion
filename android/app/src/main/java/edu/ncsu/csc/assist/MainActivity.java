@@ -5,20 +5,25 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -27,13 +32,14 @@ import edu.ncsu.csc.assist.bluetooth.BtButtonActivity;
 
 import static com.google.android.gms.auth.api.credentials.CredentialPickerConfig.Prompt.SIGN_IN;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
     // int id of current tab id
     private int currentTab;
 
-    GoogleSignInClient googleSignInClient;
-    GoogleSignInAccount googleSignInAccount;
+    private static final int SIGN_IN_CODE = 9001;
+    private GoogleApiClient mGoogleApiClient;
+    private GoogleSignInAccount account;
 
 
     //device system for connecting to bluetooth devices, including BLE
@@ -85,10 +91,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
 
         //Set the options sign in to be the default ones
-        GoogleSignInOptions gso =
-                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.server_client_id)).requestEmail().build();
-        //create a client for signing in
-        googleSignInClient = GoogleSignIn.getClient(this, gso);
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.server_client_id)).requestEmail().requestProfile().build();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+        SignInClientHolder.setClient(mGoogleApiClient);
+
+        // SignInButton signInButton = findViewById(R.id.sign_in_button);
+        // signInButton.setSize(SignInButton.SIZE_STANDARD);
 
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
@@ -105,22 +117,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onStart() {
         setContentView(R.layout.signin);
         super.onStart();
-        System.out.println("on start");
-//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-//        if (account != null) {
-//            //initiateDashboard();
-//            initiateBluetooth();
-//        } else {
-//            setContentView(R.layout.signin);
-//            SignInButton signInButton = findViewById(R.id.sign_in_button);
-//            signInButton.setOnClickListener(this);
-//        }
+        OptionalPendingResult<GoogleSignInResult> optPenRes = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
+        if (optPenRes.isDone()) {
+            account = optPenRes.get().getSignInAccount();
+            Log.i(getClass().getCanonicalName(), "Signed in as " + account.getDisplayName());
+            Log.i(getClass().getCanonicalName(), "Google Client ID: " + account.getId());
+        } else {
+            optPenRes.setResultCallback(new ResultCallback<GoogleSignInResult>() {
+                @Override
+                public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
+                    account = googleSignInResult.getSignInAccount();
+                    if (googleSignInResult.isSuccess()) {
+                        Log.i(getClass().getCanonicalName(), "Signed in as " + account.getDisplayName());
+                        Log.i(getClass().getCanonicalName(), "Google Client ID: " + account.getId());
+                    } else {
+                        Log.e(getClass().getCanonicalName(), "Error logging in: " + googleSignInResult.getStatus().getStatusMessage());
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        System.out.println("on resume");
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if (account != null) {
             //initiateDashboard();
@@ -143,9 +167,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void signIn() {
-        Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, SIGN_IN);
-
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(signInIntent, SIGN_IN_CODE);
     }
 
     private void initiateDashboard() {
@@ -226,11 +249,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == SIGN_IN) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-            System.out.println("initiate bluetooth from onActivityResult");
             initiateBluetooth();
         }
         if (requestCode == REQUEST_ENABLE_BT) {
@@ -238,17 +256,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             System.out.println("bluetooth ok");
         }
 
-    }
-
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            googleSignInAccount = completedTask.getResult(ApiException.class);
-            // Signed in successfully, show authenticated UI.
-
-        } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            System.out.println("signInResult:failed code=" + e.getStatusCode());
-        }
     }
 }
