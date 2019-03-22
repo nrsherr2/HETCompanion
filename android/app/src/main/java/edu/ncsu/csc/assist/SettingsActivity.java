@@ -61,10 +61,10 @@ public class SettingsActivity extends AppCompatActivity {
         String userIdStr = userId.getText().toString();
         String hetVersionStr = hetVersion.getText().toString();
 
-        int userId = isValidUserID(userIdStr);
-        int hetVersion = isValidHetVersion(hetVersionStr);
+        boolean validUserId = isValidUserID(userIdStr);
+        boolean validHetVersion = isValidHetVersion(hetVersionStr);
 
-        if (userId != -1 && hetVersion != -1) {
+        if (validUserId && validHetVersion) {
             // save in DB
             db.configOptionDao().insert(new ConfigOption("config_user_id", userIdStr));
             db.configOptionDao().insert(new ConfigOption("config_het_version", hetVersionStr));
@@ -80,24 +80,19 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    // Checks if the string passed in is an integer
-    // returns integer rep of str, -1 if otherwise
-    public int isValidUserID(String userIdStr) {
+    // Checks if the string passed in is an integer greater than -1
+    public boolean isValidUserID(String userIdStr) {
         try {
-            return Integer.parseInt(userIdStr);
+            return Integer.parseInt(userIdStr.trim()) > -1;
         } catch(NumberFormatException e) {
-            return -1;
+            return false;
         }
     }
 
-    // Checks if the string passed in is an integer
-    // returns integer rep of str, -1 if otherwise
-    public int isValidHetVersion(String hetVersionStr) {
-        try {
-            return Integer.parseInt(hetVersionStr);
-        } catch(NumberFormatException e) {
-            return -1;
-        }
+    // Checks if the string passed in is a valid semantic version
+    // eg 1, 1.0, 1.0.0
+    public boolean isValidHetVersion(String hetVersionStr) {
+        return hetVersionStr.matches("(\\d+\\.)?(\\d+\\.)?(\\d+)");
     }
 
 }
