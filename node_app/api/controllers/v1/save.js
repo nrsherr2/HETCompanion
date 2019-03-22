@@ -35,19 +35,25 @@ exports.save = async function(request, response) {
     var currentFiles = await getBucketContents(BUCKET_NAME, `Subject${request.body.user_id}/HET_v${request.body.het_version}_chest-`);
     var maxCsvFuzzed = 0;
     var maxDataPath;
+    var maxDataNumber = 0;
     // Loop through received files for the user
     currentFiles.forEach(function(file) {
         // Split the file path/name into just the timestamp
         fuzzed = parseInt(file.Key.split('/')[1].split('-')[1]);
-        if (fuzzed > maxCsvFuzzed) {
+        // This equal comparison is added to have the highest Data#.csv
+	if (fuzzed >= maxCsvFuzzed) {
             maxCsvFuzzed = fuzzed;
-            maxDataPath = file.Key;
-        }     
+	    dataFileNumber = parseInt(file.Key.split('/')[2].split('.')[0].substring(4));
+	    if (dataFileNumber > maxDataNumber) {
+		maxDataNumber = dataFileNumber;
+            	maxDataPath = file.Key;
+	    }
+        }
     });
 
     if (maxCsvFuzzed === 0) {
         // No data received from the bucket
-        pathTimestamp = initialTimestamp;
+	pathTimestamp = initialTimestamp;
         dataFileName = 'Data1.csv';
     } else {
         // Data received, calculate whether we should use a new or old folder
@@ -55,10 +61,11 @@ exports.save = async function(request, response) {
         midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
         msSinceMidnight = now.getTime() - midnight.getTime();
 
-        if (maxCsvFuzzed < msSinceMidnight) {
+        if (initialTimestamp - maxCsvFuzzed < msSinceMidnight) {
             // Write to same folder
             pathTimestamp = maxCsvFuzzed;
             dataFileName = maxDataPath.split('/')[2].split('.')[0].substring(4);
+
             if (dataFileName != null) {
                 dataFileName = `Data${parseInt(dataFileName) + 1}.csv`;
             } else {
@@ -66,7 +73,7 @@ exports.save = async function(request, response) {
             }
         } else {
             // Write to new folder with received data timestamp
-            pathTimestamp = initialTimestamp;
+	    pathTimestamp = initialTimestamp;
             dataFileName = 'Data1.csv';
         }
     }
