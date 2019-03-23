@@ -38,10 +38,12 @@ public class DashboardActivity extends AppCompatActivity {
     /* the service you're calling functions from */
     private BluetoothLeService bleService;
     /* the characteristic you're getting notifications of */
-    private BluetoothGattCharacteristic notifyCharacteristic;
+    private BluetoothGattCharacteristic notifyCharacteristicChestTwo;
+    private BluetoothGattCharacteristic notifyCharacteristicChestOne;
     /* UUIDs that represent the characteristics of the BLE device we're interested in */
     private final UUID fff0 = new UUID(0xfff000001000L, 0x800000805f9b34fbL);
     private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
+    private final UUID fff4 = new UUID(0xfff400001000L, 0x800000805f9b34fbL);
     private final UUID fff1 = new UUID(0x0000fff100001000L, 0x800000805f9b34fbL);
 
     /**
@@ -99,9 +101,14 @@ public class DashboardActivity extends AppCompatActivity {
      * calls the necessary methods for enabling information streaming
      */
     private void listenForAttributes() {
-        notifyCharacteristic = bleService.findAndSetNotify(fff0, fff3);
-        if (notifyCharacteristic == null) {
-            System.out.println("could not set up notifications.");
+        notifyCharacteristicChestTwo = bleService.findAndSetNotify(fff0, fff3);
+        notifyCharacteristicChestOne = bleService.findAndSetNotify(fff0, fff4);
+
+        if (notifyCharacteristicChestTwo == null) {
+            System.out.println("could not set up notifications on fff3.");
+        }
+        if (notifyCharacteristicChestOne == null) {
+            System.out.println("could not set up notifications on fff4.");
         }
     }
 
