@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/settings_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,8 +14,8 @@
         android:layout_marginEnd="99dp"
         android:layout_marginBottom="54dp"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="User ID"
+        android:hint="User ID"
+        android:inputType="number"
         app:layout_constraintBottom_toTopOf="@+id/het_version"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -29,8 +28,8 @@
         android:layout_marginEnd="99dp"
         android:layout_marginBottom="69dp"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="HET Version"
+        android:hint="HET Version"
+        android:inputType="number|textPersonName"
         app:layout_constraintBottom_toTopOf="@+id/settings_submit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
