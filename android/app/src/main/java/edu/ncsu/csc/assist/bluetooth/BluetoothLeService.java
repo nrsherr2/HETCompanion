@@ -16,6 +16,7 @@ import android.os.Binder;
 import android.os.IBinder;
 
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
 
 import androidx.annotation.Nullable;
 import edu.ncsu.csc.assist.SignInClientHolder;
@@ -62,6 +63,8 @@ public class BluetoothLeService extends Service {
     /* This UUID corresponds to the descriptor of a characteristic we want a notification from */
     private static final UUID CLIENT_CHARACTERISTIC_CONFIGURATION = new UUID(0x290200001000L,
             0x800000805f9b34fbL);
+
+    Semaphore writeLock = new Semaphore(1);
 
     /**
      * Initializes a reference to the Bluetooth Adapter
@@ -231,6 +234,11 @@ public class BluetoothLeService extends Service {
             }
         }
 
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic,
+                                          int status) {
+            writeLock.release();
+        }
         /**
          * when a descriptor is overwritten, this callback is initiated
          * @param gatt the device
@@ -241,6 +249,7 @@ public class BluetoothLeService extends Service {
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,
                                       int status) {
             //since we started the notifications, we also start the information stream
+            writeLock.release();
             if (startStream(fff0, fff1)) {
                 System.out.println("started info stream");
             } else {
@@ -306,6 +315,11 @@ public class BluetoothLeService extends Service {
             System.out.println("adapter not initialized");
             return false;
         }
+        try {
+            writeLock.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         //get characteristic fff3
         BluetoothGattCharacteristic characteristic =
                 mBluetoothGatt.getService(serviceID).getCharacteristic(characteristicID);
@@ -346,6 +360,11 @@ public class BluetoothLeService extends Service {
      * @return whether you you successfully initiated a write to the device
      */
     public boolean startStream(UUID serviceID, UUID characteristicID) {
+        try {
+            writeLock.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         //find the service
         BluetoothGattService service = mBluetoothGatt.getService(serviceID);
         if (service == null) {
