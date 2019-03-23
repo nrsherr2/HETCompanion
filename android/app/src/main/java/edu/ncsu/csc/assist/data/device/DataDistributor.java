@@ -75,29 +75,6 @@ public class DataDistributor {
         WRIST_ENVIRONMENTAL_BYTES = wristEnvironmentalHandler.getTotalByteSize();
     }
 
-//    public void distributeChestData(byte[] data, long timestamp) {
-//
-//        if (data.length != CHEST_DATA_BYTES) {
-//            throw new IllegalArgumentException("HET Chest data received did not match expected length");
-//        }
-//        int offset = 0;
-//
-//        //--CHEST DATA PARSING--
-//        //ECG data
-//        byte[] ecgData = Arrays.copyOfRange(data, offset, offset + CHEST_ECG_BYTES);
-//        offset += CHEST_ECG_BYTES;
-//        chestEcgHandler.handle(ecgData, timestamp);
-//
-//        //PPG data
-//        byte[] ppgData = Arrays.copyOfRange(data, offset, offset + CHEST_PPG_BYTES);
-//        offset += CHEST_PPG_BYTES;
-//        chestPpgHandler.handle(ppgData, timestamp);
-//
-//        //Inertial data
-//        byte[] inertialData = Arrays.copyOfRange(data, offset, offset + CHEST_INERTIAL_BYTES);
-//        offset += CHEST_INERTIAL_BYTES;
-//        chestInertialHandler.handle(inertialData,timestamp);
-//    }
 
     public void distributeChestStreamOne(byte[] data, long timestamp) {
         if (data.length < CHEST_STREAM_ONE) {
@@ -130,35 +107,6 @@ public class DataDistributor {
         chestInertialHandler.handle(inertialData,timestamp);
     }
 
-
-//    public void distributeWristData(byte[] data, long timestamp) {
-//
-//        if (data.length != WRIST_DATA_BYTES) {
-//            throw new IllegalArgumentException("HET Wrist data received did not match expected length");
-//        }
-//        int offset = 0;
-//
-//        //--WRIST DATA PARSING--
-//        //Inertial data
-//        byte[] inertialData = Arrays.copyOfRange(data, offset, offset + WRIST_INERTIAL_BYTES);
-//        offset += WRIST_INERTIAL_BYTES;
-//        wristInertialHandler.handle(inertialData,timestamp);
-//
-//        //PPG data
-//        byte[] ppgData = Arrays.copyOfRange(data, offset, offset + WRIST_PPG_BYTES);
-//        offset += WRIST_PPG_BYTES;
-//        wristPpgHandler.handle(ppgData,timestamp);
-//
-//        //ozone data
-//        byte[] ozoneData = Arrays.copyOfRange(data, offset, offset + WRIST_OZONE_BYTES);
-//        offset += WRIST_OZONE_BYTES;
-//        wristOzoneHandler.handle(ozoneData,timestamp);
-//
-//        //environmental data
-//        byte[] environmentalData = Arrays.copyOfRange(data, offset, offset + WRIST_ENVIRONMENTAL_BYTES);
-//        offset += WRIST_ENVIRONMENTAL_BYTES;
-//        wristEnvironmentalHandler.handle(environmentalData, timestamp);
-//    }
 
     public void distributeWristStreamOne(byte[] data, long timestamp) {
         if (data.length < WRIST_STREAM_ONE) {
