@@ -40,6 +40,9 @@ exports.save = async function(request, response) {
     currentFiles.forEach(function(file) {
         // Split the file path/name into just the timestamp
         fuzzed = parseInt(file.Key.split('/')[1].split('-')[1]);
+	if (fuzzed > maxCsvFuzzed) {
+	    maxDataNumber = 0;
+	}
         // This equal comparison is added to have the highest Data#.csv
 	if (fuzzed >= maxCsvFuzzed) {
             maxCsvFuzzed = fuzzed;
