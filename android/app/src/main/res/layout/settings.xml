@@ -12,12 +12,13 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="99dp"
         android:layout_marginEnd="99dp"
-        android:layout_marginBottom="54dp"
+        android:layout_marginBottom="96dp"
         android:ems="10"
         android:hint="User ID"
         android:inputType="number"
         app:layout_constraintBottom_toTopOf="@+id/het_version"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
@@ -35,19 +36,23 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/textView3"
-        android:layout_width="315dp"
-        android:layout_height="37dp"
+        android:id="@+id/settingInstructions"
+        android:layout_width="300dp"
+        android:layout_height="75dp"
         android:layout_marginStart="48dp"
         android:layout_marginTop="139dp"
         android:layout_marginEnd="48dp"
         android:layout_marginBottom="113dp"
         android:width="50dp"
-        android:text="Please input your User ID and the version of the HET Device that you are connected @string/bottom_sheet_behavior"
+        android:gravity="center"
+        android:text="Please enter the following information:"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/user_id"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/settings_submit"
@@ -55,9 +60,29 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="161dp"
         android:layout_marginEnd="162dp"
-        android:layout_marginBottom="180dp"
+        android:layout_marginBottom="136dp"
         android:text="Submit"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/userIdTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User ID"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/user_id"
+        app:layout_constraintLeft_toLeftOf="@+id/user_id" />
+
+    <TextView
+        android:id="@+id/hetVersionTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="HET Version"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/het_version"
+        app:layout_constraintLeft_toLeftOf="@+id/het_version" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
