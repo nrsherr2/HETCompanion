@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -164,6 +165,12 @@ public class DashboardActivity extends AppCompatActivity {
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
     /**
      * method that runs when the activity is switched to
      */
@@ -218,8 +225,12 @@ public class DashboardActivity extends AppCompatActivity {
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // The ID of the menu item clicked
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_status) {
+            Intent intent = new Intent(this, StatusActivity.class);
+            startActivity(intent);
+            System.out.println("Switched to status activity");
             return true;
         }
         return super.onOptionsItemSelected(item);

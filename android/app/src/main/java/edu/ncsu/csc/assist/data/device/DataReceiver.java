@@ -14,6 +14,11 @@ public class DataReceiver{
     private static DataDistributor distributor;
     private static boolean initialized = false;
 
+    private static long latestChestStreamOneTime = 0;
+    private static long latestChestStreamTwoTime = 0;
+    private static long latestWristStreamOneTime = 0;
+    private static long latestWristStreamTwoTime = 0;
+
     public static void initialize(Context context, GoogleApiClient apiClient) {
         storer = new DataStorer(context);
         uploader = new DataUploader(context, apiClient);
@@ -21,6 +26,7 @@ public class DataReceiver{
         storer.startSaveTask();
         uploader.startUploadTask();
         initialized = true;
+
     }
 
     public static void receiveChestStreamOne(byte[] data){
@@ -28,6 +34,7 @@ public class DataReceiver{
             System.out.println("DataReceiver not initialized");
             return;
         }
+        latestChestStreamOneTime = getTime();
         distributor.distributeChestStreamOne(data, getTime());
     }
     public static void receiveChestStreamTwo(byte[] data){
@@ -35,13 +42,15 @@ public class DataReceiver{
             System.out.println("DataReceiver not initialized");
             return;
         }
-    distributor.distributeChestStreamTwo(data, getTime());
+        latestChestStreamTwoTime = getTime();
+        distributor.distributeChestStreamTwo(data, getTime());
     }
     public static void receiveWristStreamOne(byte[] data){
         if(!initialized){
             System.out.println("DataReceiver not initialized");
             return;
         }
+        latestWristStreamOneTime = getTime();
         distributor.distributeWristStreamOne(data, getTime());
     }
     public static void receiveWristStreamTwo(byte[] data){
@@ -49,6 +58,7 @@ public class DataReceiver{
             System.out.println("DataReceiver not initialized");
             return;
         }
+        latestWristStreamTwoTime = getTime();
         distributor.distributeWristStreamTwo(data, getTime());
     }
 
@@ -59,4 +69,18 @@ public class DataReceiver{
         return initialized;
     }
 
+    public static long getLatestTimestamp(DataStream stream) {
+        switch (stream) {
+            case CHEST_ONE:
+                return latestChestStreamOneTime;
+            case CHEST_TWO:
+                return latestChestStreamTwoTime;
+            case WRIST_ONE:
+                return latestWristStreamOneTime;
+            case WRIST_TWO:
+                return latestWristStreamTwoTime;
+            default:
+                return 0;
+        }
+    }
 }
