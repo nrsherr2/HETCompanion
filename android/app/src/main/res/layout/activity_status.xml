@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.FitWindowsLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/statusActivity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="4dp"
+    >
+
+
+    <GridLayout
+        android:id="@+id/status1Table"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:columnCount="2"
+        android:rowCount="2">
+
+        <TextView
+            android:id="@+id/streamStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="20dp"
+            android:paddingLeft="20dp"
+            android:paddingBottom="60dp"
+            android:text="Stream Status:"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+            android:textSize="32dp" />
+
+        <TextView></TextView>
+
+        <TextView
+            android:id="@+id/chestOneText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="Chest Stream One:"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+
+
+        <ImageView
+            android:id="@+id/chestOneStatus"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/red"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/chestTwoText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="Chest Stream Two:"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+
+        <ImageView
+            android:id="@+id/chestTwoStatus"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/red"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/wristOneText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="Wrist Stream One:"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+
+        <ImageView
+            android:id="@+id/wristOneStatus"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toEndOf="@+id/streamOne"
+            android:layout_alignTop="@id/streamOne"
+            android:src="@drawable/red"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/wristTwoText"
+            android:layout_below="@+id/streamThree"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="Wrist Stream Two:"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+
+        <ImageView
+            android:id="@+id/wristTwoStatus"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/red"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical" />
+    </GridLayout>
+
+
+</androidx.appcompat.widget.FitWindowsLinearLayout>
