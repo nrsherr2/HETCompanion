@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,6 +45,17 @@ public class SettingsActivity extends AppCompatActivity {
         userId = findViewById(R.id.user_id);
         hetVersion = findViewById(R.id.het_version);
         submitButton = findViewById(R.id.settings_submit);
+
+        String savedUserId = db.configOptionDao().getByKey("config_user_id");
+        String savedHetVersion = db.configOptionDao().getByKey("config_het_version");
+
+        // populate the text fields if the values already exist in the database
+        if (savedUserId != null) {
+            userId.setText(savedUserId, TextView.BufferType.NORMAL);
+        }
+        if (savedHetVersion != null) {
+            hetVersion.setText(savedHetVersion, TextView.BufferType.NORMAL);
+        }
 
         // register submit button onClick listener
         submitButton.setOnClickListener(new View.OnClickListener()
