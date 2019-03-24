@@ -71,7 +71,6 @@ public class DataUploader {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            System.out.println("*** Uploading Info ***");
             Log.d(getClass().getCanonicalName(), "Attempting to upload");
             // Check the wifi connection
             ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);

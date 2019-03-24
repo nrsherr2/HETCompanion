@@ -57,7 +57,6 @@ public class StatusActivity extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                System.out.println("ran Task");
                 long currentTime = System.currentTimeMillis();
                 long chestStreamOneDiff = currentTime - DataReceiver.getLatestTimestamp(DataStream.CHEST_ONE);
                 long chestStreamTwoDiff = currentTime - DataReceiver.getLatestTimestamp(DataStream.CHEST_TWO);
