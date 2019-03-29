@@ -1,15 +1,36 @@
 package edu.ncsu.csc.assist.data.sqlite;
 
+import android.content.Context;
+
 import androidx.room.Database;
+import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import edu.ncsu.csc.assist.data.sqlite.access.ConfigOptionDao;
+import edu.ncsu.csc.assist.data.sqlite.access.ProcessedDataPointDao;
 import edu.ncsu.csc.assist.data.sqlite.access.RawDataPointDao;
 import edu.ncsu.csc.assist.data.sqlite.entities.ConfigOption;
+import edu.ncsu.csc.assist.data.sqlite.entities.ProcessedDataPoint;
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
 
-@Database(entities = {RawDataPoint.class, ConfigOption.class}, version = 2)
+@Database(entities = {RawDataPoint.class, ConfigOption.class, ProcessedDataPoint.class}, version = 3)
 public abstract class AppDatabase extends RoomDatabase {
+
     public abstract RawDataPointDao rawDataPointDao();
 
     public abstract ConfigOptionDao configOptionDao();
-} 
+
+    public abstract ProcessedDataPointDao processedDataPointDao();
+
+    private static AppDatabase INSTANCE;
+
+    public static AppDatabase getDatabase(final Context context) {
+        if (INSTANCE == null) {
+            synchronized (AppDatabase.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").build();
+                }
+            }
+        }
+        return INSTANCE;
+    }
+}
