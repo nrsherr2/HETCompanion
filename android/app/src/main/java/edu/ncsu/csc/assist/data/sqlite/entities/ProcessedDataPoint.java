@@ -21,13 +21,13 @@ public class ProcessedDataPoint {
     public long timestamp;
 
     @ColumnInfo(name = "value")
-    public int value;
+    public double value;
 
     private ProcessedDataPoint() {
 
     }
 
-    public ProcessedDataPoint(String type, long timestamp, int value) {
+    public ProcessedDataPoint(String type, long timestamp, double value) {
         this.type = type;
         this.timestamp = timestamp;
         this.value = value;
@@ -45,7 +45,7 @@ public class ProcessedDataPoint {
         return timestamp;
     }
 
-    public int getValue() {
+    public double getValue() {
         return value;
     }
 

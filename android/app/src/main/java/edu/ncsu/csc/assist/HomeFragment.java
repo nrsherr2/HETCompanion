@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,6 +12,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
+import edu.ncsu.csc.assist.data.objects.ProcessedDataType;
 import edu.ncsu.csc.assist.data.sqlite.entities.ProcessedDataPoint;
 import edu.ncsu.csc.assist.data.sqlite.repository.ProcessedDataRepository;
 
@@ -39,7 +39,7 @@ public class HomeFragment extends DetailFragment {
             public void onChanged(@Nullable final ProcessedDataPoint dataPoint) {
                 Log.d(getClass().getCanonicalName(), "Updating BPM on dashboard");
                 if (dataPoint != null) {
-                    hrLive.setText(Integer.toString(dataPoint.getValue()));
+                    hrLive.setText(String.valueOf(dataPoint.getValue()));
                 } else {
                     hrLive.setText("0");
                 }
@@ -51,7 +51,7 @@ public class HomeFragment extends DetailFragment {
             public void onChanged(@Nullable final ProcessedDataPoint dataPoint) {
                 Log.d(getClass().getCanonicalName(), "Updating HRV on dashboard");
                 if (dataPoint != null) {
-                    hrvLive.setText(Integer.toString(dataPoint.getValue()));
+                    hrvLive.setText(String.valueOf(dataPoint.getValue()));
                 } else {
                     hrvLive.setText("0");
                 }
@@ -63,7 +63,7 @@ public class HomeFragment extends DetailFragment {
             public void onChanged(@Nullable final ProcessedDataPoint dataPoint) {
                 Log.d(getClass().getCanonicalName(), "Updating Ozone on dashboard");
                 if (dataPoint != null) {
-                    ozoneLive.setText(Integer.toString(dataPoint.getValue()));
+                    ozoneLive.setText(String.valueOf(dataPoint.getValue()));
                 } else {
                     ozoneLive.setText("0");
                 }
@@ -71,11 +71,22 @@ public class HomeFragment extends DetailFragment {
         });
 
         //TODO remove this and button in layout before merging to dev
-        Button randomHR = view.findViewById(R.id.randomHR);
-        randomHR.setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.randomHR).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Toast.makeText(view.getContext(), "Inserting value", Toast.LENGTH_SHORT).show();
-                processedDataRepository.insert(new ProcessedDataPoint("bpm", System.currentTimeMillis(), ThreadLocalRandom.current().nextInt(1, 100)));
+                processedDataRepository.insert(new ProcessedDataPoint(ProcessedDataType.HEARTRATE, System.currentTimeMillis(), ThreadLocalRandom.current().nextInt(60, 120)));
+            }
+        });
+        view.findViewById(R.id.randomHRV).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Toast.makeText(view.getContext(), "Inserting value", Toast.LENGTH_SHORT).show();
+                processedDataRepository.insert(new ProcessedDataPoint(ProcessedDataType.HRV, System.currentTimeMillis(), ThreadLocalRandom.current().nextInt(1, 100)));
+            }
+        });
+        view.findViewById(R.id.randomOzone).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Toast.makeText(view.getContext(), "Inserting value", Toast.LENGTH_SHORT).show();
+                processedDataRepository.insert(new ProcessedDataPoint(ProcessedDataType.WRIST_OZ, System.currentTimeMillis(), ThreadLocalRandom.current().nextInt(1, 10000)));
             }
         });
     }

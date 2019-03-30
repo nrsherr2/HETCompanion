@@ -4,6 +4,7 @@ import android.app.Application;
 import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
+import edu.ncsu.csc.assist.data.objects.ProcessedDataType;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.access.ProcessedDataPointDao;
 import edu.ncsu.csc.assist.data.sqlite.entities.ProcessedDataPoint;
@@ -18,9 +19,9 @@ public class ProcessedDataRepository {
     public ProcessedDataRepository(Application application) {
         AppDatabase db = AppDatabase.getDatabase(application);
         dao = db.processedDataPointDao();
-        heartRate = dao.getMostRecent("bpm");
-        hrv = dao.getMostRecent("hrv");
-        ozone = dao.getMostRecent("ozone");
+        heartRate = dao.getMostRecent(ProcessedDataType.HEARTRATE);
+        hrv = dao.getMostRecent(ProcessedDataType.HRV);
+        ozone = dao.getMostRecent(ProcessedDataType.WRIST_OZ);
     }
 
     public LiveData<ProcessedDataPoint> getHeartRate() {

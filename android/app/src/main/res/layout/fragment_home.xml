@@ -111,4 +111,16 @@
         android:layout_height="wrap_content"
         android:id="@+id/randomHR"
         android:text="Insert Random HR" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/randomHRV"
+        android:text="Insert Random HRV" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/randomOzone"
+        android:text="Insert Random Ozone" />
 </LinearLayout>
