@@ -17,4 +17,7 @@
     <string name="btStopScanButtonText">Stop Scan</string>
     <string name="btConnected">BLE Device Connected</string>
     <string name="btDisconnected">BLE Device Disconnected</string>
+    <string name="dashboard_bpm_title">BPM</string>
+    <string name="dashboard_hrv_title">HRV</string>
+    <string name="dashboard_ozone_title">Ozone</string>
 </resources>
