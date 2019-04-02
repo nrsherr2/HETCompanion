@@ -31,9 +31,6 @@ exports.save = async function(request, response) {
             initialTimestamp = request.body[receivedDataKeys[i]].initial_timestamp;
     }
 
-    // Temporary Logging of JSON to the console, for Engineering Open House Demo
-    console.log(JSON.stringify(request.body));
-
     // Figure out which path to save the data to
     var currentFiles = await getBucketContents(BUCKET_NAME, `Subject${request.body.user_id}/HET_v${request.body.het_version}_chest-`);
     var maxCsvFuzzed = 0;
