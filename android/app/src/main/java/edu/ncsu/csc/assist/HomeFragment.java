@@ -6,13 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
-import edu.ncsu.csc.assist.data.objects.ProcessedDataType;
 import edu.ncsu.csc.assist.data.sqlite.entities.ProcessedDataPoint;
 import edu.ncsu.csc.assist.data.sqlite.repository.ProcessedDataRepository;
 
@@ -28,8 +24,8 @@ public class HomeFragment extends DetailFragment {
 
     @Override
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
-        hrLive = view.findViewById(R.id.heartRateLive);
-        hrvLive = view.findViewById(R.id.heartRateVariabilityLive);
+        hrLive = view.findViewById(R.id.hrLive);
+        hrvLive = view.findViewById(R.id.hrvLive);
         ozoneLive = view.findViewById(R.id.ozoneLive);
 
         final ProcessedDataRepository processedDataRepository = new ProcessedDataRepository(getActivity().getApplication());
@@ -67,26 +63,6 @@ public class HomeFragment extends DetailFragment {
                 } else {
                     ozoneLive.setText("0");
                 }
-            }
-        });
-
-        //TODO remove this and button in layout before merging to dev
-        view.findViewById(R.id.randomHR).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Toast.makeText(view.getContext(), "Inserting value", Toast.LENGTH_SHORT).show();
-                processedDataRepository.insert(new ProcessedDataPoint(ProcessedDataType.HEARTRATE, System.currentTimeMillis(), ThreadLocalRandom.current().nextInt(60, 120)));
-            }
-        });
-        view.findViewById(R.id.randomHRV).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Toast.makeText(view.getContext(), "Inserting value", Toast.LENGTH_SHORT).show();
-                processedDataRepository.insert(new ProcessedDataPoint(ProcessedDataType.HRV, System.currentTimeMillis(), ThreadLocalRandom.current().nextInt(1, 100)));
-            }
-        });
-        view.findViewById(R.id.randomOzone).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Toast.makeText(view.getContext(), "Inserting value", Toast.LENGTH_SHORT).show();
-                processedDataRepository.insert(new ProcessedDataPoint(ProcessedDataType.WRIST_OZ, System.currentTimeMillis(), ThreadLocalRandom.current().nextInt(1, 10000)));
             }
         });
     }
