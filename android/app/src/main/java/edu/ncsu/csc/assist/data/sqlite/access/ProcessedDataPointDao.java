@@ -18,5 +18,5 @@ public interface ProcessedDataPointDao {
     long insert(ProcessedDataPoint dataPoint);
 
     @Insert
-    long insertAll(List<ProcessedDataPoint> dataPoint);
+    long[] insertAll(List<ProcessedDataPoint> dataPoint);
 } 

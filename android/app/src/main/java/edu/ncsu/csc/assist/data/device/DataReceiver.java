@@ -6,10 +6,12 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import edu.ncsu.csc.assist.data.cloud.DataStorer;
 import edu.ncsu.csc.assist.data.cloud.DataUploader;
+import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
 
 public class DataReceiver{
 
-    private static DataStorer storer;
+    private static DataStorer rawDataStorer;
+    private static ProcessedDataStorer processedDataStorer;
     private static DataUploader uploader;
     private static DataDistributor distributor;
     private static boolean initialized = false;
@@ -20,10 +22,11 @@ public class DataReceiver{
     private static long latestWristStreamTwoTime = 0;
 
     public static void initialize(Context context, GoogleApiClient apiClient) {
-        storer = new DataStorer(context);
+        rawDataStorer = new DataStorer(context);
+        processedDataStorer = new ProcessedDataStorer(context);
         uploader = new DataUploader(context, apiClient);
-        distributor = new DataDistributor(storer);
-        storer.startSaveTask();
+        distributor = new DataDistributor(rawDataStorer, processedDataStorer);
+        rawDataStorer.startSaveTask();
         uploader.startUploadTask();
         initialized = true;
 
