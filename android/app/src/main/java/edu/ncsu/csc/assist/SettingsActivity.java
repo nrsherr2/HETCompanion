@@ -9,7 +9,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.room.Room;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.entities.ConfigOption;
 
@@ -39,8 +38,7 @@ public class SettingsActivity extends AppCompatActivity {
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-        db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "ASSIST").allowMainThreadQueries().build();
-
+        db = AppDatabase.getDatabase(getApplicationContext());
         // save objects on screen as properties
         userId = findViewById(R.id.user_id);
         hetVersion = findViewById(R.id.het_version);
