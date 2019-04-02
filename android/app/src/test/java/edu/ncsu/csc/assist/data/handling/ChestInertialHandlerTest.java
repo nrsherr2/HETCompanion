@@ -17,7 +17,7 @@ public class ChestInertialHandlerTest {
      */
     @Test
     public void parseReading() {
-        ChestInertialHandler inertialHandler = new ChestInertialHandler(null);
+        ChestInertialHandler inertialHandler = new ChestInertialHandler(null, null);
         long testTimestamp = 5000;
         byte[] testInertialData = {
                 0x11, 0x22, 0x33, 0x44, 0x55, 0x66
