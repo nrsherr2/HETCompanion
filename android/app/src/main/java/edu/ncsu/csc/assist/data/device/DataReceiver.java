@@ -27,6 +27,7 @@ public class DataReceiver{
         uploader = new DataUploader(context, apiClient);
         distributor = new DataDistributor(rawDataStorer, processedDataStorer);
         rawDataStorer.startSaveTask();
+        processedDataStorer.startSaveTask();
         uploader.startUploadTask();
         initialized = true;
 

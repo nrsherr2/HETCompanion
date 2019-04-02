@@ -44,7 +44,7 @@ public class ProcessedDataStorer {
     }
 
     public ProcessedDataStorer startSaveTask() {
-        saveTask = scheduler.scheduleAtFixedRate(dumpQueueToDatabase, 10, 10, TimeUnit.SECONDS);
+        saveTask = scheduler.scheduleAtFixedRate(dumpQueueToDatabase, 1, 1, TimeUnit.SECONDS);
         return this;
     }
 
