@@ -1,12 +1,14 @@
 package edu.ncsu.csc.assist.data.handling;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import edu.ncsu.csc.assist.data.cloud.DataStorer;
+import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
 import edu.ncsu.csc.assist.data.objects.DataType;
 import edu.ncsu.csc.assist.data.objects.GenericData;
+import edu.ncsu.csc.assist.data.objects.ProcessedData;
 
 public class WristInertialHandler extends Handler {
 
@@ -14,16 +16,26 @@ public class WristInertialHandler extends Handler {
     private static final int NUMBER_OF_VALUES = 2;
     private static final int MILLIS_BETWEEN_VALUES = 10;
 
-    public WristInertialHandler(DataStorer rawDataBuffer){
-        super(BYTES_PER_VALUE, NUMBER_OF_VALUES, MILLIS_BETWEEN_VALUES, rawDataBuffer);
+    private static final int PROCESSED_DATA_MILLI_AVG = 1000;
+    private List<GenericData> wristInertialXHistory;
+    private List<GenericData> wristInertialYHistory;
+    private List<GenericData> wristInertialZHistory;
+
+    public WristInertialHandler(DataStorer rawDataBuffer, ProcessedDataStorer processedDataBuffer) {
+        super(BYTES_PER_VALUE, NUMBER_OF_VALUES, MILLIS_BETWEEN_VALUES, rawDataBuffer, processedDataBuffer);
+        wristInertialXHistory = new LinkedList<>();
+        wristInertialYHistory = new LinkedList<>();
+        wristInertialZHistory = new LinkedList<>();
     }
 
     @Override
     public void handle(byte[] buffer, long timestamp) {
         List<GenericData> dataValues = parseInput(buffer, timestamp);
         sendRawData(dataValues);
-
-        //send processed data
+        List<ProcessedData> averages = addToHistory(dataValues);
+        if (!averages.isEmpty()) {
+            sendProcessedData(averages);
+        }
     }
 
     @Override
@@ -38,5 +50,66 @@ public class WristInertialHandler extends Handler {
         GenericData zDataPoint = new GenericData(DataType.WRIST_INERTIA_Z, zReading, timestamp);
 
         return  Arrays.asList(xDataPoint,yDataPoint,zDataPoint);
+    }
+
+    protected List<ProcessedData> addToHistory(List<GenericData> dataValues) {
+        List<ProcessedData> averages = new LinkedList<>();
+        if (dataValues.size() == 0) {
+            return averages;
+        }
+        for (GenericData dataPoint : dataValues) {
+            switch (dataPoint.getType()) {
+                case DataType.WRIST_INERTIA_X:
+                    wristInertialXHistory.add(dataPoint);
+                    break;
+                case DataType.WRIST_INERTIA_Y:
+                    wristInertialYHistory.add(dataPoint);
+                    break;
+                case DataType.WRIST_INERTIA_Z:
+                    wristInertialZHistory.add(dataPoint);
+                    break;
+            }
+        }
+
+        long latestTime = wristInertialZHistory.get(wristInertialZHistory.size() - 1).getTimestamp();
+        long oldestTime = wristInertialZHistory.get(0).getTimestamp();
+        while (latestTime - oldestTime > PROCESSED_DATA_MILLI_AVG) {
+            int avgInertialX = 0;
+            int avgInertialY = 0;
+            int avgInertialZ = 0;
+            int numX = 0;
+            int numY = 0;
+            int numZ = 0;
+
+            while (wristInertialXHistory.get(0).getTimestamp() < oldestTime + PROCESSED_DATA_MILLI_AVG) {
+                GenericData dataPoint = wristInertialXHistory.remove(0);
+                avgInertialX += dataPoint.getValue();
+                numX++;
+            }
+            while (wristInertialYHistory.get(0).getTimestamp() < oldestTime + PROCESSED_DATA_MILLI_AVG) {
+                GenericData dataPoint = wristInertialYHistory.remove(0);
+                avgInertialY += dataPoint.getValue();
+                numY++;
+            }
+            while (wristInertialZHistory.get(0).getTimestamp() < oldestTime + PROCESSED_DATA_MILLI_AVG) {
+                GenericData dataPoint = wristInertialZHistory.remove(0);
+                avgInertialZ += dataPoint.getValue();
+                numZ++;
+            }
+
+            ProcessedData averageX = new ProcessedData(DataType.WRIST_INERTIA_X, 1.0 * avgInertialX / numX, (latestTime + oldestTime) / 2);
+            ProcessedData averageY = new ProcessedData(DataType.WRIST_INERTIA_Y, 1.0 * avgInertialY / numY, (latestTime + oldestTime) / 2);
+            ProcessedData averageZ = new ProcessedData(DataType.WRIST_INERTIA_Z, 1.0 * avgInertialZ / numZ, (latestTime + oldestTime) / 2);
+
+            averages.add(averageX);
+            averages.add(averageY);
+            averages.add(averageZ);
+
+            if (wristInertialXHistory.isEmpty() || wristInertialYHistory.isEmpty() || wristInertialZHistory.isEmpty()) {
+                break;
+            }
+            oldestTime = wristInertialZHistory.get(0).getTimestamp();
+        }
+        return averages;
     }
 }

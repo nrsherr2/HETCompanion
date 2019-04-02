@@ -1,5 +1,7 @@
 package edu.ncsu.csc.assist.data.sqlite.access;
 
+import java.util.List;
+
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -14,4 +16,7 @@ public interface ProcessedDataPointDao {
 
     @Insert
     long insert(ProcessedDataPoint dataPoint);
+
+    @Insert
+    long insertAll(List<ProcessedDataPoint> dataPoint);
 } 
