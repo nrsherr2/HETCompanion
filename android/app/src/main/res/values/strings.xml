@@ -17,4 +17,12 @@
     <string name="btStopScanButtonText">Stop Scan</string>
     <string name="btConnected">BLE Device Connected</string>
     <string name="btDisconnected">BLE Device Disconnected</string>
+    <string-array name="graph_increments">
+        <item>Live</item>
+        <item>Minute</item>
+        <item>Hour</item>
+        <item>Day</item>
+        <item>Week</item>
+        <item>Month</item>
+    </string-array>
 </resources>

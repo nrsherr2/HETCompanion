@@ -11,6 +11,6 @@ public class HRVFragment extends DetailFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_hrv, container, false);
+        return inflater.inflate(R.layout.fragment_detail, container, false);
     }
 }
