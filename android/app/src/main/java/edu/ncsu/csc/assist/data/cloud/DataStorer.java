@@ -13,7 +13,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import androidx.room.Room;
 import edu.ncsu.csc.assist.data.objects.GenericData;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
@@ -36,7 +35,7 @@ public class DataStorer {
 
     public DataStorer(Context context) {
         saveQueue = new LinkedBlockingQueue<>();
-        database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").build();
+        database = AppDatabase.getDatabase(context.getApplicationContext());
     }
 
     public DataStorer withDatabase(AppDatabase database) {
