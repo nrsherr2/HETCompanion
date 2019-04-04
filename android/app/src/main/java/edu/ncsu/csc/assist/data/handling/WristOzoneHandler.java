@@ -112,10 +112,10 @@ public class WristOzoneHandler extends Handler {
                 numMoz++;
             }
 
-            ProcessedData averageOz = new ProcessedData(DataType.WRIST_OZ, 1.0 * avgOz / numOz, (latestTime + oldestTime) / 2);
-            ProcessedData averagePoz = new ProcessedData(DataType.WRIST_POZ, 1.0 * avgPoz / numPoz, (latestTime + oldestTime) / 2);
-            ProcessedData averageRoz = new ProcessedData(DataType.WRIST_ROZ, 1.0 * avgRoz / numRoz, (latestTime + oldestTime) / 2);
-            ProcessedData averageMoz = new ProcessedData(DataType.WRIST_MOZ, 1.0 * avgMoz / numMoz, (latestTime + oldestTime) / 2);
+            ProcessedData averageOz = new ProcessedData(DataType.WRIST_OZ, 1.0 * avgOz / numOz, oldestTime);
+            ProcessedData averagePoz = new ProcessedData(DataType.WRIST_POZ, 1.0 * avgPoz / numPoz, oldestTime);
+            ProcessedData averageRoz = new ProcessedData(DataType.WRIST_ROZ, 1.0 * avgRoz / numRoz, oldestTime);
+            ProcessedData averageMoz = new ProcessedData(DataType.WRIST_MOZ, 1.0 * avgMoz / numMoz, oldestTime);
 
             averages.add(averageOz);
             averages.add(averagePoz);

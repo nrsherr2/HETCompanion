@@ -83,7 +83,7 @@ public class WristEnvironmentalHandler extends Handler {
             }
 
             ProcessedData averageTemperature = new ProcessedData(DataType.WRIST_TEMPERATURE, 1.0 * avgTemperature / numTemperature, (latestTime + oldestTime) / 2);
-            ProcessedData averageHumid = new ProcessedData(DataType.WRIST_HUMIDITY, 1.0 * avgHumid / numHumid, (latestTime + oldestTime) / 2);
+            ProcessedData averageHumid = new ProcessedData(DataType.WRIST_HUMIDITY, 1.0 * avgHumid / numHumid, oldestTime);
 
             averages.add(averageTemperature);
             averages.add(averageHumid);

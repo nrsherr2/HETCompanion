@@ -97,9 +97,9 @@ public class WristInertialHandler extends Handler {
                 numZ++;
             }
 
-            ProcessedData averageX = new ProcessedData(DataType.WRIST_INERTIA_X, 1.0 * avgInertialX / numX, (latestTime + oldestTime) / 2);
-            ProcessedData averageY = new ProcessedData(DataType.WRIST_INERTIA_Y, 1.0 * avgInertialY / numY, (latestTime + oldestTime) / 2);
-            ProcessedData averageZ = new ProcessedData(DataType.WRIST_INERTIA_Z, 1.0 * avgInertialZ / numZ, (latestTime + oldestTime) / 2);
+            ProcessedData averageX = new ProcessedData(DataType.WRIST_INERTIA_X, 1.0 * avgInertialX / numX, oldestTime);
+            ProcessedData averageY = new ProcessedData(DataType.WRIST_INERTIA_Y, 1.0 * avgInertialY / numY,  oldestTime);
+            ProcessedData averageZ = new ProcessedData(DataType.WRIST_INERTIA_Z, 1.0 * avgInertialZ / numZ, oldestTime);
 
             averages.add(averageX);
             averages.add(averageY);

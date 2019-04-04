@@ -56,7 +56,7 @@ public class WristPpgHandler extends Handler {
                 avgPpg += dataPoint.getValue();
                 numValues++;
             }
-            ProcessedData average = new ProcessedData(DataType.WRIST_PPG, 1.0 * avgPpg / numValues, (latestTime + oldestTime) / 2);
+            ProcessedData average = new ProcessedData(DataType.WRIST_PPG, 1.0 * avgPpg / numValues, oldestTime);
             averages.add(average);
 
             if (WristPpgHistory.isEmpty()) {

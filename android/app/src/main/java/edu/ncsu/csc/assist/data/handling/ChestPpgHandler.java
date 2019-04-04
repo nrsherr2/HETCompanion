@@ -58,7 +58,7 @@ public class ChestPpgHandler extends Handler {
                 avgPpg += dataPoint.getValue();
                 numValues++;
             }
-            ProcessedData average = new ProcessedData(DataType.CHEST_PPG, 1.0 * avgPpg / numValues, (latestTime + oldestTime) / 2);
+            ProcessedData average = new ProcessedData(DataType.CHEST_PPG, 1.0 * avgPpg / numValues,  oldestTime);
             averages.add(average);
 
             if (chestPpgHistory.isEmpty()) {
