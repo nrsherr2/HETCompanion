@@ -3,6 +3,7 @@ package edu.ncsu.csc.assist.data.device;
 import java.util.Arrays;
 
 import edu.ncsu.csc.assist.data.cloud.DataStorer;
+import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
 import edu.ncsu.csc.assist.data.handling.ChestEcgHandler;
 import edu.ncsu.csc.assist.data.handling.ChestInertialHandler;
 import edu.ncsu.csc.assist.data.handling.ChestPpgHandler;
@@ -57,14 +58,14 @@ public class DataDistributor {
     private int WRIST_ENVIRONMENTAL_BYTES = 4;
     private int WRIST_STREAM_TWO = WRIST_OZONE_BYTES + WRIST_ENVIRONMENTAL_BYTES;
 
-    public DataDistributor(DataStorer rawDataBuffer) {
-        chestEcgHandler = new ChestEcgHandler(rawDataBuffer);
-        chestInertialHandler = new ChestInertialHandler(rawDataBuffer);
-        chestPpgHandler = new ChestPpgHandler(rawDataBuffer);
-        wristEnvironmentalHandler = new WristEnvironmentalHandler(rawDataBuffer);
-        wristInertialHandler = new WristInertialHandler(rawDataBuffer);
-        wristOzoneHandler = new WristOzoneHandler(rawDataBuffer);
-        wristPpgHandler = new WristPpgHandler(rawDataBuffer);
+    public DataDistributor(DataStorer rawDataBuffer, ProcessedDataStorer processedDataBuffer) {
+        chestEcgHandler = new ChestEcgHandler(rawDataBuffer, processedDataBuffer);
+        chestInertialHandler = new ChestInertialHandler(rawDataBuffer, processedDataBuffer);
+        chestPpgHandler = new ChestPpgHandler(rawDataBuffer, processedDataBuffer);
+        wristEnvironmentalHandler = new WristEnvironmentalHandler(rawDataBuffer, processedDataBuffer);
+        wristInertialHandler = new WristInertialHandler(rawDataBuffer, processedDataBuffer);
+        wristOzoneHandler = new WristOzoneHandler(rawDataBuffer, processedDataBuffer);
+        wristPpgHandler = new WristPpgHandler(rawDataBuffer, processedDataBuffer);
 
         CHEST_ECG_BYTES = chestEcgHandler.getTotalByteSize();
         CHEST_PPG_BYTES = chestPpgHandler.getTotalByteSize();

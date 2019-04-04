@@ -13,18 +13,18 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import edu.ncsu.csc.assist.data.objects.GenericData;
+import edu.ncsu.csc.assist.data.objects.ProcessedData;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
-import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
+import edu.ncsu.csc.assist.data.sqlite.entities.ProcessedDataPoint;
 
 /**
  * This class is tasked with saving data to the local SQLite database to upload to the cloud later
  * Requests to the database are cached in a queue and sent in batches
  */
-public class DataStorer {
+public class ProcessedDataStorer {
 
     // Queue of data waiting to be saved to the database
-    private Queue<GenericData> saveQueue;
+    private Queue<ProcessedData> saveQueue;
 
     // Database
     private AppDatabase database;
@@ -33,17 +33,17 @@ public class DataStorer {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> saveTask;
 
-    public DataStorer(Context context) {
+    public ProcessedDataStorer(Context context) {
         saveQueue = new LinkedBlockingQueue<>();
         database = AppDatabase.getDatabase(context.getApplicationContext());
     }
 
-    public DataStorer withDatabase(AppDatabase database) {
+    public ProcessedDataStorer withDatabase(AppDatabase database) {
         this.database = database;
         return this;
     }
 
-    public DataStorer startSaveTask() {
+    public ProcessedDataStorer startSaveTask() {
         saveTask = scheduler.scheduleAtFixedRate(dumpQueueToDatabase, 1, 1, TimeUnit.SECONDS);
         return this;
     }
@@ -64,7 +64,7 @@ public class DataStorer {
      *
      * @param data
      */
-    public void save(Collection<GenericData> data) {
+    public void save(Collection<ProcessedData> data) {
         saveQueue.addAll(data);
     }
 
@@ -74,25 +74,25 @@ public class DataStorer {
      *
      * @param data
      */
-    public void save(GenericData data) {
+    public void save(ProcessedData data) {
         saveQueue.add(data);
     }
 
     private final Runnable dumpQueueToDatabase = new Runnable() {
         public synchronized void run() {
-            Log.d(getClass().getCanonicalName(), "Dumping the raw data queue to database");
-            if(saveQueue.isEmpty()){
+            Log.d(getClass().getCanonicalName(), "Dumping the processed data queue to database");
+            if (saveQueue.isEmpty()) {
                 return;
             }
             database.beginTransaction();
 
-            List<RawDataPoint> toInsert = new ArrayList<>(saveQueue.size());
-            for (GenericData genericData : saveQueue) {
-                toInsert.add(new RawDataPoint(genericData.getType(), genericData.getTimestamp(), genericData.getValue()));
+            List<ProcessedDataPoint> toInsert = new ArrayList<>(saveQueue.size());
+            for (ProcessedData processedData : saveQueue) {
+                toInsert.add(new ProcessedDataPoint(processedData.getType(), processedData.getTimestamp(), processedData.getValue()));
             }
 
-            Log.d(getClass().getCanonicalName(), "Inserting " + toInsert.size() + " raw data points into sqlite database.");
-            database.rawDataPointDao().insertAll(toInsert);
+            Log.d(getClass().getCanonicalName(), "Inserting " + toInsert.size() + " processed data points into sqlite database.");
+            database.processedDataPointDao().insertAll(toInsert);
 
             database.setTransactionSuccessful();
             database.endTransaction();
@@ -101,7 +101,7 @@ public class DataStorer {
         }
     };
 
-    public void flush(){
+    public void flush() {
         dumpQueueToDatabase.run();
     }
 }

@@ -55,4 +55,20 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
      */
     public abstract LineGraphSeries<DataPoint> getDataPoints(String graphView);
 
+
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // get the selection
+        String graphView = parent.getItemAtPosition(position).toString();
+        // get the points for that selection
+        LineGraphSeries<DataPoint> series = getDataPoints(graphView);
+        //update the graph
+        setGraphData(series);
+    }
+
+    // do nothing
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {}
+
 }

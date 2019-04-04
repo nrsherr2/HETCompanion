@@ -1,14 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/dashboardRow1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="Home"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="50dp">
 
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="125dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/hrBox"
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/dashboard_red" />
+
+            <TextView
+                android:id="@+id/hrTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/hrBox"
+                android:layout_alignTop="@id/hrBox"
+                android:layout_alignEnd="@id/hrBox"
+                android:layout_alignBottom="@id/hrBox"
+                android:layout_margin="1dp"
+                android:gravity="center_horizontal"
+                android:paddingTop="25dp"
+                android:text="@string/dashboard_bpm_title"
+                android:textColor="@color/colorPrimaryLight"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/hrLive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/hrBox"
+                android:layout_alignTop="@id/hrBox"
+                android:layout_alignEnd="@id/hrBox"
+                android:layout_alignBottom="@id/hrBox"
+                android:layout_margin="1dp"
+                android:gravity="center_horizontal"
+                android:paddingTop="50dp"
+                android:textColor="@color/colorPrimaryLight"
+                android:textSize="40sp" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dashboardRow2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dashboardRow1"
+        android:layout_marginTop="50dp">
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="125dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/hrvBox"
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/dashboard_red" />
+
+            <TextView
+                android:id="@+id/hrvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/hrvBox"
+                android:layout_alignTop="@id/hrvBox"
+                android:layout_alignEnd="@id/hrvBox"
+                android:layout_alignBottom="@id/hrvBox"
+                android:layout_margin="1dp"
+                android:gravity="center_horizontal"
+                android:paddingTop="25dp"
+                android:text="@string/dashboard_hrv_title"
+                android:textColor="@color/colorPrimaryLight"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/hrvLive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/hrvBox"
+                android:layout_alignTop="@id/hrvBox"
+                android:layout_alignEnd="@id/hrvBox"
+                android:layout_alignBottom="@id/hrvBox"
+                android:layout_margin="1dp"
+                android:gravity="center_horizontal"
+                android:paddingTop="50dp"
+                android:textColor="@color/colorPrimaryLight"
+                android:textSize="40sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="125dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/ozoneBox"
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/dashboard_red" />
+
+            <TextView
+                android:id="@+id/ozoneTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/ozoneBox"
+                android:layout_alignTop="@id/ozoneBox"
+                android:layout_alignEnd="@id/ozoneBox"
+                android:layout_alignBottom="@id/ozoneBox"
+                android:layout_margin="1dp"
+                android:gravity="center_horizontal"
+                android:paddingTop="25dp"
+                android:text="@string/dashboard_ozone_title"
+                android:textColor="@color/colorPrimaryLight"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/ozoneLive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/ozoneBox"
+                android:layout_alignTop="@id/ozoneBox"
+                android:layout_alignEnd="@id/ozoneBox"
+                android:layout_alignBottom="@id/ozoneBox"
+                android:layout_margin="1dp"
+                android:gravity="center_horizontal"
+                android:paddingTop="50dp"
+                android:textColor="@color/colorPrimaryLight"
+                android:textSize="40sp" />
+        </RelativeLayout>
+    </LinearLayout>
 </RelativeLayout>

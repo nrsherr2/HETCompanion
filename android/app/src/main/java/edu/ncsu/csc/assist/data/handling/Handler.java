@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.ncsu.csc.assist.data.cloud.DataStorer;
+import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
 import edu.ncsu.csc.assist.data.objects.GenericData;
+import edu.ncsu.csc.assist.data.objects.ProcessedData;
 
 public abstract class Handler {
 
@@ -18,12 +20,15 @@ public abstract class Handler {
     private static final int intBitMask = 0x000000FF;
 
     private DataStorer rawDataBuffer;
+    private ProcessedDataStorer processedDataBuffer;
 
-    public Handler(int bytesPerValue, int numberOfValues, int timeBetweenValues, DataStorer rawDataBuffer) {
+    public Handler(int bytesPerValue, int numberOfValues, int timeBetweenValues, DataStorer rawDataBuffer, ProcessedDataStorer processedDataBuffer) {
         this.bytesPerValue = bytesPerValue;
         this.numberOfValues = numberOfValues;
         this.timeBetweenValues = timeBetweenValues;
         this.rawDataBuffer = rawDataBuffer;
+        this.processedDataBuffer = processedDataBuffer;
+
     }
 
 
@@ -71,6 +76,24 @@ public abstract class Handler {
         rawDataBuffer.save(dataPoints);
     }
 
+    /**
+     * Sends processed data to the processed data database buffer
+     *
+     * @param dataPoint an GenericData object that holds the average reading and the average time it was recorded
+     */
+    protected void sendProcessedData(ProcessedData dataPoint) {
+        processedDataBuffer.save(dataPoint);
+    }
+
+    /**
+     * Sends processed data to the processed data database buffer
+     *
+     * @param dataPoints a list of GenericData objects that holds the average reading and the average time it was recorded
+     */
+    protected void sendProcessedData(List<ProcessedData> dataPoints) {
+        processedDataBuffer.save(dataPoints);
+    }
+
     protected List<GenericData> parseInput(byte[] input, long timestamp){
         List<GenericData> dataValues = new ArrayList<>();
         for (int i = 0; i < numberOfValues; i += 1) {
@@ -79,5 +102,4 @@ public abstract class Handler {
         return dataValues;
     }
     protected abstract List<GenericData> parseReading(byte[] data, long timestamp);
-
 }
