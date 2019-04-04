@@ -8,8 +8,6 @@ import java.util.List;
 import edu.ncsu.csc.assist.data.objects.DataType;
 import edu.ncsu.csc.assist.data.objects.GenericData;
 
-import static org.junit.Assert.*;
-
 public class WristPpgHandlerTest {
 
     /**
@@ -19,7 +17,7 @@ public class WristPpgHandlerTest {
      */
     @Test
     public void parseReading() {
-        WristPpgHandler ppgHandler = new WristPpgHandler(null);
+        WristPpgHandler ppgHandler = new WristPpgHandler(null, null);
         long testTimestamp = 5000;
         byte[] testPpgData = {
                 0x11, 0x22

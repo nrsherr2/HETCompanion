@@ -8,8 +8,6 @@ import java.util.List;
 import edu.ncsu.csc.assist.data.objects.DataType;
 import edu.ncsu.csc.assist.data.objects.GenericData;
 
-import static org.junit.Assert.*;
-
 public class WristEnvironmentalHandlerTest {
 
     /**
@@ -19,7 +17,7 @@ public class WristEnvironmentalHandlerTest {
      */
     @Test
     public void parseReading() {
-        WristEnvironmentalHandler environmentalHandler = new  WristEnvironmentalHandler(null);
+        WristEnvironmentalHandler environmentalHandler = new WristEnvironmentalHandler(null, null);
         long testTimestamp = 5000;
         byte[] testEnvironmentalData = {
                 0x11, 0x22, 0x33, 0x44,

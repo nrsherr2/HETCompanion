@@ -17,7 +17,7 @@ public class ChestEcgHandlerTest {
      */
     @Test
     public void parseReading() {
-        ChestEcgHandler ecgHandler = new ChestEcgHandler(null);
+        ChestEcgHandler ecgHandler = new ChestEcgHandler(null, null);
         long testTimestamp = 5000;
         byte[] testEcgData = {
                 0x11, 0x22, 0x33,

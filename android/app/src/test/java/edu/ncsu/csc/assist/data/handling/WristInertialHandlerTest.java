@@ -8,8 +8,6 @@ import java.util.List;
 import edu.ncsu.csc.assist.data.objects.DataType;
 import edu.ncsu.csc.assist.data.objects.GenericData;
 
-import static org.junit.Assert.*;
-
 public class WristInertialHandlerTest {
 
     /**
@@ -19,7 +17,7 @@ public class WristInertialHandlerTest {
      */
     @Test
     public void parseReading() {
-        WristInertialHandler inertialHandler = new WristInertialHandler(null);
+        WristInertialHandler inertialHandler = new WristInertialHandler(null, null);
         long testTimestamp = 5000;
         byte[] testInertialData = {
                 0x11, 0x22, 0x33, 0x44, 0x55, 0x66
