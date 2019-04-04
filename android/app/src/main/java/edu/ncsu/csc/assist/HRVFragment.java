@@ -19,7 +19,58 @@ public class HRVFragment extends DetailFragment {
 
     @Override
     public LineGraphSeries<DataPoint> getDataPoints(String graphView) {
-        // TODO implement me
-        return new LineGraphSeries<DataPoint>(new DataPoint[] {new DataPoint(0,1), new DataPoint(1,2)});
+
+        LineGraphSeries<DataPoint> series;
+
+        // todo: get datapoints from database based on spinner selection
+        switch(graphView.toLowerCase())
+        {
+            case "live" :
+                // Statements
+                // todo replace me with db points
+                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {0, 1, 2, 3, 4}));
+                break; // break is optional
+
+            case "minute" :
+                // Statements
+                // todo replace me with db points
+                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {4, 3, 2, 1, 0}));
+                break; // break is optional
+
+            case "hour" :
+                // Statements
+                // todo replace me with db points
+                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {4, 3, 2, 1, 0}));
+                break; // break is optional
+
+            case "day" :
+                // Statements
+                // todo replace me with db points
+                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {4, 3, 2, 1, 0}));
+                break; // break is optional
+
+            case "week" :
+                // Statements
+                // todo replace me with db points
+                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {4, 3, 2, 1, 0}));
+                break; // break is optional
+
+            case "month" :
+                // Statements
+                // todo replace me with db points
+                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {4, 3, 2, 1, 0}));
+                break; // break is optional
+
+            default :
+                // Statements
+                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {1, 5, 3, 2, 6}));
+        }
+
+        return series;
+    }
+
+    @Override
+    public String getTitle() {
+        return getString(R.string.hrv);
     }
 }

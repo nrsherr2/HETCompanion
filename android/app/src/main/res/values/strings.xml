@@ -26,4 +26,7 @@
     <string name="dashboard_bpm_title">BPM</string>
     <string name="dashboard_hrv_title">HRV</string>
     <string name="dashboard_ozone_title">Ozone</string>
+    <string name="hr">Heart Rate</string>
+    <string name="hrv">Heart Rate Variability</string>
+    <string name="env">Ozone</string>
 </resources>

@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
@@ -17,14 +18,20 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
 
     GraphView graph;
     Spinner spinner;
+    TextView title;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         View view = getView();
+
+        // set the title
+        title = view.findViewById(R.id.detail_title);
+        title.setText(getTitle());
+
         graph = view.findViewById(R.id.graph);
         spinner = view.findViewById(R.id.spinner);
+        // set the drop down spinner options
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource( getContext(),
                 R.array.graph_increments, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -33,15 +40,24 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
         spinner.setOnItemSelectedListener(this);
 
         // initialize to live graph on creation
-        setGraphData(getDataPoints("live"));
+        setGraphData(getDataPoints("Live"));
     }
 
+    /**
+     * Sets the graph view to the series passed in
+     * @param series the data set to display on the graph
+     */
     public void setGraphData(LineGraphSeries<DataPoint> series) {
+         graph.removeAllSeries();
          graph.addSeries(series);
     }
 
-
-    public DataPoint[] arrayToDatapoints(int[] array) {
+    /**
+     * Converts an array of doubles to an array of datapoints for the graph
+     * @param array of doubles IN ORDER that the graph should display
+     * @return array of Datapoints
+     */
+    public DataPoint[] arrayToDatapoints(double[] array) {
         DataPoint[] dataPoints = new DataPoint[array.length];
         for (int i = 0; i < array.length; i++) {
             dataPoints[i] = new DataPoint(i, array[i]);
@@ -55,7 +71,11 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
      */
     public abstract LineGraphSeries<DataPoint> getDataPoints(String graphView);
 
-
+    /**
+     * Returns the title of the fragment being shown
+     * @return a string for the title
+     */
+    public abstract String getTitle();
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -70,5 +90,6 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
     // do nothing
     @Override
     public void onNothingSelected(AdapterView<?> parent) {}
+
 
 }
