@@ -12,7 +12,9 @@ import androidx.lifecycle.Observer;
 import edu.ncsu.csc.assist.data.sqlite.entities.ProcessedDataPoint;
 import edu.ncsu.csc.assist.data.sqlite.repository.ProcessedDataRepository;
 
-public class HomeFragment extends DetailFragment {
+import androidx.fragment.app.Fragment;
+
+public class HomeFragment extends Fragment {
 
     private TextView hrLive, hrvLive, ozoneLive;
 
