@@ -2,6 +2,8 @@ package edu.ncsu.csc.assist.data.objects;
 
 public interface DataType {
 
+    String CHEST_BPM = "chest_bpm";
+    String CHEST_HRV = "chest_hrv";
     String CHEST_ECG = "chest_ecg";
     String CHEST_PPG = "chest_ppg";
     String CHEST_INERTIA_X = "chest_inertia_x";
