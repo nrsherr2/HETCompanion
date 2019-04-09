@@ -11,7 +11,12 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.util.List;
+
 import androidx.fragment.app.Fragment;
+import edu.ncsu.csc.assist.data.objects.SummarizedData;
+import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
+import edu.ncsu.csc.assist.data.sqlite.access.ProcessedDataPointDao;
 
 // other detail fragments should inherit from this one
 public abstract class DetailFragment extends Fragment implements AdapterView.OnItemSelectedListener{
@@ -19,11 +24,15 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
     GraphView graph;
     Spinner spinner;
     TextView title;
+    ProcessedDataPointDao dao;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         View view = getView();
+
+        AppDatabase db = AppDatabase.getDatabase(getActivity().getApplication());
+        dao = db.processedDataPointDao();
 
         // set the title
         title = view.findViewById(R.id.detail_title);
@@ -53,14 +62,19 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
     }
 
     /**
-     * Converts an array of doubles to an array of datapoints for the graph
-     * @param array of doubles IN ORDER that the graph should display
+     *
+     * @param summarizedData
      * @return array of Datapoints
      */
-    public DataPoint[] arrayToDatapoints(double[] array) {
-        DataPoint[] dataPoints = new DataPoint[array.length];
-        for (int i = 0; i < array.length; i++) {
-            dataPoints[i] = new DataPoint(i, array[i]);
+    public DataPoint[] summaryToDatapoints(List<SummarizedData> summarizedData) {
+        if (summarizedData.isEmpty()) {
+            return new DataPoint[0];
+        }
+
+        // TODO: change from 0,1,2,3,etc to date/time labels
+        DataPoint[] dataPoints = new DataPoint[summarizedData.size()];
+        for (int i = 0; i < summarizedData.size(); i++) {
+            dataPoints[i] = new DataPoint(i, summarizedData.get(i).value);
         }
         return dataPoints;
     }
