@@ -19,8 +19,8 @@ public class ChestEcgHandler extends Handler {
     private static final int MILLIS_BETWEEN_VALUES = 5;
 
     private List<GenericData> ecgHistory = new LinkedList<GenericData>();
-    private final int HISTORY_SIZE = 10000;
-    private final int PROCESS_PERIOD = 1000;
+    private final int HISTORY_SIZE = 10000;     //time in ms that ecg is saved for the purpose of calculating bpm and hrv
+    private final int PROCESS_PERIOD = 1000;    //the amount of time between each calculation of bpm and hrv
     private long timeLastProcessed = 0;
 
     public ChestEcgHandler(DataStorer rawDataBuffer, ProcessedDataStorer processedDataBuffer) {
@@ -67,6 +67,24 @@ public class ChestEcgHandler extends Handler {
      * @return a List of size 2.
      *  -index 0 is heart beats per minute
      *  -index 1 is heart rate variability
+     *
+     * BPM Calculations
+     * Calculates BPM from the past HISTORY_SIZE milliseconds
+     * Process:
+     * 1)Find the maximum value of the past X many ecg readings (maxValue)
+     * 2)Set a minimum threshold to determine what readings are indicative of a heart beat (beatThreshold)
+     *      -> some alpha*maxValue,   where alpha = 0 .. 1.0
+     * 3)Record the first reading in every group that surpasses the threshold (reading > beatThreshold)
+     * 4)Calculate # of groupings * (60000)/HISTORY_SIZE to determine estimate beats per 1 minute.
+     *      -> where 60000 is the number of milliseconds in a minute
+     *
+     * HRV Calculations
+     * Calculates HRV for the past HISTORY_SIZE milliseconds (Root Mean Square of Successive Differences a.k.a RMSSD)
+     * Process:
+     * 1)Record the time difference between successive R peaks
+     * 2)Perform RMSSD
+     *   -RMSSD = Square root( Average( Each R-R Difference^2 ) )
+     *
      */
     private List<ProcessedData> calculateHeartData() {
         List<ProcessedData> heartData = new ArrayList<>();
@@ -74,28 +92,17 @@ public class ChestEcgHandler extends Handler {
             return heartData;
         }
 
-        /**
-         * Calculates BPM from the past HISTORY_SIZE milliseconds
-         * Process:
-         * 1)Find the maximum value of the past X many ecg readings (maxValue)
-         * 2)Set a minimum threshold to determine what readings are indicative of a heart beat (beatThreshold)
-         *      -> some alpha*maxValue,   where alpha = 0 .. 1.0
-         * 3)record the first reading in every group that surpasses the threshold (reading > beatThreshold)
-         * 4)calculate # of groupings * (60000)/HISTORY_SIZE to determine estimate beats per 1 minute.
-         *      -> where 60000 is the number of milliseconds in a minute
-         *
-         */
-
-        //Step 1
+        //*Calculate BPM*
+        //Find the maximum value of the past X many ecg readings (maxValue)
         double maxValue = 0;
         for(GenericData reading : ecgHistory) {
             if(reading.getValue() > maxValue){
                 maxValue = reading.getValue();
             }
         }
-        //Step 2
+        //Set a minimum threshold to determine what readings are indicative of a heart beat (beatThreshold)
         final double beatThreshold = maxValue * .75;
-        //Step 3
+        //Record the first reading in every group that surpasses the threshold (reading >= beatThreshold)
         boolean alreadyInPeak = false;
         List<GenericData> heartBeats = new ArrayList<>();
         for(GenericData reading : ecgHistory){
@@ -108,25 +115,18 @@ public class ChestEcgHandler extends Handler {
                 alreadyInPeak = false;
             }
         }
-        //Step 4
+        //Calculate bpm based off: (# of groupings * (60000)/HISTORY_SIZE) to determine estimate beats per 1 minute.
         double bpm = heartBeats.size() *  (60000.0/HISTORY_SIZE);
         heartData.add(new ProcessedData(ProcessedDataType.HEARTRATE, bpm, ecgHistory.get(0).getTimestamp()));
 
-        /**
-         * Calculates HRV for the past HISTORY_SIZE milliseconds (Root Mean Square of Successive Differences a.k.a RMSSD)
-         * Process:
-         * 1)Record the time difference between successive R peaks
-         * 2)Perform RMSSD
-         *   -RMSSD = Square root( Average( Each R-R Difference^2 ) )
-         *
-         */
-        //Step 1
+        //*Calculate HRV*
+        //Record the time difference between successive R peaks
         List<Long> rrDiff = new ArrayList<>();
         for(int i = 0; i < heartBeats.size() - 1; i++) {
             rrDiff.add(heartBeats.get(i + 1).getTimestamp() - heartBeats.get(i).getTimestamp());
         }
 
-        //Step 2
+        //Perform RMSSD
         double rootMeanSquareSum = 0;
         for(int i = 0; i < rrDiff.size() - 1; i++){
             rootMeanSquareSum += Math.pow(rrDiff.get(i + 1) - rrDiff.get(i), 2);
