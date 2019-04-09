@@ -10,6 +10,7 @@ import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
 import edu.ncsu.csc.assist.data.objects.DataType;
 import edu.ncsu.csc.assist.data.objects.GenericData;
 import edu.ncsu.csc.assist.data.objects.ProcessedData;
+import edu.ncsu.csc.assist.data.objects.ProcessedDataType;
 
 public class ChestEcgHandler extends Handler {
 
@@ -109,7 +110,7 @@ public class ChestEcgHandler extends Handler {
         }
         //Step 4
         double bpm = heartBeats.size() *  (60000.0/HISTORY_SIZE);
-        heartData.add(new ProcessedData(DataType.CHEST_BPM, bpm, ecgHistory.get(0).getTimestamp()));
+        heartData.add(new ProcessedData(ProcessedDataType.HEARTRATE, bpm, ecgHistory.get(0).getTimestamp()));
 
         /**
          * Calculates HRV for the past HISTORY_SIZE milliseconds (Root Mean Square of Successive Differences a.k.a RMSSD)
@@ -132,7 +133,7 @@ public class ChestEcgHandler extends Handler {
         }
 
         double rootMeanSquare = Math.sqrt(rootMeanSquareSum/(rrDiff.size()-1));
-        heartData.add(new ProcessedData(DataType.CHEST_HRV, rootMeanSquare, ecgHistory.get(0).getTimestamp()));
+        heartData.add(new ProcessedData(ProcessedDataType.HRV, rootMeanSquare, ecgHistory.get(0).getTimestamp()));
 
         return heartData;
     }

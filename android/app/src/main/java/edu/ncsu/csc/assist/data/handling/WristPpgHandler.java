@@ -9,6 +9,7 @@ import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
 import edu.ncsu.csc.assist.data.objects.DataType;
 import edu.ncsu.csc.assist.data.objects.GenericData;
 import edu.ncsu.csc.assist.data.objects.ProcessedData;
+import edu.ncsu.csc.assist.data.objects.ProcessedDataType;
 
 public class WristPpgHandler extends Handler {
 
@@ -56,7 +57,7 @@ public class WristPpgHandler extends Handler {
                 avgPpg += dataPoint.getValue();
                 numValues++;
             }
-            ProcessedData average = new ProcessedData(DataType.WRIST_PPG, 1.0 * avgPpg / numValues, oldestTime);
+            ProcessedData average = new ProcessedData(ProcessedDataType.WRIST_PPG, 1.0 * avgPpg / numValues, oldestTime);
             averages.add(average);
 
             if (WristPpgHistory.isEmpty()) {
