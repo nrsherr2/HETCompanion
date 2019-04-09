@@ -29,11 +29,11 @@ public interface ProcessedDataPointDao {
     @Insert
     long[] insertAll(List<ProcessedDataPoint> dataPoint);
 
-    @Query("select datetime((timestamp / :period) * :period, 'unixepoch') AS interval,\n" +
+    @Query("SELECT datetime((timestamp / :period) * :period, 'unixepoch') AS interval,\n" +
             "  AVG(value) value\n" +
-            "from processed_data\n" +
+            "FROM processed_data\n" +
             "WHERE type=:type\n"+
-            "group by interval\n" +
-            "order by interval")
+            "GROUP BY interval\n" +
+            "ORDER BY interval")
     List<SummarizedData> querySummarizedData(String type, int period);
 } 
