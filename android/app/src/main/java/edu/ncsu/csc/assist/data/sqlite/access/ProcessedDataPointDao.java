@@ -20,6 +20,9 @@ public interface ProcessedDataPointDao {
     int WEEKLY = 604800;
     int MONTHLY = 2419200;
 
+    @Query("SELECT * FROM processed_data WHERE type = :type")
+    List<ProcessedDataPoint> getAll(String type);
+
     @Query("SELECT * FROM processed_data WHERE type = :type ORDER BY timestamp DESC LIMIT 1")
     LiveData<ProcessedDataPoint> getMostRecent(String type);
 
