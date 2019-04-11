@@ -67,6 +67,7 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
      * @return array of Datapoints
      */
     public DataPoint[] summaryToDatapoints(List<SummarizedData> summarizedData) {
+        System.out.println(summarizedData);
         if (summarizedData.isEmpty()) {
             return new DataPoint[0];
         }
@@ -74,6 +75,7 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
         // TODO: change from 0,1,2,3,etc to date/time labels
         DataPoint[] dataPoints = new DataPoint[summarizedData.size()];
         for (int i = 0; i < summarizedData.size(); i++) {
+            System.out.println(summarizedData.get(i).value);
             dataPoints[i] = new DataPoint(i, summarizedData.get(i).value);
         }
         return dataPoints;

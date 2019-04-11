@@ -8,7 +8,10 @@ import android.view.ViewGroup;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.util.List;
+
 import edu.ncsu.csc.assist.data.objects.ProcessedDataType;
+import edu.ncsu.csc.assist.data.objects.SummarizedData;
 import edu.ncsu.csc.assist.data.sqlite.access.ProcessedDataPointDao;
 
 public class EnvFragment extends DetailFragment {
@@ -32,7 +35,10 @@ public class EnvFragment extends DetailFragment {
                 series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.WRIST_OZ, ProcessedDataPointDao.LIVE)));
                 break;
             case "minute" :
-                series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.WRIST_OZ, ProcessedDataPointDao.MINUTELY)));
+                List<SummarizedData> l = dao.querySummarizedData(ProcessedDataType.WRIST_OZ, ProcessedDataPointDao.MINUTELY);
+                System.out.println("Size: " + l.size());
+                System.out.println("Points: " + l.toString());
+                series = new LineGraphSeries<>(summaryToDatapoints(l));
                 break;
             case "hour" :
                 series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.WRIST_OZ, ProcessedDataPointDao.HOURLY)));
