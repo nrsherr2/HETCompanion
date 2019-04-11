@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import androidx.room.Room;
@@ -27,11 +28,20 @@ public class DatabaseProcessedDataTest {
     private ProcessedDataPointDao processedDataPointDao;
     private AppDatabase db;
 
+    final int DATA_COUNT = 600;
+
     @Before
     public void createDb() {
         Context context = ApplicationProvider.getApplicationContext();
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase.class).build();
         processedDataPointDao = db.processedDataPointDao();
+
+
+        long ts = 0;
+        for (int i = 0; i < DATA_COUNT; i++) {
+            processedDataPointDao.insert(new ProcessedDataPoint(ProcessedDataType.HEARTRATE, ts, i));
+            ts += 1000;
+        }
     }
 
     @After
@@ -41,12 +51,6 @@ public class DatabaseProcessedDataTest {
 
     @Test
     public void testInsert() throws Exception {
-        final int DATA_COUNT = 600;
-        long ts = System.currentTimeMillis();
-        for (int i = 0; i < DATA_COUNT; i++) {
-            processedDataPointDao.insert(new ProcessedDataPoint(ProcessedDataType.HEARTRATE, ts += 1000, i));
-        }
-
         assertThat(processedDataPointDao.getAll(ProcessedDataType.HEARTRATE).size(), equalTo(DATA_COUNT));
     }
 
@@ -60,6 +64,7 @@ public class DatabaseProcessedDataTest {
 
         // Test Minutely summary
         List<SummarizedData> minutely = processedDataPointDao.querySummarizedData(ProcessedDataType.HEARTRATE, 60);
+        System.out.println(Arrays.toString(minutely.toArray()));
         assertThat(minutely.size(), equalTo(10));
     }
 }

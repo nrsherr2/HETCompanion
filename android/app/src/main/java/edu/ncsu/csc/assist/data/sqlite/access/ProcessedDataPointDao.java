@@ -32,7 +32,7 @@ public interface ProcessedDataPointDao {
     @Insert
     long[] insertAll(List<ProcessedDataPoint> dataPoint);
 
-    @Query("SELECT datetime((timestamp / :period) * :period, 'unixepoch') AS interval,\n" +
+    @Query("SELECT (cast(timestamp / (:period * 1000) as int) * (:period * 1000)) AS interval,\n" +
             "  AVG(value) value\n" +
             "FROM processed_data\n" +
             "WHERE type=:type\n"+
