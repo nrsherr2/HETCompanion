@@ -18,11 +18,11 @@ import edu.ncsu.csc.assist.data.handling.WristPpgHandler;
  * <p>
  * HET Chest: 32 Bytes
  * |ecg1|ecg1|ecg1|ecg2|ecg2|ecg2|ecg3|ecg3|ecg3|ecg4|ecg4|ecg4|ppg1|ppg1|ppg2|ppg2|ppg3|ppg3|ppg4|ppg4|
- * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |
+ * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |pkg#|
  * <p>
  * HET Wrist: 28 Bytes
- * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |ppg1|ppg1|ppg2|ppg2|
- * |oz1 |oz1 |poz1|poz1|roz1|roz1|moz1|moz1|tmp1|tmp1|humid1|humid1|
+ * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |ppg1|ppg1|ppg2|ppg2|pkg#|
+ * |oz1 |oz1 |poz1|poz1|roz1|roz1|moz1|moz1|pkg#|    |    |    |    |    |    |    |tmp1|tmp1|humid1|humid1|
  */
 public class DataDistributor {
 
@@ -56,7 +56,8 @@ public class DataDistributor {
 
     private int WRIST_OZONE_BYTES = 8;
     private int WRIST_ENVIRONMENTAL_BYTES = 4;
-    private int WRIST_STREAM_TWO = WRIST_OZONE_BYTES + WRIST_ENVIRONMENTAL_BYTES;
+    private int OZONE_ENVIRON_BUFFER_BYTES = 8;
+    private int WRIST_STREAM_TWO = WRIST_OZONE_BYTES + OZONE_ENVIRON_BUFFER_BYTES + WRIST_ENVIRONMENTAL_BYTES;
 
     public DataDistributor(DataStorer rawDataBuffer, ProcessedDataStorer processedDataBuffer) {
         chestEcgHandler = new ChestEcgHandler(rawDataBuffer, processedDataBuffer);
@@ -73,6 +74,7 @@ public class DataDistributor {
         WRIST_INERTIAL_BYTES = wristInertialHandler.getTotalByteSize();
         WRIST_PPG_BYTES = wristPpgHandler.getTotalByteSize();
         WRIST_OZONE_BYTES = wristOzoneHandler.getTotalByteSize();
+        OZONE_ENVIRON_BUFFER_BYTES = 8;
         WRIST_ENVIRONMENTAL_BYTES = wristEnvironmentalHandler.getTotalByteSize();
     }
 
@@ -137,6 +139,9 @@ public class DataDistributor {
         byte[] ozoneData = Arrays.copyOfRange(data, offset, offset + WRIST_OZONE_BYTES);
         offset += WRIST_OZONE_BYTES;
         wristOzoneHandler.handle(ozoneData,timestamp);
+
+        //Extra space before environmental data
+        offset += OZONE_ENVIRON_BUFFER_BYTES;
 
         //Environmental data
         byte[] environmentalData = Arrays.copyOfRange(data, offset, offset + WRIST_ENVIRONMENTAL_BYTES);
