@@ -35,10 +35,7 @@ public class EnvFragment extends DetailFragment {
                 series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.WRIST_OZ, ProcessedDataPointDao.LIVE)));
                 break;
             case "minute" :
-                List<SummarizedData> l = dao.querySummarizedData(ProcessedDataType.WRIST_OZ, ProcessedDataPointDao.MINUTELY);
-                System.out.println("Size: " + l.size());
-                System.out.println("Points: " + l.toString());
-                series = new LineGraphSeries<>(summaryToDatapoints(l));
+                series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.WRIST_OZ, ProcessedDataPointDao.MINUTELY)));
                 break;
             case "hour" :
                 series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.WRIST_OZ, ProcessedDataPointDao.HOURLY)));

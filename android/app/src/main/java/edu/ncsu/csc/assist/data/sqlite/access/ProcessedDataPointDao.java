@@ -32,6 +32,8 @@ public interface ProcessedDataPointDao {
     @Insert
     long[] insertAll(List<ProcessedDataPoint> dataPoint);
 
+    // Multiply by 1000 is for seconds to milliseconds
+    // timestamps are store by milliseconds
     @Query("SELECT (cast(timestamp / (:period * 1000) as int) * (:period * 1000)) AS interval,\n" +
             "  AVG(value) value\n" +
             "FROM processed_data\n" +

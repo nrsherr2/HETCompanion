@@ -59,11 +59,11 @@ public class DatabaseProcessedDataTest {
         assertThat(processedDataPointDao.getAll(ProcessedDataType.HEARTRATE).size(), equalTo(600));
 
         // Test Live summary
-        List<SummarizedData> live = processedDataPointDao.querySummarizedData(ProcessedDataType.HEARTRATE, 1);
+        List<SummarizedData> live = processedDataPointDao.querySummarizedData(ProcessedDataType.HEARTRATE, ProcessedDataPointDao.LIVE);
         assertThat(live.size(), equalTo(600));
 
         // Test Minutely summary
-        List<SummarizedData> minutely = processedDataPointDao.querySummarizedData(ProcessedDataType.HEARTRATE, 60);
+        List<SummarizedData> minutely = processedDataPointDao.querySummarizedData(ProcessedDataType.HEARTRATE, ProcessedDataPointDao.MINUTELY);
         System.out.println(Arrays.toString(minutely.toArray()));
         assertThat(minutely.size(), equalTo(10));
     }
