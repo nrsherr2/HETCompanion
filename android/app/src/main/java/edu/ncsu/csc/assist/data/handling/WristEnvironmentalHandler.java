@@ -9,6 +9,7 @@ import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
 import edu.ncsu.csc.assist.data.objects.DataType;
 import edu.ncsu.csc.assist.data.objects.GenericData;
 import edu.ncsu.csc.assist.data.objects.ProcessedData;
+import edu.ncsu.csc.assist.data.objects.ProcessedDataType;
 
 public class WristEnvironmentalHandler extends Handler {
 
@@ -82,8 +83,8 @@ public class WristEnvironmentalHandler extends Handler {
                 numHumid++;
             }
 
-            ProcessedData averageTemperature = new ProcessedData(DataType.WRIST_TEMPERATURE, 1.0 * avgTemperature / numTemperature, (latestTime + oldestTime) / 2);
-            ProcessedData averageHumid = new ProcessedData(DataType.WRIST_HUMIDITY, 1.0 * avgHumid / numHumid, oldestTime);
+            ProcessedData averageTemperature = new ProcessedData(ProcessedDataType.WRIST_TEMPERATURE, 1.0 * avgTemperature / numTemperature, (latestTime + oldestTime) / 2);
+            ProcessedData averageHumid = new ProcessedData(ProcessedDataType.WRIST_HUMIDITY, 1.0 * avgHumid / numHumid, oldestTime);
 
             averages.add(averageTemperature);
             averages.add(averageHumid);
