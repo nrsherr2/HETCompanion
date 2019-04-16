@@ -9,6 +9,7 @@ import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
 import edu.ncsu.csc.assist.data.objects.DataType;
 import edu.ncsu.csc.assist.data.objects.GenericData;
 import edu.ncsu.csc.assist.data.objects.ProcessedData;
+import edu.ncsu.csc.assist.data.objects.ProcessedDataType;
 
 public class ChestInertialHandler extends Handler {
 
@@ -97,9 +98,9 @@ public class ChestInertialHandler extends Handler {
                 numZ++;
             }
 
-            ProcessedData averageX = new ProcessedData(DataType.CHEST_INERTIA_X, 1.0 * avgInertialX / numX, oldestTime);
-            ProcessedData averageY = new ProcessedData(DataType.CHEST_INERTIA_Y, 1.0 * avgInertialY / numY, oldestTime );
-            ProcessedData averageZ = new ProcessedData(DataType.CHEST_INERTIA_Z, 1.0 * avgInertialZ / numZ, oldestTime);
+            ProcessedData averageX = new ProcessedData(ProcessedDataType.CHEST_INERTIA_X, 1.0 * avgInertialX / numX, oldestTime);
+            ProcessedData averageY = new ProcessedData(ProcessedDataType.CHEST_INERTIA_Y, 1.0 * avgInertialY / numY, oldestTime);
+            ProcessedData averageZ = new ProcessedData(ProcessedDataType.CHEST_INERTIA_Z, 1.0 * avgInertialZ / numZ, oldestTime);
 
             averages.add(averageX);
             averages.add(averageY);

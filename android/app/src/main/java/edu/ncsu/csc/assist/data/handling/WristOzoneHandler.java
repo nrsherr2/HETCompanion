@@ -9,6 +9,7 @@ import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
 import edu.ncsu.csc.assist.data.objects.DataType;
 import edu.ncsu.csc.assist.data.objects.GenericData;
 import edu.ncsu.csc.assist.data.objects.ProcessedData;
+import edu.ncsu.csc.assist.data.objects.ProcessedDataType;
 
 public class WristOzoneHandler extends Handler {
 
@@ -112,10 +113,10 @@ public class WristOzoneHandler extends Handler {
                 numMoz++;
             }
 
-            ProcessedData averageOz = new ProcessedData(DataType.WRIST_OZ, 1.0 * avgOz / numOz, oldestTime);
-            ProcessedData averagePoz = new ProcessedData(DataType.WRIST_POZ, 1.0 * avgPoz / numPoz, oldestTime);
-            ProcessedData averageRoz = new ProcessedData(DataType.WRIST_ROZ, 1.0 * avgRoz / numRoz, oldestTime);
-            ProcessedData averageMoz = new ProcessedData(DataType.WRIST_MOZ, 1.0 * avgMoz / numMoz, oldestTime);
+            ProcessedData averageOz = new ProcessedData(ProcessedDataType.WRIST_OZ, 1.0 * avgOz / numOz, oldestTime);
+            ProcessedData averagePoz = new ProcessedData(ProcessedDataType.WRIST_POZ, 1.0 * avgPoz / numPoz, oldestTime);
+            ProcessedData averageRoz = new ProcessedData(ProcessedDataType.WRIST_ROZ, 1.0 * avgRoz / numRoz, oldestTime);
+            ProcessedData averageMoz = new ProcessedData(ProcessedDataType.WRIST_MOZ, 1.0 * avgMoz / numMoz, oldestTime);
 
             averages.add(averageOz);
             averages.add(averagePoz);
