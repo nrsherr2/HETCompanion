@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import edu.ncsu.csc.assist.data.objects.ProcessedDataType;
+import edu.ncsu.csc.assist.data.sqlite.access.ProcessedDataPointDao;
+
 public class HeartRateFragment extends DetailFragment  {
 
     @Override
@@ -22,48 +25,28 @@ public class HeartRateFragment extends DetailFragment  {
 
         LineGraphSeries<DataPoint> series;
 
-        // todo: get datapoints from database based on spinner selection
         switch(graphView.toLowerCase())
         {
             case "live" :
-                // Statements
-                // todo replace me with db points
-                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {0, 1, 2, 3, 4}));
-                break; // break is optional
-
+                series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.HEARTRATE, ProcessedDataPointDao.LIVE)));
+                break;
             case "minute" :
-                // Statements
-                // todo replace me with db points
-                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {4, 3, 2, 1, 0}));
-                break; // break is optional
-
+                series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.HEARTRATE, ProcessedDataPointDao.MINUTELY)));
+                break;
             case "hour" :
-                // Statements
-                // todo replace me with db points
-                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {4, 3, 2, 1, 0}));
-                break; // break is optional
-
+                series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.HEARTRATE, ProcessedDataPointDao.HOURLY)));
+                break;
             case "day" :
-                // Statements
-                // todo replace me with db points
-                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {4, 3, 2, 1, 0}));
-                break; // break is optional
-
+                series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.HEARTRATE, ProcessedDataPointDao.DAILY)));
+                break;
             case "week" :
-                // Statements
-                // todo replace me with db points
-                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {4, 3, 2, 1, 0}));
-                break; // break is optional
-
+                series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.HEARTRATE, ProcessedDataPointDao.WEEKLY)));
+                break;
             case "month" :
-                // Statements
-                // todo replace me with db points
-                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {4, 3, 2, 1, 0}));
-                break; // break is optional
-
+                series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.HEARTRATE, ProcessedDataPointDao.MONTHLY)));
+                break;
             default :
-                // Statements
-                series = new LineGraphSeries<>(arrayToDatapoints(new double[] {1, 5, 3, 2, 6}));
+                series = new LineGraphSeries<>(summaryToDatapoints(dao.querySummarizedData(ProcessedDataType.HEARTRATE, ProcessedDataPointDao.LIVE)));
         }
 
         return series;
