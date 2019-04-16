@@ -6,11 +6,21 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.OnDataPointTapListener;
+import com.jjoe64.graphview.series.Series;
 
+import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import androidx.fragment.app.Fragment;
@@ -25,6 +35,8 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
     Spinner spinner;
     TextView title;
     ProcessedDataPointDao dao;
+
+    String dateFormat = "yyyy-MM-dd HH:mm:ss";
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -57,8 +69,31 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
      * @param series the data set to display on the graph
      */
     public void setGraphData(LineGraphSeries<DataPoint> series) {
-         graph.removeAllSeries();
-         graph.addSeries(series);
+        graph.removeAllSeries();
+        graph.addSeries(series);
+
+        // set renderer to render datetimes as x-labels
+        SimpleDateFormat df = new SimpleDateFormat(dateFormat);
+        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity(), df));
+        graph.getGridLabelRenderer().setNumHorizontalLabels(3);
+        graph.getGridLabelRenderer().setHumanRounding(false);
+
+        // enable scaling and scrolling
+        graph.getViewport().setScalable(true);
+        graph.getViewport().setScalableY(true);
+
+        // set on point click action
+        // commented out because we couldn't figure out how to get the datapoint x value from a weird double to date
+        series.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series, DataPointInterface dataPoint) {
+                long l = (long) dataPoint.getX();
+                Date d = new Date(l);
+                SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+                String pointDate = sdf.format(d);
+                Toast.makeText(getActivity(), "Data Point clicked: "+pointDate+" / "+dataPoint.getY(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
@@ -71,10 +106,11 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
             return new DataPoint[0];
         }
 
-        // TODO: change from 0,1,2,3,etc to date/time labels
+
         DataPoint[] dataPoints = new DataPoint[summarizedData.size()];
         for (int i = 0; i < summarizedData.size(); i++) {
-            dataPoints[i] = new DataPoint(i, summarizedData.get(i).value);
+            Date d = new Date(summarizedData.get(i).interval);
+            dataPoints[i] = new DataPoint(d, summarizedData.get(i).value);
         }
         return dataPoints;
     }

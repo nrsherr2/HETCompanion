@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo;
 
 public class SummarizedData {
     @ColumnInfo(name = "interval")
-    public String interval;
+    public long interval;
 
     @ColumnInfo(name = "value")
     public double value;
