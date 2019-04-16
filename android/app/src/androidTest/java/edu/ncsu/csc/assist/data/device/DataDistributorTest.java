@@ -3,10 +3,8 @@ package edu.ncsu.csc.assist.data.device;
 import android.content.Context;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,11 +16,12 @@ import edu.ncsu.csc.assist.data.cloud.DataStorer;
 import edu.ncsu.csc.assist.data.cloud.DataUploader;
 import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
 import edu.ncsu.csc.assist.data.objects.DataType;
-import edu.ncsu.csc.assist.data.objects.GenericData;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.access.RawDataPointDao;
 import edu.ncsu.csc.assist.data.sqlite.entities.ConfigOption;
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
+
+import static org.junit.Assert.assertEquals;
 
 
 
@@ -53,9 +52,9 @@ public class DataDistributorTest {
         db.configOptionDao().insert(new ConfigOption("user_0_ts_delta", "0"));
 
         final int CHEST_STREAM_ONE_BYTES = 20;
-        final int CHEST_STREAM_TWO_BYTES = 12;
-        final int WRIST_STREAM_ONE_BYTES = 16;
-        final int WRIST_STREAM_TWO_BYTES = 12;
+        final int CHEST_STREAM_TWO_BYTES = 13;
+        final int WRIST_STREAM_ONE_BYTES = 17;
+        final int WRIST_STREAM_TWO_BYTES = 20;
         final int NUM_PACKAGES = 2;
         final long timestampStart = 5000;
         final long timestampDelta = 20;
@@ -139,6 +138,9 @@ public class DataDistributorTest {
             iterator = testParse(iterator, wristStreamTwoData, 1, 2, timestampStart+i*timestampDelta, timestampDelta, DataType.WRIST_POZ, data);
             iterator = testParse(iterator, wristStreamTwoData, 1, 2, timestampStart+i*timestampDelta, timestampDelta, DataType.WRIST_ROZ, data);
             iterator = testParse(iterator, wristStreamTwoData, 1, 2, timestampStart+i*timestampDelta, timestampDelta, DataType.WRIST_MOZ, data);
+
+            //buffer room between ozone and environmental data
+            iterator += 8;
 
             //Testing Environmental readings : (temperature, humidity)
             // - one reading each, two bytes per reading
