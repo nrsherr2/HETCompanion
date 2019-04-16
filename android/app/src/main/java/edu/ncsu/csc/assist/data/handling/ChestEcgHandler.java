@@ -102,13 +102,14 @@ public class ChestEcgHandler extends Handler {
         }
         //Set a minimum threshold to determine what readings are indicative of a heart beat (beatThreshold)
         final double beatThreshold = maxValue * .75;
-        //Record the first reading in every group that surpasses the threshold (reading >= beatThreshold)
+        //Record the first reading in every group that surpasses the threshold (reading >= beatThreshold) and is a local maximum
         boolean alreadyInPeak = false;
         List<GenericData> heartBeats = new ArrayList<>();
-        for(GenericData reading : ecgHistory){
-            if(reading.getValue() >= beatThreshold){
-                if(alreadyInPeak == false){
-                    heartBeats.add(reading);
+        for (int i = 1; i < ecgHistory.size() - 1; i++) {
+            if (ecgHistory.get(i).getValue() >= beatThreshold) {
+                //if... a peak has not already been found and the point is a local maximum...
+                if (!alreadyInPeak && ecgHistory.get(i - 1).getValue() <= ecgHistory.get(i).getValue() && ecgHistory.get(i + 1).getValue() <= ecgHistory.get(i).getValue()) {
+                    heartBeats.add(ecgHistory.get(i));
                     alreadyInPeak = true;
                 }
             } else{
