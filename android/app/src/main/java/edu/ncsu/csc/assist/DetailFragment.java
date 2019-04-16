@@ -1,6 +1,7 @@
 package edu.ncsu.csc.assist;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -16,17 +17,18 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.Series;
 
-import java.text.DateFormat;
-import java.text.FieldPosition;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import edu.ncsu.csc.assist.data.objects.SummarizedData;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.access.ProcessedDataPointDao;
+import edu.ncsu.csc.assist.data.sqlite.entities.ProcessedDataPoint;
+import edu.ncsu.csc.assist.data.sqlite.repository.ProcessedDataRepository;
 
 // other detail fragments should inherit from this one
 public abstract class DetailFragment extends Fragment implements AdapterView.OnItemSelectedListener{
@@ -62,6 +64,60 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
 
         // initialize to live graph on creation
         setGraphData(getDataPoints("Live"));
+
+
+        // Live Data stuff
+        final ProcessedDataRepository processedDataRepository = new ProcessedDataRepository(getActivity().getApplication());
+
+
+        final TextView liveTitle = view.findViewById(R.id.liveDataTitle);
+        final TextView liveData = view.findViewById(R.id.liveDataNumber);
+        final TextView liveUnit = view.findViewById(R.id.liveDataUnit);
+
+        liveTitle.setText(getTitle() + ": ");
+        switch (getTitle()) {
+            case "Ozone":
+                processedDataRepository.getOzone().observe(this, new Observer<ProcessedDataPoint>() {
+                    @Override
+                    public void onChanged(@Nullable final ProcessedDataPoint dataPoint) {
+                        Log.d(getClass().getCanonicalName(), "Updating Ozone on detail view");
+                        if (dataPoint != null) {
+                            liveData.setText(String.format("%.2f", dataPoint.getValue()));
+                        } else {
+                            liveData.setText("0");
+                        }
+                    }
+                });
+                break;
+            case "Heart Rate Variability":
+                processedDataRepository.getHRV().observe(this, new Observer<ProcessedDataPoint>() {
+                    @Override
+                    public void onChanged(@Nullable final ProcessedDataPoint dataPoint) {
+                        Log.d(getClass().getCanonicalName(), "Updating HRV on detail view");
+                        if (dataPoint != null) {
+                            liveData.setText(String.format("%.2f", dataPoint.getValue()));
+                        } else {
+                            liveData.setText("0");
+                        }
+                    }
+                });
+                break;
+            case "Heart Rate":
+                processedDataRepository.getHeartRate().observe(this, new Observer<ProcessedDataPoint>() {
+                    @Override
+                    public void onChanged(@Nullable final ProcessedDataPoint dataPoint) {
+                        Log.d(getClass().getCanonicalName(), "Updating Ozone on detail view");
+                        if (dataPoint != null) {
+                            liveData.setText(String.format("%.2f", (dataPoint.getValue())));
+                        } else {
+                            liveData.setText("0");
+                        }
+                    }
+                });
+                break;
+        }
+
+
     }
 
     /**

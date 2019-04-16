@@ -8,11 +8,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import edu.ncsu.csc.assist.data.sqlite.entities.ProcessedDataPoint;
 import edu.ncsu.csc.assist.data.sqlite.repository.ProcessedDataRepository;
-
-import androidx.fragment.app.Fragment;
 
 public class HomeFragment extends Fragment {
 
@@ -37,7 +36,7 @@ public class HomeFragment extends Fragment {
             public void onChanged(@Nullable final ProcessedDataPoint dataPoint) {
                 Log.d(getClass().getCanonicalName(), "Updating BPM on dashboard");
                 if (dataPoint != null) {
-                    hrLive.setText(String.valueOf(dataPoint.getValue()));
+                    hrLive.setText(String.format("%.2f", dataPoint.getValue()));
                 } else {
                     hrLive.setText("0");
                 }
@@ -49,7 +48,7 @@ public class HomeFragment extends Fragment {
             public void onChanged(@Nullable final ProcessedDataPoint dataPoint) {
                 Log.d(getClass().getCanonicalName(), "Updating HRV on dashboard");
                 if (dataPoint != null) {
-                    hrvLive.setText(String.valueOf(dataPoint.getValue()));
+                    hrvLive.setText(String.format("%.2f", dataPoint.getValue()));
                 } else {
                     hrvLive.setText("0");
                 }
@@ -61,7 +60,7 @@ public class HomeFragment extends Fragment {
             public void onChanged(@Nullable final ProcessedDataPoint dataPoint) {
                 Log.d(getClass().getCanonicalName(), "Updating Ozone on dashboard");
                 if (dataPoint != null) {
-                    ozoneLive.setText(String.valueOf(dataPoint.getValue()));
+                    ozoneLive.setText(String.format("%.2f", dataPoint.getValue()));
                 } else {
                     ozoneLive.setText("0");
                 }
