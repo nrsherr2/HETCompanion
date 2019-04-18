@@ -16,6 +16,18 @@ public class DataReceiver{
     private static DataDistributor distributor;
     private static boolean initialized = false;
 
+    //private static int lastPacketChestOne;
+    private static int lastPacketChestTwo;
+    private static int lastPacketWristOne;
+    private static int lastPacketWristTwo;
+
+    private final static int LOST_PACKET_ALERT_THRESHOLD = 50;
+
+    //private int CHEST_ONE_PACKET_INDEX = ?;
+    private static int CHEST_TWO_PACKET_INDEX = 12;
+    private static int WRIST_ONE_PACKET_INDEX = 16;
+    private static int WRIST_TWO_PACKET_INDEX = 8;
+
     private static long latestChestStreamOneTime = 0;
     private static long latestChestStreamTwoTime = 0;
     private static long latestWristStreamOneTime = 0;
@@ -31,6 +43,10 @@ public class DataReceiver{
         uploader.startUploadTask();
         initialized = true;
 
+        //lastPacketChestOne = -1;
+        lastPacketChestTwo = -1;
+        lastPacketWristOne = -1;
+        lastPacketWristTwo = -1;
     }
 
     public static void receiveChestStreamOne(byte[] data){
@@ -41,20 +57,32 @@ public class DataReceiver{
         latestChestStreamOneTime = getTime();
         distributor.distributeChestStreamOne(data, getTime());
     }
+
     public static void receiveChestStreamTwo(byte[] data){
         if(!initialized){
             System.out.println("DataReceiver not initialized");
             return;
         }
+        int packetDiff = data[CHEST_TWO_PACKET_INDEX] - lastPacketChestTwo;
+        if (packetDiff >= LOST_PACKET_ALERT_THRESHOLD && lastPacketChestTwo != -1) {
+            //call alert
+        }
+        lastPacketChestTwo = data[CHEST_TWO_PACKET_INDEX];
         latestChestStreamTwoTime = getTime();
         distributor.distributeChestStreamTwo(data, getTime());
     }
+
     //static int heartTime = 0; debug
     public static void receiveWristStreamOne(byte[] data){
         if(!initialized){
             System.out.println("DataReceiver not initialized");
             return;
         }
+        int packetDiff = data[WRIST_ONE_PACKET_INDEX] - lastPacketWristOne;
+        if (packetDiff >= LOST_PACKET_ALERT_THRESHOLD && lastPacketWristOne != -1) {
+            //call alert
+        }
+        lastPacketWristOne = data[WRIST_ONE_PACKET_INDEX];
         latestWristStreamOneTime = getTime();
         distributor.distributeWristStreamOne(data, getTime());
 
@@ -71,11 +99,17 @@ public class DataReceiver{
         distributor.distributeChestStreamOne(chestData, time);
         */
     }
+
     public static void receiveWristStreamTwo(byte[] data){
         if(!initialized){
             System.out.println("DataReceiver not initialized");
             return;
         }
+        int packetDiff = data[WRIST_TWO_PACKET_INDEX] - lastPacketWristTwo;
+        if (packetDiff >= LOST_PACKET_ALERT_THRESHOLD && lastPacketWristTwo != -1) {
+            //call alert
+        }
+        lastPacketWristTwo = data[WRIST_TWO_PACKET_INDEX];
         latestWristStreamTwoTime = getTime();
         distributor.distributeWristStreamTwo(data, getTime());
     }
