@@ -11,9 +11,13 @@ public class AlertGenerator {
 
     private static AlertDao dao;
 
+    public static void initalize(Context context) {
+        dao = AppDatabase.getDatabase(context).alertDao();
+    }
+
     public static void createAlert(Context context, Alert.AlertType type, String message) {
         if (dao == null) {
-            dao = AppDatabase.getDatabase(context).alertDao();
+            throw new IllegalStateException("AlertGenerator has not been initialized!");
         }
 
         dao.insert(new Alert(type.toString(), System.currentTimeMillis(), message, false));
