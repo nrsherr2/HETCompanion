@@ -7,7 +7,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import edu.ncsu.csc.assist.data.cloud.DataStorer;
 import edu.ncsu.csc.assist.data.cloud.DataUploader;
 import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
-import edu.ncsu.csc.assist.data.sqlite.entities.Alert;
 
 public class DataReceiver{
 
@@ -42,8 +41,6 @@ public class DataReceiver{
         rawDataStorer.startSaveTask();
         processedDataStorer.startSaveTask();
         uploader.startUploadTask();
-
-        AlertGenerator.initalize(context);
         initialized = true;
 
         //lastPacketChestOne = -1;
@@ -68,7 +65,7 @@ public class DataReceiver{
         }
         int packetDiff = data[CHEST_TWO_PACKET_INDEX] - lastPacketChestTwo;
         if (packetDiff >= LOST_PACKET_ALERT_THRESHOLD && lastPacketChestTwo != -1) {
-            AlertGenerator.createAlert(Alert.AlertType.PACKET_LOSS, "Packet loss for chest inertial data");
+            //call alert
         }
         lastPacketChestTwo = data[CHEST_TWO_PACKET_INDEX];
         latestChestStreamTwoTime = getTime();
@@ -83,7 +80,7 @@ public class DataReceiver{
         }
         int packetDiff = data[WRIST_ONE_PACKET_INDEX] - lastPacketWristOne;
         if (packetDiff >= LOST_PACKET_ALERT_THRESHOLD && lastPacketWristOne != -1) {
-            AlertGenerator.createAlert(Alert.AlertType.PACKET_LOSS, "Packet loss for wrist inertial data");
+            //call alert
         }
         lastPacketWristOne = data[WRIST_ONE_PACKET_INDEX];
         latestWristStreamOneTime = getTime();
@@ -110,7 +107,7 @@ public class DataReceiver{
         }
         int packetDiff = data[WRIST_TWO_PACKET_INDEX] - lastPacketWristTwo;
         if (packetDiff >= LOST_PACKET_ALERT_THRESHOLD && lastPacketWristTwo != -1) {
-            AlertGenerator.createAlert(Alert.AlertType.PACKET_LOSS, "Packet loss for chest environmental data");
+            //call alert
         }
         lastPacketWristTwo = data[WRIST_TWO_PACKET_INDEX];
         latestWristStreamTwoTime = getTime();
