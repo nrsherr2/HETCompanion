@@ -108,7 +108,7 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
                     public void onChanged(@Nullable final ProcessedDataPoint dataPoint) {
                         Log.d(getClass().getCanonicalName(), "Updating Ozone on detail view");
                         if (dataPoint != null) {
-                            liveData.setText(String.format("%.2f", (dataPoint.getValue())));
+                            liveData.setText(String.format("%d", (dataPoint.getValue())));
                         } else {
                             liveData.setText("0");
                         }
