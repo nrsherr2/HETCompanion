@@ -139,7 +139,6 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
         graph.getViewport().setScalableY(true);
 
         // set on point click action
-        // commented out because we couldn't figure out how to get the datapoint x value from a weird double to date
         series.setOnDataPointTapListener(new OnDataPointTapListener() {
             @Override
             public void onTap(Series series, DataPointInterface dataPoint) {
