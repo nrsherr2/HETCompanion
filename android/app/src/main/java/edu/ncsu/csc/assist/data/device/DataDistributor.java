@@ -41,7 +41,6 @@ public class DataDistributor {
     private Handler wristOzoneHandler;
     private Handler wristEnvironmentalHandler;
 
-
     //once  handlers are created, the below values will overwritten through the appropriate constructor
     private int CHEST_ECG_BYTES = 12;
     private int CHEST_PPG_BYTES = 8;
@@ -101,8 +100,8 @@ public class DataDistributor {
         if (data.length < CHEST_STREAM_TWO) {
             throw new IllegalArgumentException("HET Chest data stream two received did not match expected length");
         }
-        int offset = 0;
 
+        int offset = 0;
         //--CHEST STREAM TWO DATA PARSING--
         //Inertial data
         byte[] inertialData = Arrays.copyOfRange(data, offset, offset + CHEST_INERTIAL_BYTES);
@@ -115,8 +114,8 @@ public class DataDistributor {
         if (data.length < WRIST_STREAM_ONE) {
             throw new IllegalArgumentException("HET Wrist data stream one received did not match expected length");
         }
-        int offset = 0;
 
+        int offset = 0;
         //--WRIST STREAM ONE DATA PARSING--
         //Inertial data
         byte[] inertialData = Arrays.copyOfRange(data, offset, offset + WRIST_INERTIAL_BYTES);
@@ -133,6 +132,7 @@ public class DataDistributor {
         if (data.length < WRIST_STREAM_TWO) {
             throw new IllegalArgumentException("HET Wrist data stream two received did not match expected length");
         }
+
         int offset = 0;
         //--WRIST STREAM TWO DATA PARSING--
         //Ozone data
