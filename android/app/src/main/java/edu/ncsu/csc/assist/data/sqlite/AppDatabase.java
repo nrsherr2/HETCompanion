@@ -5,14 +5,16 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import edu.ncsu.csc.assist.data.sqlite.access.AlertDao;
 import edu.ncsu.csc.assist.data.sqlite.access.ConfigOptionDao;
 import edu.ncsu.csc.assist.data.sqlite.access.ProcessedDataPointDao;
 import edu.ncsu.csc.assist.data.sqlite.access.RawDataPointDao;
+import edu.ncsu.csc.assist.data.sqlite.entities.Alert;
 import edu.ncsu.csc.assist.data.sqlite.entities.ConfigOption;
 import edu.ncsu.csc.assist.data.sqlite.entities.ProcessedDataPoint;
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
 
-@Database(entities = {RawDataPoint.class, ConfigOption.class, ProcessedDataPoint.class}, version = 4)
+@Database(entities = {RawDataPoint.class, ConfigOption.class, ProcessedDataPoint.class, Alert.class}, version = 5)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String DATABASE_NAME = "ASSIST";
@@ -23,6 +25,8 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ConfigOptionDao configOptionDao();
 
     public abstract ProcessedDataPointDao processedDataPointDao();
+
+    public abstract AlertDao alertDao();
 
     public static AppDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
