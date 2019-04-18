@@ -116,6 +116,16 @@ public class ChestEcgHandler extends Handler {
                 alreadyInPeak = false;
             }
         }
+
+        /* DEBUG statements
+        System.out.println("Beats Recorded " + heartBeats.size());
+        System.out.println("history size " + ecgHistory.size());
+        String out =  "";
+        for(GenericData ecgPoint : ecgHistory){
+            out += " " + ecgPoint.getValue();
+        }
+        System.out.println(out);
+        */
         //Calculate bpm based off: (# of groupings * (60000)/HISTORY_SIZE) to determine estimate beats per 1 minute.
         double bpm = heartBeats.size() *  (60000.0/HISTORY_SIZE);
         heartData.add(new ProcessedData(ProcessedDataType.HEARTRATE, bpm, ecgHistory.get(0).getTimestamp()));

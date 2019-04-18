@@ -49,6 +49,7 @@ public class DataReceiver{
         latestChestStreamTwoTime = getTime();
         distributor.distributeChestStreamTwo(data, getTime());
     }
+    //static int heartTime = 0; debug
     public static void receiveWristStreamOne(byte[] data){
         if(!initialized){
             System.out.println("DataReceiver not initialized");
@@ -56,6 +57,19 @@ public class DataReceiver{
         }
         latestWristStreamOneTime = getTime();
         distributor.distributeWristStreamOne(data, getTime());
+
+        //The following code sends a sign wave to Chest Stream One handlers
+        /*
+        long time = getTime();
+        byte[] chestData = new byte[20];
+        for(int i = 0; i < 4; i++){
+            chestData[i*3 + 0] = (byte)(((0x00FF0000) & (int)(100*Math.sin(1.0*(heartTime)/100)+100)) >> 16);
+            chestData[i*3 + 1] = (byte)(((0x0000FF00) & (int)(100*Math.sin(1.0*(heartTime)/100)+100)) >> 8);
+            chestData[i*3 + 2] = (byte)((0x000000FF) & (int)(100*Math.sin(1.0*(heartTime)/100)+100));
+            heartTime += 5;
+        }
+        distributor.distributeChestStreamOne(chestData, time);
+        */
     }
     public static void receiveWristStreamTwo(byte[] data){
         if(!initialized){
