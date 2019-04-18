@@ -29,31 +29,39 @@ public class DataDistributor {
     //Chest Stream 1
     private Handler chestEcgHandler;
     private Handler chestPpgHandler;
+    //private int lastPacketChestOne;
 
     //Chest Stream 2
     private Handler chestInertialHandler;
+    private int lastPacketChestTwo;
 
     //Wrist Stream 1
     private Handler wristInertialHandler;
     private Handler wristPpgHandler;
+    private int lastPacketWristOne;
 
     //Wrist Stream 2
     private Handler wristOzoneHandler;
     private Handler wristEnvironmentalHandler;
+    private int lastPacketWristTwo;
 
+    private final int LOST_PACKET_ALERT_THRESHOLD = 50;
 
     //once  handlers are created, the below values will overwritten through the appropriate constructor
     private int CHEST_ECG_BYTES = 12;
     private int CHEST_PPG_BYTES = 8;
     private int CHEST_STREAM_ONE = CHEST_ECG_BYTES + CHEST_PPG_BYTES;
 
+    private int CHEST_TWO_PACKET_INDEX = 12;
     private int CHEST_INERTIAL_BYTES = 12;
     private int CHEST_STREAM_TWO = CHEST_INERTIAL_BYTES;
 
+    private int WRIST_ONE_PACKET_INDEX = 16;
     private int WRIST_INERTIAL_BYTES = 12;
     private int WRIST_PPG_BYTES = 4;
     private int WRIST_STREAM_ONE = WRIST_INERTIAL_BYTES + WRIST_PPG_BYTES;
 
+    private int WRIST_TWO_PACKET_INDEX = 16;
     private int WRIST_OZONE_BYTES = 8;
     private int WRIST_ENVIRONMENTAL_BYTES = 4;
     private int OZONE_ENVIRON_BUFFER_BYTES = 8;
@@ -76,6 +84,11 @@ public class DataDistributor {
         WRIST_OZONE_BYTES = wristOzoneHandler.getTotalByteSize();
         OZONE_ENVIRON_BUFFER_BYTES = 8;
         WRIST_ENVIRONMENTAL_BYTES = wristEnvironmentalHandler.getTotalByteSize();
+
+        //lastPacketChestOne = -1;
+        lastPacketChestTwo = -1;
+        lastPacketWristOne = -1;
+        lastPacketWristTwo = -1;
     }
 
 
@@ -101,8 +114,13 @@ public class DataDistributor {
         if (data.length < CHEST_STREAM_TWO) {
             throw new IllegalArgumentException("HET Chest data stream two received did not match expected length");
         }
-        int offset = 0;
+        int packetDiff = data[CHEST_TWO_PACKET_INDEX] - lastPacketChestTwo;
+        if (packetDiff >= LOST_PACKET_ALERT_THRESHOLD && lastPacketChestTwo != -1) {
+            //call alert
+        }
+        lastPacketChestTwo = data[CHEST_TWO_PACKET_INDEX];
 
+        int offset = 0;
         //--CHEST STREAM TWO DATA PARSING--
         //Inertial data
         byte[] inertialData = Arrays.copyOfRange(data, offset, offset + CHEST_INERTIAL_BYTES);
@@ -115,8 +133,13 @@ public class DataDistributor {
         if (data.length < WRIST_STREAM_ONE) {
             throw new IllegalArgumentException("HET Wrist data stream one received did not match expected length");
         }
-        int offset = 0;
+        int packetDiff = data[WRIST_ONE_PACKET_INDEX] - lastPacketWristOne;
+        if (packetDiff >= LOST_PACKET_ALERT_THRESHOLD && lastPacketWristOne != -1) {
+            //call alert
+        }
+        lastPacketWristOne = data[WRIST_ONE_PACKET_INDEX];
 
+        int offset = 0;
         //--WRIST STREAM ONE DATA PARSING--
         //Inertial data
         byte[] inertialData = Arrays.copyOfRange(data, offset, offset + WRIST_INERTIAL_BYTES);
@@ -133,6 +156,12 @@ public class DataDistributor {
         if (data.length < WRIST_STREAM_TWO) {
             throw new IllegalArgumentException("HET Wrist data stream two received did not match expected length");
         }
+        int packetDiff = data[WRIST_TWO_PACKET_INDEX] - lastPacketWristTwo;
+        if (packetDiff >= LOST_PACKET_ALERT_THRESHOLD && lastPacketWristTwo != -1) {
+            //call alert
+        }
+        lastPacketWristTwo = data[WRIST_TWO_PACKET_INDEX];
+
         int offset = 0;
         //--WRIST STREAM TWO DATA PARSING--
         //Ozone data
