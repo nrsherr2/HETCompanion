@@ -55,8 +55,8 @@ public class DataUploader {
 
     public void startUploadTask() {
         Log.d(getClass().getCanonicalName(), "Starting cloud upload task.");
-        //uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.MINUTES);
-        uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.SECONDS);
+        uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.MINUTES);
+        //uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.SECONDS);
     }
 
     private void stopUploadTask() {
