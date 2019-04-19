@@ -106,9 +106,9 @@ public abstract class DetailFragment extends Fragment implements AdapterView.OnI
                 processedDataRepository.getHeartRate().observe(this, new Observer<ProcessedDataPoint>() {
                     @Override
                     public void onChanged(@Nullable final ProcessedDataPoint dataPoint) {
-                        Log.d(getClass().getCanonicalName(), "Updating Ozone on detail view");
+                        Log.d(getClass().getCanonicalName(), "Updating Heart rate on detail view");
                         if (dataPoint != null) {
-                            liveData.setText(String.format("%d", (dataPoint.getValue())));
+                            liveData.setText("" + (int) dataPoint.getValue());
                         } else {
                             liveData.setText("0");
                         }

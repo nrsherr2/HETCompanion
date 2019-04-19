@@ -36,7 +36,8 @@ public class HomeFragment extends Fragment {
             public void onChanged(@Nullable final ProcessedDataPoint dataPoint) {
                 Log.d(getClass().getCanonicalName(), "Updating BPM on dashboard");
                 if (dataPoint != null) {
-                    hrLive.setText(String.format("%d", dataPoint.getValue()));
+                    //hrLive.setText(String.format("%d", dataPoint.getValue()));
+                    hrLive.setText(dataPoint.getValue() + "");
                 } else {
                     hrLive.setText("0");
                 }

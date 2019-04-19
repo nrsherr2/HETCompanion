@@ -43,6 +43,8 @@ public class DashboardActivity extends AppCompatActivity {
     private BluetoothGattCharacteristic notifyCharacteristicChestOne;
     /* UUIDs that represent the characteristics of the BLE device we're interested in */
     private final UUID fff0 = new UUID(0xfff000001000L, 0x800000805f9b34fbL);
+    private final UUID fff2 = new UUID(0xfff200001000L, 0x800000805f9b34fbL);
+    private final UUID fff5 = new UUID(0xfff500001000L, 0x800000805f9b34fbL);
     private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
     private final UUID fff4 = new UUID(0xfff400001000L, 0x800000805f9b34fbL);
     private final UUID fff1 = new UUID(0x0000fff100001000L, 0x800000805f9b34fbL);
@@ -104,6 +106,8 @@ public class DashboardActivity extends AppCompatActivity {
     private void listenForAttributes() {
         notifyCharacteristicChestTwo = bleService.findAndSetNotify(fff0, fff3);
         notifyCharacteristicChestOne = bleService.findAndSetNotify(fff0, fff4);
+        notifyCharacteristicChestOne = bleService.findAndSetNotify(fff0, fff2);
+        notifyCharacteristicChestOne = bleService.findAndSetNotify(fff0, fff5);
 
         if (notifyCharacteristicChestTwo == null) {
             System.out.println("could not set up notifications on fff3.");
