@@ -3,6 +3,7 @@ package edu.ncsu.csc.assist.data.device;
 import java.util.Arrays;
 
 import edu.ncsu.csc.assist.data.cloud.DataStorer;
+import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
 import edu.ncsu.csc.assist.data.handling.ChestEcgHandler;
 import edu.ncsu.csc.assist.data.handling.ChestInertialHandler;
 import edu.ncsu.csc.assist.data.handling.ChestPpgHandler;
@@ -17,11 +18,11 @@ import edu.ncsu.csc.assist.data.handling.WristPpgHandler;
  * <p>
  * HET Chest: 32 Bytes
  * |ecg1|ecg1|ecg1|ecg2|ecg2|ecg2|ecg3|ecg3|ecg3|ecg4|ecg4|ecg4|ppg1|ppg1|ppg2|ppg2|ppg3|ppg3|ppg4|ppg4|
- * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |
+ * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |pkg#|
  * <p>
  * HET Wrist: 28 Bytes
- * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |ppg1|ppg1|ppg2|ppg2|
- * |oz1 |oz1 |poz1|poz1|roz1|roz1|moz1|moz1|tmp1|tmp1|humid1|humid1|
+ * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |ppg1|ppg1|ppg2|ppg2|pkg#|
+ * |oz1 |oz1 |poz1|poz1|roz1|roz1|moz1|moz1|pkg#|    |    |    |    |    |    |    |tmp1|tmp1|humid1|humid1|
  */
 public class DataDistributor {
 
@@ -40,7 +41,6 @@ public class DataDistributor {
     private Handler wristOzoneHandler;
     private Handler wristEnvironmentalHandler;
 
-
     //once  handlers are created, the below values will overwritten through the appropriate constructor
     private int CHEST_ECG_BYTES = 12;
     private int CHEST_PPG_BYTES = 8;
@@ -55,16 +55,17 @@ public class DataDistributor {
 
     private int WRIST_OZONE_BYTES = 8;
     private int WRIST_ENVIRONMENTAL_BYTES = 4;
-    private int WRIST_STREAM_TWO = WRIST_OZONE_BYTES + WRIST_ENVIRONMENTAL_BYTES;
+    private int OZONE_ENVIRON_BUFFER_BYTES = 8;
+    private int WRIST_STREAM_TWO = WRIST_OZONE_BYTES + OZONE_ENVIRON_BUFFER_BYTES + WRIST_ENVIRONMENTAL_BYTES;
 
-    public DataDistributor(DataStorer rawDataBuffer) {
-        chestEcgHandler = new ChestEcgHandler(rawDataBuffer);
-        chestInertialHandler = new ChestInertialHandler(rawDataBuffer);
-        chestPpgHandler = new ChestPpgHandler(rawDataBuffer);
-        wristEnvironmentalHandler = new WristEnvironmentalHandler(rawDataBuffer);
-        wristInertialHandler = new WristInertialHandler(rawDataBuffer);
-        wristOzoneHandler = new WristOzoneHandler(rawDataBuffer);
-        wristPpgHandler = new WristPpgHandler(rawDataBuffer);
+    public DataDistributor(DataStorer rawDataBuffer, ProcessedDataStorer processedDataBuffer) {
+        chestEcgHandler = new ChestEcgHandler(rawDataBuffer, processedDataBuffer);
+        chestInertialHandler = new ChestInertialHandler(rawDataBuffer, processedDataBuffer);
+        chestPpgHandler = new ChestPpgHandler(rawDataBuffer, processedDataBuffer);
+        wristEnvironmentalHandler = new WristEnvironmentalHandler(rawDataBuffer, processedDataBuffer);
+        wristInertialHandler = new WristInertialHandler(rawDataBuffer, processedDataBuffer);
+        wristOzoneHandler = new WristOzoneHandler(rawDataBuffer, processedDataBuffer);
+        wristPpgHandler = new WristPpgHandler(rawDataBuffer, processedDataBuffer);
 
         CHEST_ECG_BYTES = chestEcgHandler.getTotalByteSize();
         CHEST_PPG_BYTES = chestPpgHandler.getTotalByteSize();
@@ -72,6 +73,7 @@ public class DataDistributor {
         WRIST_INERTIAL_BYTES = wristInertialHandler.getTotalByteSize();
         WRIST_PPG_BYTES = wristPpgHandler.getTotalByteSize();
         WRIST_OZONE_BYTES = wristOzoneHandler.getTotalByteSize();
+        OZONE_ENVIRON_BUFFER_BYTES = 8;
         WRIST_ENVIRONMENTAL_BYTES = wristEnvironmentalHandler.getTotalByteSize();
     }
 
@@ -98,8 +100,8 @@ public class DataDistributor {
         if (data.length < CHEST_STREAM_TWO) {
             throw new IllegalArgumentException("HET Chest data stream two received did not match expected length");
         }
-        int offset = 0;
 
+        int offset = 0;
         //--CHEST STREAM TWO DATA PARSING--
         //Inertial data
         byte[] inertialData = Arrays.copyOfRange(data, offset, offset + CHEST_INERTIAL_BYTES);
@@ -112,8 +114,8 @@ public class DataDistributor {
         if (data.length < WRIST_STREAM_ONE) {
             throw new IllegalArgumentException("HET Wrist data stream one received did not match expected length");
         }
-        int offset = 0;
 
+        int offset = 0;
         //--WRIST STREAM ONE DATA PARSING--
         //Inertial data
         byte[] inertialData = Arrays.copyOfRange(data, offset, offset + WRIST_INERTIAL_BYTES);
@@ -130,12 +132,16 @@ public class DataDistributor {
         if (data.length < WRIST_STREAM_TWO) {
             throw new IllegalArgumentException("HET Wrist data stream two received did not match expected length");
         }
+
         int offset = 0;
         //--WRIST STREAM TWO DATA PARSING--
         //Ozone data
         byte[] ozoneData = Arrays.copyOfRange(data, offset, offset + WRIST_OZONE_BYTES);
         offset += WRIST_OZONE_BYTES;
         wristOzoneHandler.handle(ozoneData,timestamp);
+
+        //Extra space before environmental data
+        offset += OZONE_ENVIRON_BUFFER_BYTES;
 
         //Environmental data
         byte[] environmentalData = Arrays.copyOfRange(data, offset, offset + WRIST_ENVIRONMENTAL_BYTES);

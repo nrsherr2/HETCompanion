@@ -231,6 +231,10 @@ public class BluetoothLeService extends Service {
                 DataReceiver.receiveWristStreamTwo(bluetoothGattCharacteristic.getValue());
             } else if(bluetoothGattCharacteristic.getUuid().toString().equals(fff4.toString())){
                 DataReceiver.receiveWristStreamOne(bluetoothGattCharacteristic.getValue());
+            } else if (bluetoothGattCharacteristic.getUuid().toString().equals(fff5.toString())) {
+                DataReceiver.receiveChestStreamOne(bluetoothGattCharacteristic.getValue());
+            } else if (bluetoothGattCharacteristic.getUuid().toString().equals(fff2.toString())) {
+                DataReceiver.receiveChestStreamTwo(bluetoothGattCharacteristic.getValue());
             }
         }
 

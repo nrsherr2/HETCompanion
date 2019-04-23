@@ -1,17 +1,11 @@
 package edu.ncsu.csc.assist.data.handling;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
-import edu.ncsu.csc.assist.data.cloud.DataStorer;
-import edu.ncsu.csc.assist.data.handling.Handler;
 import edu.ncsu.csc.assist.data.objects.GenericData;
-
-import static org.junit.Assert.*;
 
 /**
  * Tests the functionality of the Handler super-class
@@ -51,7 +45,7 @@ public class HandlerTest {
                 0x11, 0x22, 0x33,
                 0x44, 0x55, 0x66
         };
-        Handler ecgHandler = new ChestEcgHandler(null);
+        Handler ecgHandler = new ChestEcgHandler(null, null);
         List<GenericData> ecgValues = ecgHandler.parseInput(testEcgData, 0);
         Assert.assertEquals(ecgHandler.getNumberOfValues(), ecgValues.size());
 
@@ -74,7 +68,7 @@ public class HandlerTest {
                 0x22, 0x33,
                 0x44, 0x55
         };
-        Handler inertialHandler = new ChestInertialHandler(null);
+        Handler inertialHandler = new ChestInertialHandler(null, null);
         List<GenericData> inertialValues = inertialHandler.parseInput(testInertialData, 0);
         Assert.assertEquals(inertialHandler.getNumberOfValues()*3, inertialValues.size());
 

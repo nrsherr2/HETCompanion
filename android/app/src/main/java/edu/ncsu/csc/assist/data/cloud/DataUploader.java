@@ -22,7 +22,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import androidx.room.Room;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.entities.ConfigOption;
 import edu.ncsu.csc.assist.data.sqlite.entities.RawDataPoint;
@@ -50,14 +49,14 @@ public class DataUploader {
     public DataUploader(Context context, GoogleApiClient googleApiClient) {
         this.mContext = context;
         this.googleApiClient = googleApiClient;
-        database = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "ASSIST").allowMainThreadQueries().build();
+        database = AppDatabase.getDatabase(context.getApplicationContext());
         restQueue = new RestQueue(context);
     }
 
     public void startUploadTask() {
         Log.d(getClass().getCanonicalName(), "Starting cloud upload task.");
-        //uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.MINUTES);
-        uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.SECONDS);
+        uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.MINUTES);
+        //uploadTask = scheduler.scheduleAtFixedRate(uploadData, 30, 30, TimeUnit.SECONDS);
     }
 
     private void stopUploadTask() {

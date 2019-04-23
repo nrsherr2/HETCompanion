@@ -8,8 +8,6 @@ import java.util.List;
 import edu.ncsu.csc.assist.data.objects.DataType;
 import edu.ncsu.csc.assist.data.objects.GenericData;
 
-import static org.junit.Assert.*;
-
 public class WristOzoneHandlerTest {
 
     /**
@@ -19,7 +17,7 @@ public class WristOzoneHandlerTest {
      */
     @Test
     public void parseReading() {
-        WristOzoneHandler ozoneHandler = new WristOzoneHandler(null);
+        WristOzoneHandler ozoneHandler = new WristOzoneHandler(null, null);
         long testTimestamp = 5000;
         byte[] testOzoneData = {
                 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77
