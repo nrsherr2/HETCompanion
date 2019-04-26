@@ -95,13 +95,16 @@ public class ChestEcgHandler extends Handler {
         //*Calculate BPM*
         //Find the maximum value of the past X many ecg readings (maxValue)
         double maxValue = 0;
+        double avgValue = 0;
         for(GenericData reading : ecgHistory) {
             if(reading.getValue() > maxValue){
                 maxValue = reading.getValue();
             }
+            avgValue += reading.getValue();
         }
+        avgValue /= ecgHistory.size();
         //Set a minimum threshold to determine what readings are indicative of a heart beat (beatThreshold)
-        final double beatThreshold = maxValue * .75;
+        final double beatThreshold = (maxValue - avgValue) * .75 + avgValue;
         //Record the first reading in every group that surpasses the threshold (reading >= beatThreshold) and is a local maximum
         boolean alreadyInPeak = false;
         List<GenericData> heartBeats = new ArrayList<>();
