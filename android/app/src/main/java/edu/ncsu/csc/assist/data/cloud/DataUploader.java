@@ -16,7 +16,10 @@ import com.google.android.gms.common.api.OptionalPendingResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -49,6 +52,30 @@ public class DataUploader {
     public DataUploader(Context context, GoogleApiClient googleApiClient) {
         this.mContext = context;
         this.googleApiClient = googleApiClient;
+
+        // Create/read the config file for server hostname
+        // Path is Android/data/edu.ncsu.csc.assist/files/hostname.txt
+        try {
+            File config = new File(context.getExternalFilesDir(null), "hostname.txt");
+            if (!config.exists()) {
+                FileWriter writer = new FileWriter(config);
+                writer.append(Endpoints.DOMAIN);
+                writer.flush();
+                writer.close();
+            } else {
+                Scanner scanner = new Scanner(config);
+                if (scanner.hasNextLine()) {
+                    Endpoints.DOMAIN = scanner.nextLine();
+                    Log.i(getClass().getCanonicalName(), "Changed domain to '" + Endpoints.DOMAIN + "'.");
+                }
+            }
+
+        } catch (Exception e) {
+            Log.e(getClass().getCanonicalName(), "Error while reading config file", e);
+        }
+
+        Log.i(getClass().getCanonicalName(), "Using '" + Endpoints.DOMAIN + "' as the server domain");
+
         database = AppDatabase.getDatabase(context.getApplicationContext());
         restQueue = new RestQueue(context);
     }

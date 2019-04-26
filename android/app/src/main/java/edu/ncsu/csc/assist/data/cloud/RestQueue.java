@@ -75,7 +75,7 @@ public class RestQueue {
     public Request sendSaveRequest(String userId, String hetVersion, String authToken, List<RawDataPoint> data, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) throws JSONException {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", authToken);
-        return makeRequest(Request.Method.POST, Endpoints.V1_SAVE, headers, JsonUtil.formatJson(userId, hetVersion, data), listener, errorListener);
+        return makeRequest(Request.Method.POST, Endpoints.getV1Save(), headers, JsonUtil.formatJson(userId, hetVersion, data), listener, errorListener);
     }
 
     public void stop() {
