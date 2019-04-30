@@ -46,7 +46,6 @@ public class BtButtonActivity extends Activity {
         }
 
         devicesListView = (ListView) findViewById(R.id.gatt_devices_list);
-        //devicesListView.setItemsCanFocus(false);
         ArrayList<BluetoothDeviceInfoWrapper> deviceList;
         deviceList = new ArrayList<>();
         deviceListAdapter = new ArrayAdapter<>(this,
@@ -67,6 +66,16 @@ public class BtButtonActivity extends Activity {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        scanLeDevice(false);
+        deviceListAdapter.clear();
+        findViewById(R.id.btScanButton).setVisibility(View.VISIBLE);
+        findViewById(R.id.btRefresh).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btDone).setVisibility(View.INVISIBLE);
     }
 
     private void scanLeDevice(final boolean enable) {
