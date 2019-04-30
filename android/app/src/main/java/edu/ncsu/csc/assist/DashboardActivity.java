@@ -20,6 +20,7 @@ import java.util.UUID;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import edu.ncsu.csc.assist.bluetooth.BluetoothLeService;
+import edu.ncsu.csc.assist.bluetooth.BtButtonActivity;
 
 /**
  * Class that handles the main UI functionality and bluetooth connections
@@ -31,9 +32,6 @@ public class DashboardActivity extends AppCompatActivity {
     //the current fragment you're on
     private Fragment fragment;
 
-    /* the constant names for device name and address */
-    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
-    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
     /* the address of the device */
     private String mDeviceAddress;
     /* the service you're calling functions from */
@@ -41,13 +39,6 @@ public class DashboardActivity extends AppCompatActivity {
     /* the characteristic you're getting notifications of */
     private BluetoothGattCharacteristic notifyCharacteristicChestTwo;
     private BluetoothGattCharacteristic notifyCharacteristicChestOne;
-    /* UUIDs that represent the characteristics of the BLE device we're interested in */
-    private final UUID fff0 = new UUID(0xfff000001000L, 0x800000805f9b34fbL);
-    private final UUID fff2 = new UUID(0xfff200001000L, 0x800000805f9b34fbL);
-    private final UUID fff5 = new UUID(0xfff500001000L, 0x800000805f9b34fbL);
-    private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
-    private final UUID fff4 = new UUID(0xfff400001000L, 0x800000805f9b34fbL);
-    private final UUID fff1 = new UUID(0x0000fff100001000L, 0x800000805f9b34fbL);
 
     /**
      * Connection to the BLE service that ensures we're keeping information up-to-date
@@ -162,8 +153,8 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         System.out.println("initiating dashboard");
         final Intent intent = getIntent();
-        String mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
-        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+        String mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME_ONE);
+        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_ONE);
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -237,6 +228,13 @@ public class DashboardActivity extends AppCompatActivity {
             System.out.println("Switched to status activity");
             return true;
         }
+        if (id == R.id.action_reconnect) {
+            Intent intent = new Intent(this, BtButtonActivity.class);
+            bleService.disconnect();
+            bleService.close();
+            startActivity(intent);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -268,4 +266,20 @@ public class DashboardActivity extends AppCompatActivity {
         intentFilter.addAction(BluetoothLeService.DATA_AVAILABLE);
         return intentFilter;
     }
+
+
+    /* UUIDs that represent the characteristics of the BLE device we're interested in */
+    private final UUID fff0 = new UUID(0xfff000001000L, 0x800000805f9b34fbL);
+    private final UUID fff2 = new UUID(0xfff200001000L, 0x800000805f9b34fbL);
+    private final UUID fff5 = new UUID(0xfff500001000L, 0x800000805f9b34fbL);
+    private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
+    private final UUID fff4 = new UUID(0xfff400001000L, 0x800000805f9b34fbL);
+    private final UUID fff1 = new UUID(0x0000fff100001000L, 0x800000805f9b34fbL);
+
+
+    /* the constant names for device name and address */
+    public static final String EXTRAS_DEVICE_NAME_ONE = "DEVICE_NAME_1";
+    public static final String EXTRAS_DEVICE_ADDRESS_ONE = "DEVICE_ADDRESS_1";
+    public static final String EXTRAS_DEVICE_NAME_TWO = "DEVICE_NAME_2";
+    public static final String EXTRAs_DEVICE_ADDRESS_TWO = "DEVICE_ADDRESS_2";
 }

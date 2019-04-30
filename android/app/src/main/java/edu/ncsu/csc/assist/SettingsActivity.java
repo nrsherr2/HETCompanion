@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.entities.ConfigOption;
 
-import static edu.ncsu.csc.assist.DashboardActivity.EXTRAS_DEVICE_ADDRESS;
-import static edu.ncsu.csc.assist.DashboardActivity.EXTRAS_DEVICE_NAME;
+import static edu.ncsu.csc.assist.DashboardActivity.EXTRAS_DEVICE_ADDRESS_ONE;
+import static edu.ncsu.csc.assist.DashboardActivity.EXTRAS_DEVICE_NAME_ONE;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -36,8 +36,8 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.settings);
 
         final Intent intent = getIntent();
-        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
-        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME_ONE);
+        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_ONE);
         db = AppDatabase.getDatabase(getApplicationContext());
         // save objects on screen as properties
         userId = findViewById(R.id.user_id);
@@ -83,8 +83,8 @@ public class SettingsActivity extends AppCompatActivity {
 
             // Go to dashboard
             final Intent intent = new Intent(this, DashboardActivity.class);
-            intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME, mDeviceName);
-            intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
+            intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME_ONE, mDeviceName);
+            intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS_ONE, mDeviceAddress);
             startActivity(intent);
         } else {
             Toast.makeText(getBaseContext(), "Invalid Inputs. Must be Whole Numbers",

@@ -89,8 +89,8 @@ public class DeviceScanActivity extends ListActivity {
             scanning = false;
         }
         final Intent intent = new Intent(this, SettingsActivity.class);
-        intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME, device.getName());
-        intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+        intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME_ONE, device.getName());
+        intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS_ONE, device.getAddress());
         startActivity(intent);
     }
 

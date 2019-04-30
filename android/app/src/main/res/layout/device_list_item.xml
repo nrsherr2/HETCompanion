@@ -4,15 +4,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
+
+    <CheckedTextView
         android:id="@+id/device_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="26dp" />
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple" />
 
     <TextView
         android:id="@+id/device_address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="13dp" />
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small" />
 </LinearLayout>
