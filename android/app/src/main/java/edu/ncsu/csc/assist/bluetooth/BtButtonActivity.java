@@ -58,7 +58,8 @@ public class BtButtonActivity extends Activity {
 
         super.onResume();
         //make sure location is still allowed
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ENABLE_GPS);
         }
@@ -138,26 +139,56 @@ public class BtButtonActivity extends Activity {
                 } else if (devicesListView.getCheckedItemCount() > 2) {
                     Toast.makeText(this, R.string.tooManyDevices, Toast.LENGTH_SHORT).show();
                 } else {
-                    BluetoothDevice device1 = findDeviceAndRemoveIt();
+                    BluetoothDevice device1 = findFirstDevice();
                     System.out.println("found device 1: " + device1.getName() + " gg");
-                    //BluetoothDevice device2 = findDeviceAndRemoveIt();
+                    //BluetoothDevice device2 = findFirstDevice();
 
                     final Intent intent = new Intent(this, SettingsActivity.class);
                     intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME_ONE, device1.getName());
                     intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS_ONE,
                             device1.getAddress());
+
+                    BluetoothDevice device2 = findSecondDevice();
+                    if (devicesListView.getCheckedItemCount() != 2 || device2 == null) {
+                        intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME_TWO, "null");
+                        intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS_TWO, "null");
+                    } else {
+                        intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME_TWO,
+                                device2.getName());
+                        intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS_TWO,
+                                device2.getAddress());
+                        System.out.println("found device 2: " + device2.getName() + " gg");
+                    }
                     startActivity(intent);
                 }
                 break;
         }
     }
 
-    private BluetoothDevice findDeviceAndRemoveIt() {
+    private BluetoothDevice findFirstDevice() {
         for (int i = 0; i < deviceListAdapter.getCount(); i++) {
+            System.out.println("device name: " + deviceListAdapter.getItem(i).toString() + " is " +
+                    "checked: " + devicesListView.isItemChecked(i));
             if (devicesListView.isItemChecked(i)) {
                 BluetoothDeviceInfoWrapper wrapper = deviceListAdapter.getItem(i);
-                deviceListAdapter.remove(wrapper);
                 return wrapper.getDevice();
+            }
+        }
+        return null;
+    }
+
+    private BluetoothDevice findSecondDevice() {
+        boolean skipOne = false;
+        for (int i = 0; i < deviceListAdapter.getCount(); i++) {
+            System.out.println(
+                    "device name: " + deviceListAdapter.getItem(i).toString() + " is checked: " +
+                            devicesListView.isItemChecked(i));
+            if (devicesListView.isItemChecked(i)) {
+                if (!skipOne) {
+                    skipOne = true;
+                } else {
+                    return deviceListAdapter.getItem(i).getDevice();
+                }
             }
         }
         return null;

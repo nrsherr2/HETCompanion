@@ -1,7 +1,6 @@
 package edu.ncsu.csc.assist;
 
 
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,6 +11,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -31,14 +31,14 @@ public class DashboardActivity extends AppCompatActivity {
 
     //the current fragment you're on
     private Fragment fragment;
-
+    private String deviceName1;
     /* the address of the device */
-    private String mDeviceAddress;
+    private String deviceAddress1;
+    private String deviceName2;
+    private String deviceAddress2;
+    private boolean gottenDataBefore, attemptedSecondConnection;
     /* the service you're calling functions from */
     private BluetoothLeService bleService;
-    /* the characteristic you're getting notifications of */
-    private BluetoothGattCharacteristic notifyCharacteristicChestTwo;
-    private BluetoothGattCharacteristic notifyCharacteristicChestOne;
 
     /**
      * Connection to the BLE service that ensures we're keeping information up-to-date
@@ -51,7 +51,8 @@ public class DashboardActivity extends AppCompatActivity {
                 System.out.println("Unable to initialize BLE service");
                 finish();
             }
-            bleService.connect(mDeviceAddress);
+            connectDevice(1);
+            displayData("Connecting to first device…");
         }
 
         @Override
@@ -72,14 +73,40 @@ public class DashboardActivity extends AppCompatActivity {
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 System.out.println("Dashboard received \"disconnected\"");
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                System.out.println("Services Discovered. Finding Characteristics...");
-                listenForAttributes();
+                System.out.println("Services Discovered. Starting data streams...");
+                if (intent.getStringExtra(BluetoothLeService.EXTRA_DATA).equals(deviceName1)) {
+                    listenForAttributes(1);
+                } else {
+                    listenForAttributes(2);
+                }
             } else if (BluetoothLeService.DATA_AVAILABLE.equals(action)) {
-                //System.out.print("Data Available: ");
-                //displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                if (deviceAddress2 != null && !bleService.secondDeviceConnected() &&
+                        !attemptedSecondConnection) {
+                    displayData("Successfully connected to first device. Connecting to second " +
+                            "device…");
+                    System.out.println("connecting to second device");
+                    connectDevice(2);
+                    attemptedSecondConnection = true;
+                } else if (deviceAddress2 != null && bleService.secondDeviceConnected() &&
+                        !gottenDataBefore) {
+                    System.out.println("connected to second device");
+                    displayData("Successfully connected to second device.");
+                    gottenDataBefore = true;
+                } else if (deviceAddress2 == null && !gottenDataBefore) {
+                    displayData("Successfully connected to first device.");
+                    gottenDataBefore = true;
+                }
             }
         }
     };
+
+    private void connectDevice(int i) {
+        if (i == 1) {
+            bleService.connect(deviceAddress1, i);
+        } else {
+            bleService.connect(deviceAddress2, i);
+        }
+    }
 
     /**
      * For now, just prints the data out. We can rename the method and make it change behaviors
@@ -88,24 +115,29 @@ public class DashboardActivity extends AppCompatActivity {
      * @param data the information we want to display.
      */
     private void displayData(String data) {
-        System.out.println(data);
+        Toast.makeText(this, data, Toast.LENGTH_SHORT).show();
     }
 
     /**
      * calls the necessary methods for enabling information streaming
+     *
+     * @param deviceNum 1 or 2, depending on which device you are setting up notifications for
      */
-    private void listenForAttributes() {
-        notifyCharacteristicChestTwo = bleService.findAndSetNotify(fff0, fff3);
-        notifyCharacteristicChestOne = bleService.findAndSetNotify(fff0, fff4);
-        notifyCharacteristicChestOne = bleService.findAndSetNotify(fff0, fff2);
-        notifyCharacteristicChestOne = bleService.findAndSetNotify(fff0, fff5);
+    private void listenForAttributes(int deviceNum) {
 
-        if (notifyCharacteristicChestTwo == null) {
-            System.out.println("could not set up notifications on fff3.");
+        if (bleService.findAndSetNotify(fff0, fff2, deviceNum) == null) {
+            System.out.println("could not set up notifications on fff2");
         }
-        if (notifyCharacteristicChestOne == null) {
-            System.out.println("could not set up notifications on fff4.");
+        if (bleService.findAndSetNotify(fff0, fff3, deviceNum) == null) {
+            System.out.println("could not set up notifications on fff3");
         }
+        if (bleService.findAndSetNotify(fff0, fff4, deviceNum) == null) {
+            System.out.println("could not set up notifications on fff4");
+        }
+        if (bleService.findAndSetNotify(fff0, fff5, deviceNum) == null) {
+            System.out.println("could not set up notifications on fff5");
+        }
+
     }
 
     /**
@@ -150,12 +182,16 @@ public class DashboardActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        gottenDataBefore = attemptedSecondConnection = false;
         super.onCreate(savedInstanceState);
         System.out.println("initiating dashboard");
         final Intent intent = getIntent();
-        String mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME_ONE);
-        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_ONE);
-
+        deviceName1 = intent.getStringExtra(EXTRAS_DEVICE_NAME_ONE);
+        deviceAddress1 = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_ONE);
+        if (!intent.getStringExtra(EXTRAS_DEVICE_NAME_TWO).equals("null")) {
+            deviceName2 = intent.getStringExtra(EXTRAS_DEVICE_NAME_TWO);
+            deviceAddress2 = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_TWO);
+        }
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
     }
@@ -183,7 +219,7 @@ public class DashboardActivity extends AppCompatActivity {
         super.onResume();
         registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
         if (bleService != null) {
-            System.out.println("Connect request result: " + bleService.connect(mDeviceAddress));
+            System.out.println("Connect request result: " + bleService.connect(deviceAddress1, 1));
         }
     }
 
@@ -198,6 +234,7 @@ public class DashboardActivity extends AppCompatActivity {
         bleService.disconnect();
         unbindService(serviceConnection);
         bleService = null;
+        gottenDataBefore = false;
     }
 
     /**
@@ -281,5 +318,5 @@ public class DashboardActivity extends AppCompatActivity {
     public static final String EXTRAS_DEVICE_NAME_ONE = "DEVICE_NAME_1";
     public static final String EXTRAS_DEVICE_ADDRESS_ONE = "DEVICE_ADDRESS_1";
     public static final String EXTRAS_DEVICE_NAME_TWO = "DEVICE_NAME_2";
-    public static final String EXTRAs_DEVICE_ADDRESS_TWO = "DEVICE_ADDRESS_2";
+    public static final String EXTRAS_DEVICE_ADDRESS_TWO = "DEVICE_ADDRESS_2";
 }

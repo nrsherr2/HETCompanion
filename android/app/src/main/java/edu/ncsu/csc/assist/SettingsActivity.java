@@ -13,7 +13,9 @@ import edu.ncsu.csc.assist.data.sqlite.AppDatabase;
 import edu.ncsu.csc.assist.data.sqlite.entities.ConfigOption;
 
 import static edu.ncsu.csc.assist.DashboardActivity.EXTRAS_DEVICE_ADDRESS_ONE;
+import static edu.ncsu.csc.assist.DashboardActivity.EXTRAS_DEVICE_ADDRESS_TWO;
 import static edu.ncsu.csc.assist.DashboardActivity.EXTRAS_DEVICE_NAME_ONE;
+import static edu.ncsu.csc.assist.DashboardActivity.EXTRAS_DEVICE_NAME_TWO;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -23,21 +25,24 @@ public class SettingsActivity extends AppCompatActivity {
     EditText hetVersion;
 
     // Device info for dashboard
-    private String mDeviceAddress;
-    private String mDeviceName;
+    private String mDeviceAddressOne;
+    private String mDeviceNameOne;
+    private String mDeviceAddressTwo;
+    private String mDeviceNameTwo;
 
     AppDatabase db;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // set layout
         setContentView(R.layout.settings);
 
         final Intent intent = getIntent();
-        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME_ONE);
-        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_ONE);
+        mDeviceNameOne = intent.getStringExtra(EXTRAS_DEVICE_NAME_ONE);
+        mDeviceAddressOne = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_ONE);
+        mDeviceNameTwo = intent.getStringExtra(EXTRAS_DEVICE_NAME_TWO);
+        mDeviceAddressTwo = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_TWO);
         db = AppDatabase.getDatabase(getApplicationContext());
         // save objects on screen as properties
         userId = findViewById(R.id.user_id);
@@ -56,11 +61,9 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         // register submit button onClick listener
-        submitButton.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-               setUserAttributes();
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                setUserAttributes();
             }
         });
 
@@ -83,8 +86,10 @@ public class SettingsActivity extends AppCompatActivity {
 
             // Go to dashboard
             final Intent intent = new Intent(this, DashboardActivity.class);
-            intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME_ONE, mDeviceName);
-            intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS_ONE, mDeviceAddress);
+            intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME_ONE, mDeviceNameOne);
+            intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS_ONE, mDeviceAddressOne);
+            intent.putExtra(DashboardActivity.EXTRAS_DEVICE_NAME_TWO, mDeviceNameTwo);
+            intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS_TWO, mDeviceAddressTwo);
             startActivity(intent);
         } else {
             Toast.makeText(getBaseContext(), "Invalid Inputs. Must be Whole Numbers",
@@ -96,7 +101,7 @@ public class SettingsActivity extends AppCompatActivity {
     public boolean isValidUserID(String userIdStr) {
         try {
             return Integer.parseInt(userIdStr.trim()) > -1;
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return false;
         }
     }
