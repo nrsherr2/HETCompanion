@@ -87,10 +87,6 @@ public class BluetoothLeService extends Service {
      * int)}
      */
     public boolean connect(final String address, int deviceNum) {
-        System.out.println("connecting to device " + deviceNum);
-        if (writeLock.availablePermits() > 0) {
-            System.out.println("waiting on write lock to connect");
-        }
         try {
             writeLock.acquire();
         } catch (InterruptedException e) {
@@ -103,7 +99,6 @@ public class BluetoothLeService extends Service {
         }
         //in the case that this was a previously connected device
         if (address.equals(deviceAddress1) && gattDeviceOne != null) {
-            System.out.println("reconnecting to device 1");
             if (gattDeviceOne.connect()) {
                 mConnectionState = STATE_CONNECTING;
                 return true;
@@ -112,7 +107,6 @@ public class BluetoothLeService extends Service {
             }
         }
         if (address.equals(deviceAddress2) && gattDeviceTwo != null) {
-            System.out.println("reconnecting to device 2");
             if (gattDeviceTwo.connect()) {
                 mConnectionState = STATE_CONNECTING;
                 return true;
@@ -128,12 +122,10 @@ public class BluetoothLeService extends Service {
         }
         //now connect
         if (deviceNum == 1) {
-            System.out.println("Creating a new connection");
             gattDeviceOne = device.connectGatt(this, true, bluetoothGattCallback);
             deviceAddress1 = address;
             mConnectionState = STATE_CONNECTING;
         } else {
-            System.out.println("creating the other connection");
             gattDeviceTwo = device.connectGatt(this, true, bluetoothGattCallback2);
             deviceAddress2 = address;
             mConnectionState = STATE_CONNECTING;
@@ -280,9 +272,6 @@ public class BluetoothLeService extends Service {
         } else {
             //set the local reference of the value
             if (descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)) {
-                System.out.println("value of lock as we prepare to write to " +
-                        descriptor.getCharacteristic().getUuid() + ": " +
-                        writeLock.availablePermits());
 
                 //write value to device
                 if (deviceNum == 1 && gattDeviceOne.writeDescriptor(descriptor)) {
@@ -455,7 +444,6 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt bluetoothGatt,
                                             BluetoothGattCharacteristic bluetoothGattCharacteristic) {
-            System.out.println(bluetoothGattCharacteristic.getUuid().toString());
             broadcastUpdate(DATA_AVAILABLE, bluetoothGattCharacteristic);
             if (bluetoothGattCharacteristic.getUuid().toString().equals(fff3.toString())) {
                 DataReceiver.receiveWristStreamTwo(bluetoothGattCharacteristic.getValue());
@@ -472,7 +460,6 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicWrite(BluetoothGatt gatt,
                                           BluetoothGattCharacteristic characteristic, int status) {
             writeLock.release();
-            System.out.println("device 1 characteristic write: " + writeLock.availablePermits());
         }
 
         /**
@@ -512,8 +499,6 @@ public class BluetoothLeService extends Service {
                 broadcastUpdate(intent);
                 //starts service discovery
                 gattDeviceTwo.discoverServices();
-                System.out.println(
-                        "discovering services on " + gattDeviceTwo.getDevice().getName());
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 intent = ACTION_GATT_DISCONNECTED;
                 broadcastUpdate(intent);
@@ -562,7 +547,6 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt bluetoothGatt,
                                             BluetoothGattCharacteristic bluetoothGattCharacteristic) {
-            System.out.println(bluetoothGattCharacteristic.getUuid().toString());
             broadcastUpdate(DATA_AVAILABLE, bluetoothGattCharacteristic);
             if (bluetoothGattCharacteristic.getUuid().toString().equals(fff3.toString())) {
                 DataReceiver.receiveWristStreamTwo(bluetoothGattCharacteristic.getValue());
@@ -579,7 +563,6 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicWrite(BluetoothGatt gatt,
                                           BluetoothGattCharacteristic characteristic, int status) {
             writeLock.release();
-            System.out.println("device 2 characteristic write: " + writeLock.availablePermits());
         }
 
         /**

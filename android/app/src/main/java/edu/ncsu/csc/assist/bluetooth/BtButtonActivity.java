@@ -140,7 +140,6 @@ public class BtButtonActivity extends Activity {
                     Toast.makeText(this, R.string.tooManyDevices, Toast.LENGTH_SHORT).show();
                 } else {
                     BluetoothDevice device1 = findFirstDevice();
-                    System.out.println("found device 1: " + device1.getName() + " gg");
                     //BluetoothDevice device2 = findFirstDevice();
 
                     final Intent intent = new Intent(this, SettingsActivity.class);
@@ -157,7 +156,6 @@ public class BtButtonActivity extends Activity {
                                 device2.getName());
                         intent.putExtra(DashboardActivity.EXTRAS_DEVICE_ADDRESS_TWO,
                                 device2.getAddress());
-                        System.out.println("found device 2: " + device2.getName() + " gg");
                     }
                     startActivity(intent);
                 }

@@ -84,12 +84,10 @@ public class DashboardActivity extends AppCompatActivity {
                         !attemptedSecondConnection) {
                     displayData("Successfully connected to first device. Connecting to second " +
                             "device…");
-                    System.out.println("connecting to second device");
                     connectDevice(2);
                     attemptedSecondConnection = true;
                 } else if (deviceAddress2 != null && bleService.secondDeviceConnected() &&
                         !gottenDataBefore) {
-                    System.out.println("connected to second device");
                     displayData("Successfully connected to second device.");
                     gottenDataBefore = true;
                 } else if (deviceAddress2 == null && !gottenDataBefore) {
@@ -184,7 +182,6 @@ public class DashboardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         gottenDataBefore = attemptedSecondConnection = false;
         super.onCreate(savedInstanceState);
-        System.out.println("initiating dashboard");
         final Intent intent = getIntent();
         deviceName1 = intent.getStringExtra(EXTRAS_DEVICE_NAME_ONE);
         deviceAddress1 = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_ONE);
