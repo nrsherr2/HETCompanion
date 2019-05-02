@@ -24,8 +24,7 @@ import edu.ncsu.csc.assist.data.device.DataReceiver;
 
 /**
  * Service used for communication with the BLE device. This allows the dashboard to abstract all
- * of the BLE stuff so that you just need to make simple calls in the dashboard. You *may* have
- * to edit this when we scale to two devices at once.
+ * of the BLE stuff so that you just need to make simple calls in the dashboard.
  */
 public class BluetoothLeService extends Service {
 
@@ -48,6 +47,16 @@ public class BluetoothLeService extends Service {
     private static final UUID CLIENT_CHARACTERISTIC_CONFIGURATION = new UUID(0x290200001000L,
             0x800000805f9b34fbL);
 
+    /**
+     * The way BLE works with Android, there is one hard rule that nobody tells you at first, but
+     * is super important: you may only have one pending write request to a GATT server at a time
+     * . This is an issue to us, as we want to write a bunch of stuff to a device every time we
+     * connect to it. We want to write a value to fff1 to start it, and change the descriptors of
+     * each characteristic to make sure we start notifications. We use this semaphore here to
+     * ensure that only one pending write is going out at a time. Whenever you start a write, you
+     * acquire the lock, and whenever the callback is received saying the write went through, you
+     * release the lock.
+     */
     Semaphore writeLock = new Semaphore(1);
 
     /**
@@ -81,12 +90,14 @@ public class BluetoothLeService extends Service {
     /**
      * Connects to the Android device to the GATT server on the HET device.
      *
-     * @param address the address of the destination device
-     * @return true if you intiated the connection. The connection result is reported in
+     * @param address   the address of the destination device
+     * @param deviceNum 1 or 2, depending on which device you want to connect to
+     * @return true if you initiated the connection. The connection result is reported in
      * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int,
      * int)}
      */
     public boolean connect(final String address, int deviceNum) {
+        //acquire the write lock
         try {
             writeLock.acquire();
         } catch (InterruptedException e) {
@@ -106,6 +117,7 @@ public class BluetoothLeService extends Service {
                 return false;
             }
         }
+        //in the case this was the previously connected second device
         if (address.equals(deviceAddress2) && gattDeviceTwo != null) {
             if (gattDeviceTwo.connect()) {
                 mConnectionState = STATE_CONNECTING;
@@ -210,6 +222,11 @@ public class BluetoothLeService extends Service {
     }
 
 
+    /**
+     * says whether we have a second device connected.
+     *
+     * @return whether the second device is connected or not
+     */
     public boolean secondDeviceConnected() {
         return gattDeviceTwo != null;
     }
@@ -217,6 +234,7 @@ public class BluetoothLeService extends Service {
     /**
      * sends a call to asynchronously read information from the bluetooth device. Creates a
      * callback for reading a characteristic
+     * We don't use this in the current version of the app, but hey, it's nice to have here.
      *
      * @param characteristic the characteristic that you want to read.
      */
@@ -230,16 +248,22 @@ public class BluetoothLeService extends Service {
 
 
     /**
-     * This method is kinda sorta called within the
+     * This method is called on the way for setting up notifications for a characteristic. This
+     * actually sets up the notifications so the callbacks are triggered when the info updates.
      *
+     * @param serviceID        the service the characteristic is located in
+     * @param characteristicID the characteristic we are looking for
+     * @param deviceNum        1 or 2, depending on the device we are using.
      * @return whether we successfully set up notifications on the device.
      */
     public boolean setCharacteristicNotification(UUID serviceID, UUID characteristicID,
                                                  int deviceNum) {
+        //check if everything is initialized
         if (bluetoothAdapter == null) {
             System.out.println("adapter not initialized");
             return false;
         }
+        //get the write lock
         try {
             writeLock.acquire();
         } catch (InterruptedException e) {
@@ -249,14 +273,16 @@ public class BluetoothLeService extends Service {
         BluetoothGattCharacteristic characteristic;
         boolean changed;
         if (deviceNum == 1) {
+            //find the characteristic we're looking for
             characteristic =
                     gattDeviceOne.getService(serviceID).getCharacteristic(characteristicID);
-            //tell the android device that we set the notification
+            //tell the android device that we set the notification. this changes it locally
             changed = gattDeviceOne.setCharacteristicNotification(characteristic, true);
         } else {
+            //find the characteristic we're looking for
             characteristic =
                     gattDeviceTwo.getService(serviceID).getCharacteristic(characteristicID);
-            //tell the android device that we set the notification
+            //tell the android device that we set the notification. this changes it locally
             changed = gattDeviceTwo.setCharacteristicNotification(characteristic, true);
         }
         /* we may have changed it on the Android device, but we still have to change the value on
@@ -299,6 +325,7 @@ public class BluetoothLeService extends Service {
      *
      * @param serviceID        the UUID of the service the characteristic is located in
      * @param characteristicID the UUID of the characteristic you're looking for
+     * @param deviceNum        1 or 2, depending on which device we are talking to
      * @return whether you you successfully initiated a write to the device
      */
     public boolean startStream(UUID serviceID, UUID characteristicID, int deviceNum) {
@@ -339,6 +366,7 @@ public class BluetoothLeService extends Service {
      *
      * @param serviceID        the UUID of the service
      * @param characteristicID the UUID of the characteristic
+     * @param deviceNum        1 or 2, depending on which device we care about
      * @return the characteristic that we are getting notifications on
      */
     public BluetoothGattCharacteristic findAndSetNotify(UUID serviceID, UUID characteristicID,
@@ -389,17 +417,18 @@ public class BluetoothLeService extends Service {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intent;
+            //if connected
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                //writeLock.release();
                 intent = ACTION_GATT_CONNECTED;
                 mConnectionState = STATE_CONNECTED;
+                //tell everyone that we connected successfully
                 broadcastUpdate(intent);
                 //starts service discovery
                 gattDeviceOne.discoverServices();
-                System.out.println(
-                        "discovering services on " + gattDeviceOne.getDevice().getName());
+                System.out.println("discovering services on " + gattDeviceOne.getDevice().getName());
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                //tell everyone we disconnected
                 intent = ACTION_GATT_DISCONNECTED;
                 broadcastUpdate(intent);
             }
@@ -415,6 +444,7 @@ public class BluetoothLeService extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             writeLock.release();
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                //tell everyone we found services on this device
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED, gatt.getDevice().getName());
             } else {
                 System.out.println("onServicesDiscovered received " + status);
@@ -428,8 +458,7 @@ public class BluetoothLeService extends Service {
          * @param status if the read was successful or not
          */
         @Override
-        public void onCharacteristicRead(BluetoothGatt gett,
-                                         BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicRead(BluetoothGatt gett, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(DATA_AVAILABLE, characteristic);
             }
@@ -442,9 +471,11 @@ public class BluetoothLeService extends Service {
          * @param bluetoothGattCharacteristic the characteristic that was changed
          */
         @Override
-        public void onCharacteristicChanged(BluetoothGatt bluetoothGatt,
-                                            BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+        public void onCharacteristicChanged(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+            //tell everyone that the data updated, and what the data contains
             broadcastUpdate(DATA_AVAILABLE, bluetoothGattCharacteristic);
+            //depending on which characteristic it came from, distribute the data to one of the
+            // methods in the DataReceiver
             if (bluetoothGattCharacteristic.getUuid().toString().equals(fff3.toString())) {
                 DataReceiver.receiveWristStreamTwo(bluetoothGattCharacteristic.getValue());
             } else if (bluetoothGattCharacteristic.getUuid().toString().equals(fff4.toString())) {
@@ -456,9 +487,15 @@ public class BluetoothLeService extends Service {
             }
         }
 
+        /**
+         * Whenever the characteristic is written to, this callback is triggered.
+         *
+         * @param gatt           the device
+         * @param characteristic the characteristic written to
+         * @param status         whether the write was good or not
+         */
         @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt,
-                                          BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             writeLock.release();
         }
 
@@ -469,9 +506,9 @@ public class BluetoothLeService extends Service {
          * @param status whether the write was a success
          */
         @Override
-        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,
-                                      int status) {
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
 
+            //this is callback 1, so we start the stream for device 1
             if (startStream(fff0, fff1, 1)) {
                 System.out.println("started info stream");
             } else {
@@ -481,6 +518,14 @@ public class BluetoothLeService extends Service {
         }
     };
 
+    /**
+     * One thing when connecting to 2 devices via BLE is that you need 2 separate callback
+     * objects for each device. This is pretty much a copy of the other callback, but it deals
+     * with the second device. If any future groups want to make it so updating one callback
+     * updates both, please do. It's fine as it is for updating both separately, it's just a pain
+     * making sure they're symmetrical in behavior. All of the comments in the last callback
+     * apply to this one too.
+     */
     private final BluetoothGattCallback bluetoothGattCallback2 = new BluetoothGattCallback() {
         /**
          * Instructions for what to do when connection state changes
@@ -530,8 +575,7 @@ public class BluetoothLeService extends Service {
          * @param status         if the read was successful or not
          */
         @Override
-        public void onCharacteristicRead(BluetoothGatt gett,
-                                         BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicRead(BluetoothGatt gett, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(DATA_AVAILABLE, characteristic);
             }
@@ -545,8 +589,7 @@ public class BluetoothLeService extends Service {
          * @param bluetoothGattCharacteristic the characteristic that was changed
          */
         @Override
-        public void onCharacteristicChanged(BluetoothGatt bluetoothGatt,
-                                            BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+        public void onCharacteristicChanged(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic bluetoothGattCharacteristic) {
             broadcastUpdate(DATA_AVAILABLE, bluetoothGattCharacteristic);
             if (bluetoothGattCharacteristic.getUuid().toString().equals(fff3.toString())) {
                 DataReceiver.receiveWristStreamTwo(bluetoothGattCharacteristic.getValue());
@@ -560,8 +603,7 @@ public class BluetoothLeService extends Service {
         }
 
         @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt,
-                                          BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             writeLock.release();
         }
 
@@ -573,8 +615,7 @@ public class BluetoothLeService extends Service {
          * @param status     whether the write was a success
          */
         @Override
-        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,
-                                      int status) {
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             //since we started the notifications, we also start the information stream
 
 
