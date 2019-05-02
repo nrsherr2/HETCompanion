@@ -67,12 +67,17 @@ public class DashboardActivity extends AppCompatActivity {
     private final BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             final String action = intent.getAction();
+            //if connected, nbd
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 System.out.println("Dashboard received \"connected\"");
-            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) { //if
+                // disconnected, nbd
                 System.out.println("Dashboard received \"disconnected\"");
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                // depending on which device you discovered services for, start listening for
+                // attributes on that device
                 System.out.println("Services Discovered. Starting data streams...");
                 if (intent.getStringExtra(BluetoothLeService.EXTRA_DATA).equals(deviceName1)) {
                     listenForAttributes(1);
@@ -80,6 +85,9 @@ public class DashboardActivity extends AppCompatActivity {
                     listenForAttributes(2);
                 }
             } else if (BluetoothLeService.DATA_AVAILABLE.equals(action)) {
+                //in the case that we still have to connect to another device, try connecting to
+                // it. We've ensured that we've connected to the first device which makes
+                // connection's job easier.
                 if (deviceAddress2 != null && !bleService.secondDeviceConnected() &&
                         !attemptedSecondConnection) {
                     displayData("Successfully connected to first device. Connecting to second " +
@@ -88,9 +96,11 @@ public class DashboardActivity extends AppCompatActivity {
                     attemptedSecondConnection = true;
                 } else if (deviceAddress2 != null && bleService.secondDeviceConnected() &&
                         !gottenDataBefore) {
+                    //now that we've received data from the second device, we're all set up
                     displayData("Successfully connected to second device.");
                     gottenDataBefore = true;
                 } else if (deviceAddress2 == null && !gottenDataBefore) {
+                    //there is no second device, so we're all set up
                     displayData("Successfully connected to first device.");
                     gottenDataBefore = true;
                 }
@@ -98,6 +108,12 @@ public class DashboardActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * calls the connect method in the service based on which device number. I used this for
+     * debugging and it works ever so slightly better than just calling the method.
+     *
+     * @param i the device number you're connecting to
+     */
     private void connectDevice(int i) {
         if (i == 1) {
             bleService.connect(deviceAddress1, i);
@@ -107,8 +123,8 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     /**
-     * For now, just prints the data out. We can rename the method and make it change behaviors
-     * when we integrate it into dev.
+     * take the string we were given and display it as a toast. You can really use this for
+     * whatever debugging, but this displays it on the screen to make the user feel more "techy"
      *
      * @param data the information we want to display.
      */
@@ -193,6 +209,12 @@ public class DashboardActivity extends AppCompatActivity {
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
     }
 
+    /**
+     * Create the options menu
+     *
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -209,7 +231,7 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     /**
-     * What happens when you go to a different activity and switch back to this one
+     * What happens when pause the app and return to this activity.
      */
     @Override
     protected void onResume() {
@@ -223,6 +245,7 @@ public class DashboardActivity extends AppCompatActivity {
 
     /**
      * methods that are called to ensure no memory leaks happen
+     * just generally resets everything
      */
     @Override
     protected void onDestroy() {
@@ -256,12 +279,14 @@ public class DashboardActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // The ID of the menu item clicked
         int id = item.getItemId();
+        //go to the status page
         if (id == R.id.action_status) {
             Intent intent = new Intent(this, StatusActivity.class);
             startActivity(intent);
             System.out.println("Switched to status activity");
             return true;
         }
+        //go to the reconnect page
         if (id == R.id.action_reconnect) {
             Intent intent = new Intent(this, BtButtonActivity.class);
             bleService.disconnect();
