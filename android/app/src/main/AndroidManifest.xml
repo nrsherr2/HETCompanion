@@ -31,7 +31,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".bluetooth.DeviceScanActivity" />
         <activity android:name=".bluetooth.BtButtonActivity" />
         <activity android:name=".DashboardActivity" />
         <activity android:name=".StatusActivity"/>

@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,7 +19,6 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,11 +29,19 @@ import edu.ncsu.csc.assist.bluetooth.BtButtonActivity;
 
 import static com.google.android.gms.auth.api.credentials.CredentialPickerConfig.Prompt.SIGN_IN;
 
+/**
+ * This is the main activity class. This activity runs every time the user starts the app after
+ * closing it.
+ * While this isn't really considered the "main" activity of this program (that belongs to the
+ * dashboard), this activity makes sure that all of the important things needed for the
+ * application to work are set up, such as permissions for bluetooth, and Google sign-in.
+ */
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
     // int id of current tab id
     private int currentTab;
 
+    // used for signing into the app
     private static final int SIGN_IN_CODE = 9001;
     private GoogleApiClient mGoogleApiClient;
     private GoogleSignInAccount account;
@@ -49,53 +54,27 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     // used for enabling location services
     private static int REQUEST_ENABLE_GPS = 6275;
 
-    private static int BLUETOOTH_BUTTON_CODE = 6273;
 
     // reference to current fragment if we need it
     private Fragment fragment;
-    // on click listener for bottom nav
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
-        @Override
-        public boolean onNavigationItemSelected(MenuItem item) {
-            if (currentTab == item.getItemId()) {
-                return true;
-            }
-
-            switch (item.getItemId()) {
-                case R.id.home_tab:
-                    System.out.println("HOME_TAB");
-                    fragment = new HomeFragment();
-                    break;
-                case R.id.hr_tab:
-                    System.out.println("HR_TAB");
-                    fragment = new HeartRateFragment();
-                    break;
-                case R.id.hrv_tab:
-                    System.out.println("HRV_TAB");
-                    fragment = new HRVFragment();
-                    break;
-                case R.id.o3_tab:
-                    System.out.println("o3_TAB");
-                    fragment = new EnvFragment();
-                    break;
-            }
-            currentTab = item.getItemId();
-            return loadFragment(fragment);
-        }
-
-    };
-
+    /**
+     * This method works behind the scenes getting the application's data ready. The first thing
+     * it does it prepare the Google sign-in by telling the app what information is needed, and
+     * telling Google's servers about our signing in. After setting up the sign-in, it detects if
+     * the device you are using supports BLE. If it does not, then you can't use the app.
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //Set the options sign in to be the default ones
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.server_client_id)).requestEmail().requestProfile().build();
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
+        GoogleSignInOptions gso =
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.server_client_id)).requestEmail().requestProfile().build();
+        mGoogleApiClient =
+                new GoogleApiClient.Builder(this).enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
 
         SignInClientHolder.setClient(mGoogleApiClient);
 
@@ -113,11 +92,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     }
 
+    /**
+     * this method runs whenever the activity is started. this function contains behaviors that
+     * optimize working with the Google API to know exactly what to look for.
+     */
     @Override
     protected void onStart() {
         setContentView(R.layout.signin);
         super.onStart();
-        OptionalPendingResult<GoogleSignInResult> optPenRes = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
+        OptionalPendingResult<GoogleSignInResult> optPenRes =
+                Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
         if (optPenRes.isDone()) {
             account = optPenRes.get().getSignInAccount();
             Log.i(getClass().getCanonicalName(), "Signed in as " + account.getDisplayName());
@@ -128,20 +112,34 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
                     account = googleSignInResult.getSignInAccount();
                     if (googleSignInResult.isSuccess()) {
-                        Log.i(getClass().getCanonicalName(), "Signed in as " + account.getDisplayName());
-                        Log.i(getClass().getCanonicalName(), "Google Client ID: " + account.getId());
+                        Log.i(getClass().getCanonicalName(),
+                                "Signed in as " + account.getDisplayName());
+                        Log.i(getClass().getCanonicalName(),
+                                "Google Client ID: " + account.getId());
                     } else {
-                        Log.e(getClass().getCanonicalName(), "Error logging in: " + googleSignInResult.getStatus().getStatusMessage());
+                        Log.e(getClass().getCanonicalName(), "Error logging in: " +
+                                googleSignInResult.getStatus().getStatusMessage());
                     }
                 }
             });
         }
     }
 
+    /**
+     * This method is required somewhere, so we have to include it
+     *
+     * @param connectionResult the result of the connection
+     */
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
+        System.out.println("connection failed");
     }
 
+    /**
+     * The last method called in the starting of this app, this method makes sure your google
+     * sign-in details work. If they do, then you are directed to the next page. Otherwise, you
+     * are given the sign-in button.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -157,40 +155,46 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
     }
 
+    /**
+     * if something on the screen is clicked, then this method is called
+     *
+     * @param v the object that was clicked.
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.sign_in_button:
+                //go to the google sign in
                 signIn();
                 break;
         }
     }
 
+    /**
+     * pulls up the google sign-in page that you see everywhere on Android.
+     */
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, SIGN_IN_CODE);
     }
 
-    private void initiateDashboard() {
-        setContentView(R.layout.dashboard);
-        BottomNavigationView navigation = findViewById(R.id.main_nav);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        fragment = new HomeFragment();
-        loadFragment(fragment);
-//        Toolbar toolbar = findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-
-    }
-
+    /**
+     * Asks for your permission to use GPS functionality. This is required for using BLE.
+     * If you have already given permission, this is ignored.
+     */
     private void initiateGPS() {
         //make sure location comes up first
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ENABLE_GPS);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ENABLE_GPS);
         }
     }
 
+    /**
+     * Asks for your permission to use BLE. If you have already given permission, sends you to
+     * the next part of the flow, BtButtonActivity.
+     */
     private void initiateBluetooth() {
         initiateGPS();
         //now make sure bluetooth is running and that it is enabled.
@@ -206,43 +210,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     }
 
-    private boolean loadFragment(Fragment fragment) {
-        //switching fragment
-        if (fragment != null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                    fragment).commit();
-            return true;
-        }
-        return false;
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onPointerCaptureChanged(boolean hasCapture) {
-
-    }
-
+    /**
+     * Deals with what happens when you ask for various functions. Mostly just cares about BLE
+     * success and Google Sign-In.
+     * Once you're signed in, you're directed to the BTButtonActivity.
+     *
+     * @param requestCode code [we made this code up] associated with each request.
+     * @param resultCode  the result of that request
+     * @param data        any additional data involved.
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

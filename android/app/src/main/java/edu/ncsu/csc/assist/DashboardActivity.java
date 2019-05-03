@@ -1,7 +1,6 @@
 package edu.ncsu.csc.assist;
 
 
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,6 +11,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -20,6 +20,7 @@ import java.util.UUID;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import edu.ncsu.csc.assist.bluetooth.BluetoothLeService;
+import edu.ncsu.csc.assist.bluetooth.BtButtonActivity;
 
 /**
  * Class that handles the main UI functionality and bluetooth connections
@@ -30,24 +31,14 @@ public class DashboardActivity extends AppCompatActivity {
 
     //the current fragment you're on
     private Fragment fragment;
-
-    /* the constant names for device name and address */
-    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
-    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+    private String deviceName1;
     /* the address of the device */
-    private String mDeviceAddress;
+    private String deviceAddress1;
+    private String deviceName2;
+    private String deviceAddress2;
+    private boolean gottenDataBefore, attemptedSecondConnection;
     /* the service you're calling functions from */
     private BluetoothLeService bleService;
-    /* the characteristic you're getting notifications of */
-    private BluetoothGattCharacteristic notifyCharacteristicChestTwo;
-    private BluetoothGattCharacteristic notifyCharacteristicChestOne;
-    /* UUIDs that represent the characteristics of the BLE device we're interested in */
-    private final UUID fff0 = new UUID(0xfff000001000L, 0x800000805f9b34fbL);
-    private final UUID fff2 = new UUID(0xfff200001000L, 0x800000805f9b34fbL);
-    private final UUID fff5 = new UUID(0xfff500001000L, 0x800000805f9b34fbL);
-    private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
-    private final UUID fff4 = new UUID(0xfff400001000L, 0x800000805f9b34fbL);
-    private final UUID fff1 = new UUID(0x0000fff100001000L, 0x800000805f9b34fbL);
 
     /**
      * Connection to the BLE service that ensures we're keeping information up-to-date
@@ -60,7 +51,8 @@ public class DashboardActivity extends AppCompatActivity {
                 System.out.println("Unable to initialize BLE service");
                 finish();
             }
-            bleService.connect(mDeviceAddress);
+            connectDevice(1);
+            displayData("Connecting to first device…");
         }
 
         @Override
@@ -75,46 +67,91 @@ public class DashboardActivity extends AppCompatActivity {
     private final BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             final String action = intent.getAction();
+            //if connected, nbd
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 System.out.println("Dashboard received \"connected\"");
-            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) { //if
+                // disconnected, nbd
                 System.out.println("Dashboard received \"disconnected\"");
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                System.out.println("Services Discovered. Finding Characteristics...");
-                listenForAttributes();
+                // depending on which device you discovered services for, start listening for
+                // attributes on that device
+                System.out.println("Services Discovered. Starting data streams...");
+                if (intent.getStringExtra(BluetoothLeService.EXTRA_DATA).equals(deviceName1)) {
+                    listenForAttributes(1);
+                } else {
+                    listenForAttributes(2);
+                }
             } else if (BluetoothLeService.DATA_AVAILABLE.equals(action)) {
-                //System.out.print("Data Available: ");
-                //displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                //in the case that we still have to connect to another device, try connecting to
+                // it. We've ensured that we've connected to the first device which makes
+                // connection's job easier.
+                if (deviceAddress2 != null && !bleService.secondDeviceConnected() &&
+                        !attemptedSecondConnection) {
+                    displayData("Successfully connected to first device. Connecting to second " +
+                            "device…");
+                    connectDevice(2);
+                    attemptedSecondConnection = true;
+                } else if (deviceAddress2 != null && bleService.secondDeviceConnected() &&
+                        !gottenDataBefore) {
+                    //now that we've received data from the second device, we're all set up
+                    displayData("Successfully connected to second device.");
+                    gottenDataBefore = true;
+                } else if (deviceAddress2 == null && !gottenDataBefore) {
+                    //there is no second device, so we're all set up
+                    displayData("Successfully connected to first device.");
+                    gottenDataBefore = true;
+                }
             }
         }
     };
 
     /**
-     * For now, just prints the data out. We can rename the method and make it change behaviors
-     * when we integrate it into dev.
+     * calls the connect method in the service based on which device number. I used this for
+     * debugging and it works ever so slightly better than just calling the method.
+     *
+     * @param i the device number you're connecting to
+     */
+    private void connectDevice(int i) {
+        if (i == 1) {
+            bleService.connect(deviceAddress1, i);
+        } else {
+            bleService.connect(deviceAddress2, i);
+        }
+    }
+
+    /**
+     * take the string we were given and display it as a toast. You can really use this for
+     * whatever debugging, but this displays it on the screen to make the user feel more "techy"
      *
      * @param data the information we want to display.
      */
     private void displayData(String data) {
-        System.out.println(data);
+        Toast.makeText(this, data, Toast.LENGTH_SHORT).show();
     }
 
     /**
      * calls the necessary methods for enabling information streaming
+     *
+     * @param deviceNum 1 or 2, depending on which device you are setting up notifications for
      */
-    private void listenForAttributes() {
-        notifyCharacteristicChestTwo = bleService.findAndSetNotify(fff0, fff3);
-        notifyCharacteristicChestOne = bleService.findAndSetNotify(fff0, fff4);
-        notifyCharacteristicChestOne = bleService.findAndSetNotify(fff0, fff2);
-        notifyCharacteristicChestOne = bleService.findAndSetNotify(fff0, fff5);
+    private void listenForAttributes(int deviceNum) {
 
-        if (notifyCharacteristicChestTwo == null) {
-            System.out.println("could not set up notifications on fff3.");
+        if (bleService.findAndSetNotify(fff0, fff2, deviceNum) == null) {
+            System.out.println("could not set up notifications on fff2");
         }
-        if (notifyCharacteristicChestOne == null) {
-            System.out.println("could not set up notifications on fff4.");
+        if (bleService.findAndSetNotify(fff0, fff3, deviceNum) == null) {
+            System.out.println("could not set up notifications on fff3");
         }
+        if (bleService.findAndSetNotify(fff0, fff4, deviceNum) == null) {
+            System.out.println("could not set up notifications on fff4");
+        }
+        if (bleService.findAndSetNotify(fff0, fff5, deviceNum) == null) {
+            System.out.println("could not set up notifications on fff5");
+        }
+
     }
 
     /**
@@ -159,16 +196,25 @@ public class DashboardActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        gottenDataBefore = attemptedSecondConnection = false;
         super.onCreate(savedInstanceState);
-        System.out.println("initiating dashboard");
         final Intent intent = getIntent();
-        String mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
-        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-
+        deviceName1 = intent.getStringExtra(EXTRAS_DEVICE_NAME_ONE);
+        deviceAddress1 = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_ONE);
+        if (!intent.getStringExtra(EXTRAS_DEVICE_NAME_TWO).equals("null")) {
+            deviceName2 = intent.getStringExtra(EXTRAS_DEVICE_NAME_TWO);
+            deviceAddress2 = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_TWO);
+        }
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
     }
 
+    /**
+     * Create the options menu
+     *
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -185,20 +231,21 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     /**
-     * What happens when you go to a different activity and switch back to this one
+     * What happens when pause the app and return to this activity.
      */
     @Override
     protected void onResume() {
         super.onResume();
         registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
         if (bleService != null) {
-            System.out.println("Connect request result: " + bleService.connect(mDeviceAddress));
+            System.out.println("Connect request result: " + bleService.connect(deviceAddress1, 1));
         }
     }
 
 
     /**
      * methods that are called to ensure no memory leaks happen
+     * just generally resets everything
      */
     @Override
     protected void onDestroy() {
@@ -207,6 +254,7 @@ public class DashboardActivity extends AppCompatActivity {
         bleService.disconnect();
         unbindService(serviceConnection);
         bleService = null;
+        gottenDataBefore = false;
     }
 
     /**
@@ -231,10 +279,19 @@ public class DashboardActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // The ID of the menu item clicked
         int id = item.getItemId();
+        //go to the status page
         if (id == R.id.action_status) {
             Intent intent = new Intent(this, StatusActivity.class);
             startActivity(intent);
             System.out.println("Switched to status activity");
+            return true;
+        }
+        //go to the reconnect page
+        if (id == R.id.action_reconnect) {
+            Intent intent = new Intent(this, BtButtonActivity.class);
+            bleService.disconnect();
+            bleService.close();
+            startActivity(intent);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -268,4 +325,20 @@ public class DashboardActivity extends AppCompatActivity {
         intentFilter.addAction(BluetoothLeService.DATA_AVAILABLE);
         return intentFilter;
     }
+
+
+    /* UUIDs that represent the characteristics of the BLE device we're interested in */
+    private final UUID fff0 = new UUID(0xfff000001000L, 0x800000805f9b34fbL);
+    private final UUID fff2 = new UUID(0xfff200001000L, 0x800000805f9b34fbL);
+    private final UUID fff5 = new UUID(0xfff500001000L, 0x800000805f9b34fbL);
+    private final UUID fff3 = new UUID(0xfff300001000L, 0x800000805f9b34fbL);
+    private final UUID fff4 = new UUID(0xfff400001000L, 0x800000805f9b34fbL);
+    private final UUID fff1 = new UUID(0x0000fff100001000L, 0x800000805f9b34fbL);
+
+
+    /* the constant names for device name and address */
+    public static final String EXTRAS_DEVICE_NAME_ONE = "DEVICE_NAME_1";
+    public static final String EXTRAS_DEVICE_ADDRESS_ONE = "DEVICE_ADDRESS_1";
+    public static final String EXTRAS_DEVICE_NAME_TWO = "DEVICE_NAME_2";
+    public static final String EXTRAS_DEVICE_ADDRESS_TWO = "DEVICE_ADDRESS_2";
 }
