@@ -124,6 +124,7 @@ public class WristOzoneHandler extends Handler {
             averages.add(averageMoz);
 
             if (wristOzHistory.isEmpty() || wristPozHistory.isEmpty() || wristRozHistory.isEmpty() || wristMozHistory.isEmpty()) {
+                oldestTime += PROCESSED_DATA_MILLI_AVG;
                 break;
             }
             oldestTime = wristMozHistory.get(0).getTimestamp();

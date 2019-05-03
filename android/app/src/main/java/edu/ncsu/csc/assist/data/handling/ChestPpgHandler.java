@@ -63,6 +63,7 @@ public class ChestPpgHandler extends Handler {
             averages.add(average);
 
             if (chestPpgHistory.isEmpty()) {
+                oldestTime += PROCESSED_DATA_MILLI_AVG;
                 break;
             }
             oldestTime = chestPpgHistory.get(0).getTimestamp();

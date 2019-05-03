@@ -90,6 +90,7 @@ public class WristEnvironmentalHandler extends Handler {
             averages.add(averageHumid);
 
             if (wristTemperatureHistory.isEmpty() || wristHumidHistory.isEmpty()) {
+                oldestTime += PROCESSED_DATA_MILLI_AVG;
                 break;
             }
             oldestTime = wristHumidHistory.get(0).getTimestamp();

@@ -9,6 +9,11 @@ import edu.ncsu.csc.assist.data.cloud.DataUploader;
 import edu.ncsu.csc.assist.data.cloud.ProcessedDataStorer;
 import edu.ncsu.csc.assist.data.sqlite.entities.Alert;
 
+/**
+ * DataReceiver is an intermediate class that proceeds DataDistributor in the data flow
+ * Through this class, data is statically passed through the DataReceiver and to the DataDistributor
+ * Before the class is used, however, DataReceiver must be initialized with Context and GoogleApiClient
+ */
 public class DataReceiver{
 
     private static DataStorer rawDataStorer;
@@ -24,7 +29,7 @@ public class DataReceiver{
 
     private final static int LOST_PACKET_ALERT_THRESHOLD = 50;
 
-    //private int CHEST_ONE_PACKET_INDEX = ?;
+    //private int CHEST_ONE_PACKET_INDEX = ?; //Chest_stream_one does not have a packet count
     private static int CHEST_TWO_PACKET_INDEX = 12;
     private static int WRIST_ONE_PACKET_INDEX = 16;
     private static int WRIST_TWO_PACKET_INDEX = 8;

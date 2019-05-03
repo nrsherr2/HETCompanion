@@ -61,6 +61,7 @@ public class WristPpgHandler extends Handler {
             averages.add(average);
 
             if (WristPpgHistory.isEmpty()) {
+                oldestTime += PROCESSED_DATA_MILLI_AVG;
                 break;
             }
             oldestTime = WristPpgHistory.get(0).getTimestamp();

@@ -72,9 +72,10 @@ public class ChestEcgHandler extends Handler {
      * Calculates BPM from the past HISTORY_SIZE milliseconds
      * Process:
      * 1)Find the maximum value of the past X many ecg readings (maxValue)
+     * 2)Find the average value of th ecg data to use as a relative "zero" (avgValue)
      * 2)Set a minimum threshold to determine what readings are indicative of a heart beat (beatThreshold)
-     *      -> some alpha*maxValue,   where alpha = 0 .. 1.0
-     * 3)Record the first reading in every group that surpasses the threshold (reading > beatThreshold)
+     *      -> some (maxValue-avgValue)*alpha+ avgValue;,   where alpha = 0 .. 1.0
+     * 3)Record the first reading in every group that surpasses the threshold (reading > beatThreshold) and is a local maxima
      * 4)Calculate # of groupings * (60000)/HISTORY_SIZE to determine estimate beats per 1 minute.
      *      -> where 60000 is the number of milliseconds in a minute
      *
