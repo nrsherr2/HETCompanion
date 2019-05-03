@@ -107,6 +107,7 @@ public class ChestInertialHandler extends Handler {
             averages.add(averageZ);
 
             if (chestInertialXHistory.isEmpty() || chestInertialYHistory.isEmpty() || chestInertialZHistory.isEmpty()) {
+                oldestTime += PROCESSED_DATA_MILLI_AVG;
                 break;
             }
             oldestTime = chestInertialZHistory.get(0).getTimestamp();

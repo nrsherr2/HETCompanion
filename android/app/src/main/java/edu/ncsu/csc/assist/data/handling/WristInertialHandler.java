@@ -107,6 +107,7 @@ public class WristInertialHandler extends Handler {
             averages.add(averageZ);
 
             if (wristInertialXHistory.isEmpty() || wristInertialYHistory.isEmpty() || wristInertialZHistory.isEmpty()) {
+                oldestTime += PROCESSED_DATA_MILLI_AVG;
                 break;
             }
             oldestTime = wristInertialZHistory.get(0).getTimestamp();

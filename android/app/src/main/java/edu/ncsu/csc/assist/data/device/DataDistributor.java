@@ -16,13 +16,16 @@ import edu.ncsu.csc.assist.data.handling.WristPpgHandler;
 /**
  * Data Package Structure
  * <p>
- * HET Chest: 32 Bytes
- * |ecg1|ecg1|ecg1|ecg2|ecg2|ecg2|ecg3|ecg3|ecg3|ecg4|ecg4|ecg4|ppg1|ppg1|ppg2|ppg2|ppg3|ppg3|ppg4|ppg4|
- * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |pkg#|
+ * HET Chest:
+ * Stream_One: |ecg1|ecg1|ecg1|ecg2|ecg2|ecg2|ecg3|ecg3|ecg3|ecg4|ecg4|ecg4|ppg1|ppg1|ppg2|ppg2|ppg3|ppg3|ppg4|ppg4|
+ * Stream_Two: | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |pkg#|
  * <p>
- * HET Wrist: 28 Bytes
- * | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |ppg1|ppg1|ppg2|ppg2|pkg#|
- * |oz1 |oz1 |poz1|poz1|roz1|roz1|moz1|moz1|pkg#|    |    |    |    |    |    |    |tmp1|tmp1|humid1|humid1|
+ * HET Wrist:
+ * Stream_One: | x1 | x1 | y1 | y1 | z1 | z1 | x2 | x2 | y2 | y2 | z2 | z2 |ppg1|ppg1|ppg2|ppg2|pkg#|
+ * Stream_Two: |oz1 |oz1 |poz1|poz1|roz1|roz1|moz1|moz1|pkg#|    |    |    |    |    |    |    |tmp1|tmp1|humid1|humid1|
+ *
+ * DataDistributor is responsible for creating all handlers and correctly feeding the the correct information
+ * A change the the device package structure would mean that DataDistributor would also need to be changed
  */
 public class DataDistributor {
 

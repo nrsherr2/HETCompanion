@@ -46,6 +46,11 @@ public abstract class Handler {
         return numberOfValues;
     }
 
+    /**
+     * uses bit shifts and bit masks to turn a list of bytes into an integer
+     * @param bytes array of bytes to turn into an int
+     * @return the final int expression of the inputted bytes
+     */
     static int getIntFromBytes(byte... bytes) {
         if(bytes.length == 0){
             return 0;
@@ -94,6 +99,15 @@ public abstract class Handler {
         processedDataBuffer.save(dataPoints);
     }
 
+    /**
+     * Parses a sensor's input data into multiple readings and then into data values.
+     * This method relies on subclasses to implement the parseReading() function
+     *
+     * @param input the entire input of a certain data type
+     * @param timestamp the timestamp that the data was recorded
+     *
+     * @return a list of GenericData values ready to be saved
+     */
     protected List<GenericData> parseInput(byte[] input, long timestamp){
         List<GenericData> dataValues = new ArrayList<>();
         for (int i = 0; i < numberOfValues; i += 1) {
@@ -101,5 +115,13 @@ public abstract class Handler {
         }
         return dataValues;
     }
+
+    /**
+     * Implemented by subclass to parse a single reading into appropriate data types
+     *
+     * @param data one reading's worth of data
+     * @param timestamp the time the data was recorded
+     * @return a list of GenericData objects
+     */
     protected abstract List<GenericData> parseReading(byte[] data, long timestamp);
 }
